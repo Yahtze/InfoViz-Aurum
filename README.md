@@ -21,8 +21,18 @@ Of the 83 countries (out of 108 compared) that raised their clean share, 41 stil
 ```
 prep/build.py      all data processing, in one place
 data/raw/          pinned copies of the source files (do not edit)
-data/processed/    one table per question, made by prep/build.py (do not edit by hand)
+data/processed/    the tables, made by prep/build.py (do not edit by hand)
 ```
+
+## Tables
+
+Two tables cover all six questions. Each chart picks its rows with a filter.
+
+| Table | One row per | Used for |
+|---|---|---|
+| `country_year.csv` | country (and World) × year, 2000–2024 | Q1: `country == "World"` · Q2: `year == 2024 && country != "World"`, then sort by `clean_share_pct` (highest first, blanks last) · Q5 detail view: the selected country |
+| `comparison_2010_2024.csv` | country, the 108 compared | Q3–Q6: the 2010 and 2024 values, the changes, demand growth, and the 2010 mix |
+| `robustness.csv` | setting | the main result for other start years and TWh thresholds |
 
 ## Rebuild the data
 
@@ -43,7 +53,7 @@ The rules (which rows count as countries, which years, how missing values are ha
 - **Which countries:** Q1 uses the World row. Q2 uses every country (221). Q3–Q6 compare 108 countries:
   those with data in both 2010 and 2024 and at least 10 TWh of generation in 2024.
 - **Blank means unknown, not 0.** Q2 has 25 countries with no 2024 clean share (Ukraine is one). Show them as "no data".
-- **The map can't draw 8 of Q2's places** (`on_map` = false in `q2_share_2024.csv`), including Gibraltar,
+- **The map can't draw 8 of Q2's places** (`on_map` = false in `country_year.csv`), including Gibraltar,
   which has one of the lowest shares (0%). Pair the Q2 map with a ranked list.
 - **"Clean" includes nuclear**, and shares are shares of generation, not of demand.
 

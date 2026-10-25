@@ -1,4 +1,4 @@
-"""Build the processed tables for every question from the pinned OWID file.
+"""Build the processed tables from the pinned OWID file.
 
 Run from the repository root:
 
@@ -9,9 +9,9 @@ and then runs checks. It stops with an error if a check fails.
 
 Rules:
 - Countries are rows with a 3-letter iso_code; regions and "World" have none.
-  Kosovo has no code in OWID, so it gets XKX.
-- Years 2000-2024 (2025 is incomplete). Q1 uses the World row, Q2 every country.
-- Q3-Q6 compare countries with data in both 2010 and 2024 and >= 10 TWh generation in 2024 (108 countries).
+  Kosovo has no code in OWID, so it gets XKX. The World row is kept for Q1.
+- Years 2000-2024 (2025 is incomplete).
+- The comparison (Q3-Q6) uses countries with data in both 2010 and 2024 and >= 10 TWh generation in 2024 (108 countries).
 - "Clean" is OWID's "low-carbon" (renewables plus nuclear); "fossil" is coal + gas + oil.
 - Missing values: a blank source TWh becomes 0 only when the other sources add up to total generation;
   a blank source share is then computed as TWh / generation (and stays blank when generation is 0);
@@ -34,9 +34,9 @@ OUT = ROOT / "data" / "processed"
 
 # Analysis settings. Change them only here.
 # robustness.csv shows how the main result moves when they change.
-BACKGROUND_YEARS = (2000, 2024)  # Q1 (2025 has data for only 126 countries)
-START_YEAR, END_YEAR = 2010, 2024  # country comparison (Q3-Q6)
-MIN_GENERATION_TWH = 10  # Q3-Q6 only: generation in END_YEAR
+YEARS = (2000, 2024)  # 2025 has data for only 126 countries
+START_YEAR, END_YEAR = 2010, 2024  # the comparison (Q3-Q6)
+MIN_GENERATION_TWH = 10  # the comparison only: generation in END_YEAR
 
 # Countries that OWID lists without an iso_code. XKX is the code the EU and IMF use for Kosovo.
 # ("Serbia and Montenegro" also has no code, but it has no data after 2005.)
@@ -52,17 +52,18 @@ CLEAN_GROUPS = {
     "other_clean": ["bioenergy", "other_renewables_excluding_bioenergy"],
 }
 
-# OWID column -> short name used in every output file.
+# OWID column -> short name used in the output files.
 # "clean" is OWID's "low-carbon": all renewables plus nuclear.
 MEASURES = {
-    "low_carbon_electricity_share_pct": "clean_share_pct",
-    "low_carbon_electricity_twh": "clean_twh",
-    "fossil_fuels_electricity_twh": "fossil_twh",
     "electricity_generation_twh": "generation_twh",
     "electricity_demand_twh": "demand_twh",
     "electricity_net_imports_twh": "net_imports_twh",
-    **{f"{s}_electricity_share_pct": f"{s}_share_pct" for s in SOURCES},
+    "low_carbon_electricity_share_pct": "clean_share_pct",
+    "low_carbon_electricity_twh": "clean_twh",
+    "fossil_fuels_electricity_share_pct": "fossil_share_pct",
+    "fossil_fuels_electricity_twh": "fossil_twh",
     **{f"{s}_electricity_twh": f"{s}_twh" for s in SOURCES},
+    **{f"{s}_electricity_share_pct": f"{s}_share_pct" for s in SOURCES},
 }
 
 # Expected values for the pinned raw file. Update them if you replace the file.
@@ -105,7 +106,7 @@ def fill_missing_sources(df):
 
 def load():
     df = pd.read_csv(RAW)
-    df = df[df["year"].between(*BACKGROUND_YEARS)]
+    df = df[df["year"].between(*YEARS)]
     df["iso_code"] = df["iso_code"].fillna(df["country"].map(NO_ISO_CODE))
     return fill_missing_sources(df)
 
@@ -115,18 +116,6 @@ def countries_only(df):
     c = df[df["iso_code"].str.fullmatch(r"[A-Z]{3}", na=False)].copy()
     c["iso_numeric"] = c["iso_code"].map(iso_numeric)
     return c
-
-
-def mix_columns(rows):
-    """Source mix in TWh and share, in the same columns for the world and for countries."""
-    out = rows[["year"]].copy()
-    for s in SOURCES:
-        out[f"{s}_twh"] = rows[f"{s}_electricity_twh"]
-        out[f"{s}_share_pct"] = rows[f"{s}_electricity_share_pct"]
-    out["generation_twh"] = rows["electricity_generation_twh"]
-    out["clean_share_pct"] = rows["low_carbon_electricity_share_pct"]
-    out["fossil_twh"] = rows["fossil_fuels_electricity_twh"]
-    return out
 
 
 def snapshot(c, year):
@@ -160,85 +149,61 @@ def compare(c, start=START_YEAR, end=END_YEAR, min_twh=MIN_GENERATION_TWH):
     return t.rename_axis("iso3").reset_index()
 
 
-def q1_world_mix(df):
-    world = df[df["country"] == "World"]
-    return mix_columns(world)
-
-
-def q2_share_2024(c, comparison, map_ids):
-    # Every country, not only the comparison set: the map shows the whole world.
-    # Countries without data keep an empty value, so the map can show "no data".
-    rows = c[c["year"] == END_YEAR]
+def country_year(df, c, comparison, map_ids):
+    """Every country and the World, every year: Q1 (World), Q2 (2024), and the Q5 detail view."""
+    world = df[df["country"] == "World"].copy()
+    rows = pd.concat([world, c])
     out = pd.DataFrame({
         "iso3": rows["iso_code"],
         "iso_numeric": rows["iso_numeric"],
         "country": rows["country"],
-        "clean_share_pct": rows["low_carbon_electricity_share_pct"],
-        "generation_twh": rows["electricity_generation_twh"],
-        "in_comparison_set": rows["iso_code"].isin(comparison["iso3"]),
+        "year": rows["year"],
         # False for places the map cannot draw (e.g. Gibraltar): show them in a list next to the map.
         "on_map": rows["iso_numeric"].isin(map_ids),
+        "in_comparison_set": rows["iso_code"].isin(comparison["iso3"]),
     })
-    return out.sort_values("clean_share_pct", ascending=False, na_position="last")
+    out = out.join(rows[list(MEASURES)].rename(columns=MEASURES))
+    # World first, then countries A-Z.
+    return (out.assign(not_world=out["country"] != "World")
+               .sort_values(["not_world", "country", "year"])
+               .drop(columns="not_world"))
 
 
-def q3_share_change(t):
-    out = t[["iso3", "iso_numeric", "country",
-             f"clean_share_pct_{START_YEAR}", f"clean_share_pct_{END_YEAR}", "d_clean_share_pp"]]
-    out = out.sort_values("d_clean_share_pp", ascending=False)
-    out.insert(0, "rank", range(1, len(out) + 1))
-    return out
-
-
-def q4_clean_sources(t):
-    """Two candidate measures of which clean sources drove the change (M1 feedback point 1).
-
-    d_<source>_share_pp: change in that source's share, in percentage points.
-        These add up exactly to d_clean_share_pp.
-    d_<source>_twh: change in that source's generation, in TWh.
-    """
-    out = t[["iso3", "country", "d_clean_share_pp"]].copy()
-    for s in CLEAN:
-        out[f"d_{s}_share_pp"] = t[f"{s}_share_pct_{END_YEAR}"] - t[f"{s}_share_pct_{START_YEAR}"]
-    for s in CLEAN:
-        out[f"d_{s}_twh"] = t[f"{s}_twh_{END_YEAR}"] - t[f"{s}_twh_{START_YEAR}"]
-    for group, members in CLEAN_GROUPS.items():
-        out[f"d_{group}_share_pp"] = out[[f"d_{s}_share_pp" for s in members]].sum(axis=1)
-        out[f"d_{group}_twh"] = out[[f"d_{s}_twh" for s in members]].sum(axis=1)
-    out = out.sort_values("d_clean_share_pp", ascending=False)
-    out.insert(0, "rank", range(1, len(out) + 1))
-    return out
-
-
-def q5_share_vs_fossil(t):
-    return t[["iso3", "iso_numeric", "country", "d_clean_share_pp",
-              f"fossil_twh_{START_YEAR}", f"fossil_twh_{END_YEAR}", "d_fossil_twh", "d_fossil_pct",
-              f"generation_twh_{END_YEAR}", "outcome"]]
-
-
-def q5_mix_by_year(c, t):
-    # Detail view: selecting a country in the scatterplot shows its mix over time.
-    rows = c[c["iso_code"].isin(t["iso3"])]
-    out = mix_columns(rows)
-    out.insert(0, "country", rows["country"])
-    out.insert(0, "iso3", rows["iso_code"])
-    return out
-
-
-def q6_demand_and_mix(t):
+def comparison_table(t):
+    """The 108 compared countries, one row each, ranked by change in clean share (Q3-Q6)."""
     s, e = START_YEAR, END_YEAR
-    out = t[["iso3", "country", "outcome"]].copy()
+    out = t[["iso3", "iso_numeric", "country", "outcome"]].copy()
     out["fossil_reduced"] = t["d_fossil_twh"] < 0
+
+    # Q3, Q5: change in clean share and in fossil generation.
+    for col in [f"clean_share_pct_{s}", f"clean_share_pct_{e}", "d_clean_share_pp",
+                f"fossil_twh_{s}", f"fossil_twh_{e}", "d_fossil_twh", "d_fossil_pct"]:
+        out[col] = t[col]
+
+    # Q4: which clean sources drove the change, in two candidate measures (M1 feedback point 1).
+    # d_<source>_share_pp adds up exactly to d_clean_share_pp; d_<source>_twh is the change in generation.
+    for src in CLEAN:
+        out[f"d_{src}_share_pp"] = t[f"{src}_share_pct_{e}"] - t[f"{src}_share_pct_{s}"]
+    for src in CLEAN:
+        out[f"d_{src}_twh"] = t[f"{src}_twh_{e}"] - t[f"{src}_twh_{s}"]
+    for group, members in CLEAN_GROUPS.items():
+        out[f"d_{group}_share_pp"] = out[[f"d_{m}_share_pp" for m in members]].sum(axis=1)
+        out[f"d_{group}_twh"] = out[[f"d_{m}_twh" for m in members]].sum(axis=1)
+
+    # Q6: demand growth and the starting mix.
+    # Demand = generation + net imports, so the two differ for importers and exporters.
+    out[f"generation_twh_{e}"] = t[f"generation_twh_{e}"]
+    out["generation_growth_pct"] = growth_pct(t[f"generation_twh_{e}"], t[f"generation_twh_{s}"])
     out[f"demand_twh_{s}"] = t[f"demand_twh_{s}"]
     out[f"demand_twh_{e}"] = t[f"demand_twh_{e}"]
     out["demand_growth_pct"] = growth_pct(t[f"demand_twh_{e}"], t[f"demand_twh_{s}"])
-    # Demand = generation + net imports, so the two differ for importers and exporters.
-    out["generation_growth_pct"] = growth_pct(t[f"generation_twh_{e}"], t[f"generation_twh_{s}"])
     demand_end = t[f"demand_twh_{e}"].where(t[f"demand_twh_{e}"] > 0)
     out[f"net_imports_share_of_demand_pct_{e}"] = 100 * t[f"net_imports_twh_{e}"] / demand_end
-    # Initial mix: share of each source in the start year.
     for src in SOURCES:
         out[f"{src}_share_pct_{s}"] = t[f"{src}_share_pct_{s}"]
+
+    out = out.sort_values("d_clean_share_pp", ascending=False)
+    out.insert(0, "rank", range(1, len(out) + 1))
     return out
 
 
@@ -269,8 +234,9 @@ def close(a, b, tol):
 def check(c, tables, comparison, map_ids):
     assert not c.duplicated(["iso_code", "year"]).any(), "Duplicate country-year rows"
 
-    world = tables["q1_world_mix"]
-    years = list(range(BACKGROUND_YEARS[0], BACKGROUND_YEARS[1] + 1))
+    cy = tables["country_year"]
+    world = cy[cy["country"] == "World"]
+    years = list(range(YEARS[0], YEARS[1] + 1))
     assert world["year"].tolist() == years, "World is missing years"
     assert close(world[[f"{s}_twh" for s in SOURCES]].sum(axis=1), world["generation_twh"], 0.01), \
         "World: the sources do not add up to total generation"
@@ -284,11 +250,11 @@ def check(c, tables, comparison, map_ids):
         assert close(comparison[[f"{s}_twh_{y}" for s in CLEAN]].sum(axis=1), comparison[f"clean_twh_{y}"], 0.01), \
             f"{y}: clean sources do not add up to clean generation"
 
-    q4 = tables["q4_clean_sources"].set_index("iso3")
-    base = comparison.set_index("iso3").loc[q4.index]
-    assert close(q4[[f"d_{s}_share_pp" for s in CLEAN]].sum(axis=1), q4["d_clean_share_pp"], 0.01), \
+    cmp = tables["comparison_2010_2024"].set_index("iso3")
+    base = comparison.set_index("iso3").loc[cmp.index]
+    assert close(cmp[[f"d_{s}_share_pp" for s in CLEAN]].sum(axis=1), cmp["d_clean_share_pp"], 0.01), \
         "Q4: source changes (pp) do not add up to the change in clean share"
-    assert close(q4[[f"d_{s}_twh" for s in CLEAN]].sum(axis=1),
+    assert close(cmp[[f"d_{s}_twh" for s in CLEAN]].sum(axis=1),
                  base[f"clean_twh_{END_YEAR}"] - base[f"clean_twh_{START_YEAR}"], 0.01), \
         "Q4: source changes (TWh) do not add up to the change in clean generation"
 
@@ -323,13 +289,8 @@ def main():
     map_ids = atlas_ids()
 
     tables = {
-        "q1_world_mix": q1_world_mix(df),
-        "q2_share_2024": q2_share_2024(c, comparison, map_ids),
-        "q3_share_change": q3_share_change(comparison),
-        "q4_clean_sources": q4_clean_sources(comparison),
-        "q5_share_vs_fossil": q5_share_vs_fossil(comparison),
-        "q5_mix_by_year": q5_mix_by_year(c, comparison),
-        "q6_demand_and_mix": q6_demand_and_mix(comparison),
+        "country_year": country_year(df, c, comparison, map_ids),
+        "comparison_2010_2024": comparison_table(comparison),
         "robustness": robustness(c),
     }
 
@@ -338,10 +299,10 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, table in tables.items():
         write(table, OUT / f"{name}.csv")
-        print(f"{name}.csv: {len(table)} rows")
-    q2 = tables["q2_share_2024"]
-    off_map = q2.loc[~q2["on_map"], "country"].tolist()
-    print(f"Q2 rows the map cannot draw ({len(off_map)}): {', '.join(off_map)}")
+        print(f"{name}.csv: {len(table)} rows, {table.shape[1]} columns")
+    cy = tables["country_year"]
+    off_map = cy.loc[(cy["year"] == END_YEAR) & ~cy["on_map"] & (cy["country"] != "World"), "country"].tolist()
+    print(f"{END_YEAR} countries the map cannot draw ({len(off_map)}): {', '.join(off_map)}")
     print(f"Checks passed. {found['share_up_fossil_up']} of {found['share_up']} countries "
           f"raised their clean share but generated more fossil electricity "
           f"({found['countries']} countries compared, {START_YEAR}-{END_YEAR}).")
