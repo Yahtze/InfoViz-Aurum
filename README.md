@@ -21,7 +21,8 @@ Of the 83 countries (out of 108 compared) that raised their clean share, 41 stil
 ```
 prep/build.py      source-data processing and checks
 sketches/          configurable Matplotlib EDA views (not the final D3 app)
-tests/             data-selection, configuration, and map-decoding tests
+tests/             data-selection, configuration, map, and report tests
+reports/           sample tables and feature dictionary
 data/raw/          pinned copies of the source files (do not edit)
 data/processed/    the tables, made by prep/build.py (do not edit by hand)
 outputs/sketches/  generated figures, CSVs, and run settings (ignored)
@@ -126,6 +127,17 @@ threshold/category experiments. Generated outputs are not versioned.
 uv run python -m unittest discover -s tests -v
 ```
 
+## Sample Tables and Feature Dictionary
+
+[CSV sample tables](reports/tables/) cover Q2, Q3, and Q4 only, including source
+breakdowns in both pp and TWh. The [feature dictionary](reports/tables/feature_dictionary.csv)
+documents the processed fields used for these questions. These tables use the preparation
+baseline, not custom sketch settings. Rebuild them after rebuilding the processed tables:
+
+```sh
+uv run python -m prep.report
+```
+
 ## Data notes for sketching
 
 - **Which countries:** Q1 uses the World row. Q2 uses every country (221). Q3–Q6 compare 108 countries:
@@ -151,4 +163,3 @@ Course policy allows generative AI if we disclose which parts it produced. We ar
 |---|---|---|---|
 | 2026-10-18 | Claude (Anthropic), Codex (OpenAI) | First draft and review of the M1 proposal text | Yusuke checked each section; Yathin expanded and submitted it |
 | 2026-10-25 | Claude Code (Anthropic), Codex (OpenAI) | Repository setup and `prep/build.py`; Codex reviewed them | Reviewed in a pull request before merging; the script re-checks the main numbers on every run |
-| 2026-10-27 | AI coding assistant (Pi) | Six Matplotlib EDA views, uv setup, and tests | Data rebuild checks, automated tests, and visual inspection; team review pending |
