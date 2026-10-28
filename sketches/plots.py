@@ -79,11 +79,11 @@ def share_map(snapshot, settings):
         ScalarMappable(norm=norm, cmap=cmap), ax=ax, orientation="horizontal",
         fraction=0.04, pad=0.04, label="Clean Share of Electricity Generation (%)",
     )
-    ax.legend(handles=[Patch(facecolor=MISSING, label="No matched data")], loc="lower left", frameon=False)
+    ax.legend(handles=[Patch(facecolor=MISSING, label="No Matched Data")], loc="lower left", frameon=False)
     unknown = int(snapshot["clean_share_pct"].isna().sum())
     off_map = snapshot.loc[~snapshot["on_map"], "country"].sort_values().tolist()
     return finish(
-        fig, f"Where Is Electricity Cleaner? · {settings.snapshot_year}",
+        fig, f"Domestic Electricity Generation: Clean Share by Country · {settings.snapshot_year}",
         f"Source: OWID, pinned data. {len(snapshot)} countries and territories; "
         f"{unknown} have no clean-share value. Clean = renewables + nuclear. "
         "Equirectangular map; Antarctica omitted. No generation threshold. "
@@ -108,7 +108,7 @@ def share_ranking(snapshot, settings):
         ax.set(title=title, xlabel="Clean Share (%)", xlim=(0, 116), xticks=[0, 25, 50, 75, 100])
         x_grid(ax)
     return finish(
-        fig, f"Which Countries Have the Highest and Lowest Clean Shares? · {settings.snapshot_year}",
+        fig, f"Domestic Electricity Generation: Highest and Lowest Clean Shares · {settings.snapshot_year}",
         f"Source: OWID. All {len(snapshot)} countries and territories; no generation threshold. "
         f"Up to {settings.top_n} countries per panel. "
         f"{snapshot['clean_share_pct'].isna().sum()} unknown shares are excluded, not treated as zero. "
@@ -136,7 +136,7 @@ def change_bars(comparison, settings):
         ax.set(title=title, xlabel="Change in Clean Share (Percentage Points)", xlim=(-span, span))
         x_grid(ax)
     return finish(
-        fig, f"Who Gained or Lost the Most Clean Share? · {settings.start_year}–{settings.end_year}",
+        fig, f"Domestic Electricity Generation: Largest Clean-Share Changes · {settings.start_year}–{settings.end_year}",
         "Source: OWID. " + selection_note(settings, len(comparison))
         + " Only positive gains and negative losses appear.",
     )
@@ -168,7 +168,7 @@ def endpoint_comparison(comparison, settings):
         ax.set(title=title, xlabel="Clean Share (%)", xlim=(-3, 103), xticks=[0, 25, 50, 75, 100])
         x_grid(ax)
     return finish(
-        fig, f"Where Did Those Countries Start and Finish? · {settings.start_year}–{settings.end_year}",
+        fig, f"Domestic Electricity Generation: Clean Shares at Start and End · {settings.start_year}–{settings.end_year}",
         "Source: OWID. " + selection_note(settings, len(comparison))
         + " Open circle = start; filled diamond = end. Lines connect endpoints, not annual trends.",
     )
@@ -183,16 +183,17 @@ def source_breakdown(comparison, settings, unit):
     else:
         positive, negative = np.zeros(len(table)), np.zeros(len(table))
         y = np.arange(len(table))
+        handles = []
         for group in settings.groups:
             values = table[group.label].to_numpy()
             left = np.where(values >= 0, positive, negative)
-            ax.barh(y, values, left=left, color=group.color, height=0.65, label=group.label)
+            handles.append(ax.barh(y, values, left=left, color=group.color, height=0.65, label=group.label.title()))
             positive += np.maximum(values, 0)
             negative += np.minimum(values, 0)
-        ax.scatter(table["total"], y, color="#222222", marker="D", s=26, zorder=5, label="Net clean change")
+        handles.append(ax.scatter(table["total"], y, color="#222222", marker="D", s=26, zorder=5, label="Net Clean Change"))
         ax.set_yticks(y, table["country"])
         ax.invert_yaxis()
-        ax.legend(loc="lower left", bbox_to_anchor=(0, 1.02), ncol=min(4, len(settings.groups) + 1), frameon=False, fontsize=9)
+        ax.legend(handles=handles, loc="lower left", bbox_to_anchor=(0, 1.02), ncol=min(6, len(handles)), frameon=False, fontsize=9)
         # Zero-width segments at an extreme create sticky bar edges. Set explicit
         # padding so regrouping cannot clip the net marker at that extreme.
         lower = min(float(negative.min()), float(table["total"].min()), 0)
@@ -205,7 +206,7 @@ def source_breakdown(comparison, settings, unit):
         if unit == "pp" else "Change in Electricity Generation (TWh)",
     )
     x_grid(ax)
-    perspective = "Which Sources Changed the Mix?" if unit == "pp" else "Which Sources Changed Actual Output?"
+    perspective = "Clean-Source Share Changes" if unit == "pp" else "Clean-Source Output Changes"
     note = (
         "Source: OWID. " + selection_note(settings, len(comparison))
         + " Both source views use the largest clean-share gainers, ranked by percentage-point gain. "
@@ -217,7 +218,6 @@ def source_breakdown(comparison, settings, unit):
         )
     )
     return finish(
-        fig, f"{perspective} · {settings.start_year}–{settings.end_year}",
+        fig, f"Domestic Electricity Generation: {perspective} · {settings.start_year}–{settings.end_year}",
         note,
-        plot_top=0.86 if len(settings.groups) > 3 else 0.90,
     )

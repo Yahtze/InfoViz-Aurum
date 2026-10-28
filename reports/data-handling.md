@@ -10,6 +10,9 @@ with a minimum of 10 TWh generation in 2024. The sketches show
 up to 10 countries per tail. This report reads the preparation baseline tables,
 not custom sketch settings. Custom sketch runs export their own CSVs and settings.
 
+[Tracked six-figure overview montage](../outputs/preview.png). Individual figure files
+and their data exports remain local and ignored under `outputs/sketches/`.
+
 The tables below contain real processed rows, not synthetic examples. They are
 **case samples**, not random or population-weighted samples. Each section states
 the selection rule. Q4 contains all 10 plotted countries. The report displays two
@@ -29,7 +32,9 @@ CSV samples use blank cells for the same unknown values.
 - Clean electricity is nuclear, hydro, wind, solar, bioenergy, and other renewables
   excluding bioenergy. “Clean” is our short name for OWID's low-carbon category.
 - Fossil electricity is coal + gas + oil. These are electricity measures, not total energy use.
-- Shares use electricity **generation**, not demand, as the denominator.
+- All six chart titles state **Domestic Electricity Generation**. These views do not
+  measure all energy use or classify imported electricity by source.
+- Shares use domestic electricity **generation**, not demand, as the denominator.
 - Percentage points (pp) measure share differences: 20% to 30% is +10 pp, not +10% relative growth.
 
 **Filters and Cleaning**
@@ -143,54 +148,51 @@ Local figures: [Changes](../outputs/sketches/q3_2010_2024_changes.png) ·
 
 ## Q4 — Clean Sources Behind the Largest Share Gains
 
-**Question:** Among the largest clean-share gainers, how much change came from
-wind and solar compared with hydro and nuclear?
+**Question:** Among the largest clean-share gainers, how did wind, solar, hydro,
+nuclear, and other clean sources each contribute to share and generation changes?
 
 **Selection:** the top 10 positive clean-share gainers, ranked by pp, from the same
 eligible comparison set. Both views use the same countries and order.
 The TWh view does not reselect countries by absolute-output growth.
 
-**Transformation:** subtract each source's start value from its end value, then sum
-member-source changes in three groups:
-- Wind + solar = wind + solar.
-- Hydro + nuclear = hydro + nuclear.
-- Other clean = bioenergy + other renewables excluding bioenergy.
-
-These groups partition all six clean sources. Fossil sources are not included.
-For pp, the grouped sum equals clean-share change. For TWh, it equals the change
-in clean generation. Each share endpoint has its own total-generation denominator.
+**Transformation:** subtract each source's start value from its end value. Keep Wind,
+Solar, Hydro, and Nuclear separate. Sum bioenergy and other renewables excluding
+bioenergy into Other Clean. Fossil sources are excluded.
+These five components partition all six clean sources. Their sum equals the clean-share
+change in pp or clean-generation change in TWh. Each share endpoint has its own
+total-generation denominator.
 
 ### Sample A — Source Share Changes
 
-| Country | Wind + Solar Change (pp) | Hydro + Nuclear Change (pp) | Other Clean Change (pp) | Net Clean Change (pp) |
-| --- | --- | --- | --- | --- |
-| Denmark | 48.82 | 0.01 | 8.29 | 57.11 |
-| United Kingdom | 31.81 | -0.89 | 10.90 | 41.81 |
-| Netherlands | 41.78 | -0.45 | -0.50 | 40.82 |
-| Finland | 25.59 | 12.52 | -1.02 | 37.09 |
-| Belarus | 1.00 | 34.97 | 0.94 | 36.92 |
-| Ireland | 30.67 | 0.35 | 2.12 | 33.14 |
-| Portugal | 27.78 | 1.30 | 3.10 | 32.18 |
-| United Arab Emirates | 8.67 | 22.92 | 0.12 | 31.71 |
-| Cambodia | 6.91 | 25.14 | -0.51 | 31.54 |
-| Greece | 36.64 | -6.92 | 0.91 | 30.63 |
+| Country | Wind Change (pp) | Solar Change (pp) | Hydro Change (pp) | Nuclear Change (pp) | Other Clean Change (pp) | Net Clean Change (pp) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Denmark | 38.06 | 10.76 | 0.01 | 0.00 | 8.29 | 57.11 |
+| United Kingdom | 26.61 | 5.19 | 1.09 | -1.98 | 10.90 | 41.81 |
+| Netherlands | 23.99 | 17.79 | -0.01 | -0.44 | -0.50 | 40.82 |
+| Finland | 24.45 | 1.14 | 1.30 | 11.22 | -1.02 | 37.09 |
+| Belarus | 0.44 | 0.57 | 0.73 | 34.24 | 0.94 | 36.92 |
+| Ireland | 27.17 | 3.51 | 0.35 | 0.00 | 2.12 | 33.14 |
+| Portugal | 13.17 | 14.61 | 1.30 | 0.00 | 3.10 | 32.18 |
+| United Arab Emirates | 0.11 | 8.56 | 0.00 | 22.92 | 0.12 | 31.71 |
+| Cambodia | 0.00 | 6.91 | 25.14 | 0.00 | -0.51 | 31.54 |
+| Greece | 17.20 | 19.44 | -6.92 | 0.00 | 0.91 | 30.63 |
 
 [Download CSV](tables/q4_source_changes_pp.csv)
 
 ### Sample B — Source Generation Changes
 
-| Country | Wind + Solar Change (TWh) | Hydro + Nuclear Change (TWh) | Other Clean Change (TWh) | Net Clean Change (TWh) |
-| --- | --- | --- | --- | --- |
-| Denmark | 16.37 | 0.00 | 2.47 | 18.84 |
-| United Kingdom | 87.74 | -19.38 | 27.83 | 96.19 |
-| Netherlands | 51.25 | -0.41 | -0.36 | 50.48 |
-| Finland | 21.13 | 11.18 | -0.58 | 31.73 |
-| Belarus | 0.46 | 16.04 | 0.46 | 16.96 |
-| Ireland | 9.83 | 0.17 | 0.69 | 10.69 |
-| Portugal | 12.04 | -1.26 | 1.14 | 11.92 |
-| United Arab Emirates | 15.39 | 40.63 | 0.21 | 56.23 |
-| Cambodia | 1.07 | 4.34 | 0.07 | 5.48 |
-| Greece | 20.94 | -3.89 | 0.52 | 17.57 |
+| Country | Wind Change (TWh) | Solar Change (TWh) | Hydro Change (TWh) | Nuclear Change (TWh) | Other Clean Change (TWh) | Net Clean Change (TWh) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Denmark | 12.60 | 3.77 | 0.00 | 0.00 | 2.47 | 18.84 |
+| United Kingdom | 72.99 | 14.75 | 2.17 | -21.55 | 27.83 | 96.19 |
+| Netherlands | 29.49 | 21.76 | -0.01 | -0.40 | -0.36 | 50.48 |
+| Finland | 20.19 | 0.94 | 1.38 | 9.80 | -0.58 | 31.73 |
+| Belarus | 0.20 | 0.26 | 0.35 | 15.69 | 0.46 | 16.96 |
+| Ireland | 8.74 | 1.09 | 0.17 | 0.00 | 0.69 | 10.69 |
+| Portugal | 5.16 | 6.88 | -1.26 | 0.00 | 1.14 | 11.92 |
+| United Arab Emirates | 0.20 | 15.19 | 0.00 | 40.63 | 0.21 | 56.23 |
+| Cambodia | 0.00 | 1.07 | 4.34 | 0.00 | 0.07 | 5.48 |
+| Greece | 9.84 | 11.10 | -3.89 | 0.00 | 0.52 | 17.57 |
 
 [Download CSV](tables/q4_source_changes_twh.csv)
 
@@ -199,11 +201,12 @@ in clean generation. Each share endpoint has its own total-generation denominato
 Right-hand segments show increases; left-hand segments show declines.
 The diamond marks the **signed sum**, not the edge of the positive stack.
 
-For example, UK wind + solar increases by 87.74 TWh,
-hydro + nuclear changes by -19.38 TWh, and other clean
-increases by 27.83 TWh. Net clean growth is
-96.19 TWh. The positive stack extends beyond the net diamond
-because a declining group offsets part of the growth, not because fossil sources are included.
+For example, UK wind rises by 72.99 TWh and solar by
+14.75 TWh; hydro rises by 2.17 TWh,
+while nuclear declines by 21.55 TWh. Other Clean increases
+by 27.83 TWh. These five source contributions sum to net
+clean growth of 96.19 TWh; the separate values make the nuclear
+decline visible rather than masking it within a broader category.
 
 This is an accounting breakdown, not proof of cause. A source can gain TWh but lose share
 when total generation grows faster. Missing source values cause the sketch calculation
@@ -214,7 +217,7 @@ Local figures: [Source Shares](../outputs/sketches/q4_2010_2024_source_share.png
 
 ## Created and Derived Features
 
-[Feature dictionary](tables/feature_dictionary.csv): **50 stored columns**
+[Feature dictionary](tables/feature_dictionary.csv): **46 stored columns**
 used for Q2–Q4, with units, input fields, and transformation rules.
 It covers the relevant fields in the two processed tables, not unrelated fields.
 Copied/renamed source measures are distinguished from newly derived features.
@@ -230,7 +233,7 @@ Copied/renamed source measures are distinguished from newly derived features.
 | Year-suffixed endpoint measures | Join endpoints by ISO3 | Original units |
 | d_clean_share_pp; source share deltas | End share minus start share | Percentage points |
 | Clean-source TWh deltas | End generation minus start generation | TWh |
-| Grouped source deltas | Sum member-source changes | pp or TWh; keep negative changes |
+| Other Clean deltas | Sum bioenergy and other renewables excluding bioenergy changes | pp or TWh; keep negative changes |
 | rank | Sort eligible countries by clean-share gain | 1-based row rank |
 
 Sketch exports use _start and _end suffixes rather than year suffixes. Their source tables
@@ -251,7 +254,7 @@ Run from the repository root:
 
     uv sync --locked
     uv run python prep/build.py
-    uv run python -m sketches
+    uv run python -m sketches --preview outputs/preview.png
     uv run python -m prep.report
     uv run python -m unittest discover -s tests -v
 
@@ -261,7 +264,7 @@ Run from the repository root:
   Source groups must sum to net change within 0.01 in the relevant unit.
 - prep/report.py checks that documented Q2–Q4 fields exist, checks Q4
   group sums, and rebuilds this report and its CSV tables from processed values.
-- Figure links point to local, ignored files under outputs/. Regenerate figures with
-  the default sketch config to use the baseline links.
+- The overview montage is tracked at outputs/preview.png. Individual figure links
+  point to local, ignored files under outputs/sketches/; regenerate with the default config.
 - Processed values already use four decimals. The report only rounds for display.
   It does not edit raw data or impute missing values.

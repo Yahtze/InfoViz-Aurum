@@ -18,6 +18,7 @@ def parse_args():
     parser.add_argument("--top-n", type=int)
     parser.add_argument("--min-generation-twh", type=float)
     parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--preview", type=Path, help="Also assemble the six PNGs into this PNG path.")
     parser.add_argument("--format", dest="formats", action="append", choices=("png", "svg", "pdf"))
     return parser, parser.parse_args()
 
@@ -28,13 +29,15 @@ def main():
         settings = load_settings(args.config)
         overrides = {
             key: value for key, value in vars(args).items()
-            if key != "config" and value is not None
+            if key not in {"config", "preview"} and value is not None
         }
         if "formats" in overrides:
             overrides["formats"] = tuple(overrides["formats"])
         if "output_dir" in overrides:
             overrides["output_dir"] = ROOT / overrides["output_dir"]
         settings = replace(settings, **overrides)
+        if args.preview and "png" not in settings.formats:
+            raise ValueError("--preview requires PNG output; include --format png")
         countries = load_country_year()
         current = snapshot(countries, settings.snapshot_year)
         compared = comparison(countries, settings)
@@ -71,6 +74,16 @@ def main():
                 plt.close(fig)
             print(name)
 
+        preview_path = None
+        if args.preview:
+            from .preview import save_preview
+
+            preview_path = save_preview(
+                [settings.output_dir / f"{name}.png" for name, _ in views],
+                ROOT / args.preview,
+            )
+            print(f"Saved combined preview to {preview_path}")
+
         tables = {
             f"q2_{settings.snapshot_year}_all_countries": current,
             f"q3_{period}_all_compared": compared,
@@ -84,6 +97,7 @@ def main():
         manifest = {
             "settings": asdict(settings),
             "input": "data/processed/country_year.csv",
+            "preview": str(preview_path) if preview_path else None,
             "snapshot_countries": len(current),
             "snapshot_missing_shares": int(current["clean_share_pct"].isna().sum()),
             "comparison_countries": len(compared),

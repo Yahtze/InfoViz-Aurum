@@ -12,7 +12,7 @@ from prep.report import (
     TOP_N, build_report, build_samples, feature_dictionary, load_tables,
     markdown_table,
 )
-from sketches.data import comparison, extremes, load_country_year
+from sketches.data import comparison, extremes, load_country_year, source_changes
 from sketches.settings import ROOT, load_settings
 
 
@@ -24,7 +24,7 @@ class ReportTests(unittest.TestCase):
 
     def test_dictionary_covers_only_q2_q3_q4_fields(self):
         dictionary = feature_dictionary(self.country_year, self.compared)
-        self.assertEqual(len(dictionary), 50)
+        self.assertEqual(len(dictionary), 46)
         self.assertFalse(dictionary.duplicated(["Table", "Feature"]).any())
         for name, table in (
             ("country_year.csv", self.country_year),
@@ -34,6 +34,7 @@ class ReportTests(unittest.TestCase):
             self.assertTrue(documented.issubset(table.columns))
         self.assertEqual(set(dictionary["Table"]), {"country_year.csv", "comparison_2010_2024.csv"})
         self.assertFalse(dictionary["Feature"].str.contains("demand|outcome|fossil_reduced|growth").any())
+        self.assertFalse(dictionary["Feature"].str.contains("d_wind_solar|d_hydro_nuclear").any())
         self.assertFalse(dictionary.isna().any().any())
 
     def test_dictionary_rejects_missing_required_feature(self):
@@ -73,11 +74,25 @@ class ReportTests(unittest.TestCase):
             with self.subTest(unit=unit):
                 table = self.samples[f"q4_source_changes_{unit}"]
                 self.assertEqual(table["Country"].tolist(), selected["country"].tolist())
-                columns = [f"{group} Change ({suffix})" for group in ("Wind + Solar", "Hydro + Nuclear", "Other Clean")]
+                labels = ["Wind", "Solar", "Hydro", "Nuclear", "Other Clean"]
+                columns = [f"{group} Change ({suffix})" for group in labels]
+                self.assertEqual(columns, table.columns[1:-1].tolist())
                 np.testing.assert_allclose(
                     table[columns].sum(axis=1), table[f"Net Clean Change ({suffix})"], atol=0.001, rtol=0,
                 )
-
+                # The report samples must reproduce the current configured sketch's
+                # source values, not merely preserve an independent total.
+                sketch_table = source_changes(selected, settings, unit).set_index("country")
+                report_table = table.set_index("Country")
+                for label in labels:
+                    np.testing.assert_allclose(
+                        report_table[f"{label} Change ({suffix})"],
+                        sketch_table.loc[report_table.index, label], atol=0.001, rtol=0,
+                    )
+                np.testing.assert_allclose(
+                    report_table[f"Net Clean Change ({suffix})"],
+                    sketch_table.loc[report_table.index, "total"], atol=0.001, rtol=0,
+                )
 
 
     def test_markdown_distinguishes_unknown_zero_and_boolean(self):
@@ -98,6 +113,13 @@ class ReportTests(unittest.TestCase):
             )
             self.assertEqual(re.findall(r"^## (Q[0-9]+) —", text, re.MULTILINE), ["Q2", "Q3", "Q4"])
             self.assertNotIn("robustness.csv", text)
+            self.assertIn("[Tracked six-figure overview montage](../outputs/preview.png)", text)
+            self.assertIn("Individual figure files", text)
+            self.assertNotIn("Wind + Solar Change", text)
+            self.assertNotIn("Hydro + Nuclear Change", text)
+            self.assertIn("Wind Change (TWh)", text)
+            self.assertIn("Solar Change (TWh)", text)
+            self.assertIn("Nuclear Change (TWh)", text)
             for link in re.findall(r"\]\((tables/[^)]+\.csv)\)", text):
                 self.assertTrue((report.parent / link).is_file(), link)
             for filename in expected:

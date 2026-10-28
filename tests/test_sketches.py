@@ -70,7 +70,8 @@ class SketchDataTests(unittest.TestCase):
                 )
         # Nuclear can decline even among the largest clean-share gainers.
         table = source_changes(self.compared, self.settings, "twh").set_index("iso3")
-        self.assertLess(table.loc["GBR", "Hydro + nuclear"], 0)
+        self.assertLess(table.loc["GBR", "Nuclear"], 0)
+        self.assertGreater(table.loc["GBR", "Hydro"], 0)
 
     def test_regrouping_preserves_totals(self):
         groups = tuple(SourceGroup(source, (source,), "#123456") for source in CLEAN_SOURCES)
@@ -136,6 +137,16 @@ class SettingsTests(unittest.TestCase):
     def setUp(self):
         self.settings = load_settings()
 
+    def test_default_groups_keep_major_sources_separate(self):
+        self.assertEqual(
+            [(group.label, group.sources) for group in self.settings.groups],
+            [
+                ("Wind", ("wind",)), ("Solar", ("solar",)),
+                ("Hydro", ("hydro",)), ("Nuclear", ("nuclear",)),
+                ("Other Clean", ("bioenergy", "other_renewables_excluding_bioenergy")),
+            ],
+        )
+
     def test_rejects_invalid_settings(self):
         for change in (
             {"start_year": 2024}, {"top_n": 0}, {"dpi": 0},
@@ -180,33 +191,33 @@ class PlotTests(unittest.TestCase):
         cases = (
             (
                 lambda: share_map(current, self.settings),
-                "Where Is Electricity Cleaner? · 2024",
+                "Domestic Electricity Generation: Clean Share by Country · 2024",
                 ["", ""], ["", "Clean Share of Electricity Generation (%)"],
             ),
             (
                 lambda: share_ranking(current, self.settings),
-                "Which Countries Have the Highest and Lowest Clean Shares? · 2024",
+                "Domestic Electricity Generation: Highest and Lowest Clean Shares · 2024",
                 ["Highest Shares", "Lowest Shares"], ["Clean Share (%)"] * 2,
             ),
             (
                 lambda: change_bars(self.compared, self.settings),
-                "Who Gained or Lost the Most Clean Share? · 2010–2024",
+                "Domestic Electricity Generation: Largest Clean-Share Changes · 2010–2024",
                 ["Largest Increases", "Largest Decreases"],
                 ["Change in Clean Share (Percentage Points)"] * 2,
             ),
             (
                 lambda: endpoint_comparison(self.compared, self.settings),
-                "Where Did Those Countries Start and Finish? · 2010–2024",
+                "Domestic Electricity Generation: Clean Shares at Start and End · 2010–2024",
                 ["Largest Increases", "Largest Decreases"], ["Clean Share (%)"] * 2,
             ),
             (
                 lambda: source_breakdown(self.compared, self.settings, "pp"),
-                "Which Sources Changed the Mix? · 2010–2024",
+                "Domestic Electricity Generation: Clean-Source Share Changes · 2010–2024",
                 [""], ["Change in Share of Total Electricity Generation (Percentage Points)"],
             ),
             (
                 lambda: source_breakdown(self.compared, self.settings, "twh"),
-                "Which Sources Changed Actual Output? · 2010–2024",
+                "Domestic Electricity Generation: Clean-Source Output Changes · 2010–2024",
                 [""], ["Change in Electricity Generation (TWh)"],
             ),
         )
@@ -216,12 +227,51 @@ class PlotTests(unittest.TestCase):
                 try:
                     self.assertEqual(len(fig.texts), 2)  # Title and bottom data note only.
                     self.assertEqual(fig.texts[0].get_text(), title)
+                    self.assertIn("Domestic Electricity Generation", title)
+                    fig.canvas.draw()
+                    bounds = fig.texts[0].get_window_extent(fig.canvas.get_renderer())
+                    self.assertGreaterEqual(bounds.x0, 0)
+                    self.assertLessEqual(bounds.x1, fig.bbox.width)
                     self.assertTrue(fig.texts[1].get_text().startswith("Source: OWID"))
                     self.assertLess(fig.texts[1].get_position()[1], 0.1)
                     self.assertEqual([ax.get_title() for ax in fig.axes], panel_titles)
                     self.assertEqual([ax.get_xlabel() for ax in fig.axes], axis_labels)
                 finally:
                     plt.close(fig)
+
+    def test_legends_use_title_case(self):
+        from sketches.plots import share_map, source_breakdown
+        import matplotlib.pyplot as plt
+
+        current = snapshot(load_country_year(), self.settings.snapshot_year)
+        fig = share_map(current, self.settings)
+        try:
+            self.assertEqual(
+                [text.get_text() for text in fig.axes[0].get_legend().get_texts()],
+                ["No Matched Data"],
+            )
+        finally:
+            plt.close(fig)
+        settings = replace(
+            self.settings,
+            groups=tuple(replace(group, label=group.label.lower()) for group in self.settings.groups),
+        )
+        for unit in ("pp", "twh"):
+            fig = source_breakdown(self.compared, settings, unit)
+            try:
+                labels = [text.get_text() for text in fig.axes[0].get_legend().get_texts()]
+                self.assertEqual(
+                    labels, ["Wind", "Solar", "Hydro", "Nuclear", "Other Clean", "Net Clean Change"],
+                )
+                fig.canvas.draw()
+                renderer = fig.canvas.get_renderer()
+                bounds = fig.axes[0].get_legend().get_window_extent(renderer)
+                self.assertGreaterEqual(bounds.x0, 0)
+                self.assertLessEqual(bounds.x1, fig.bbox.width)
+                self.assertGreaterEqual(bounds.y0, 0)
+                self.assertLessEqual(bounds.y1, fig.bbox.height)
+            finally:
+                plt.close(fig)
 
     def test_regrouped_source_extremes_have_padding(self):
         from sketches.plots import source_breakdown
@@ -267,6 +317,7 @@ class CommandTests(unittest.TestCase):
                     sys.executable, "-m", "sketches", "--snapshot-year", "2020",
                     "--start-year", "2005", "--end-year", "2020", "--top-n", "3",
                     "--format", "png", "--output-dir", str(output),
+                    "--preview", str(Path(directory) / "preview.png"),
                 ],
                 cwd=ROOT, capture_output=True, text=True, check=False,
             )
@@ -275,10 +326,27 @@ class CommandTests(unittest.TestCase):
             self.assertEqual(len(list(output.glob("*.png"))), 6)
             self.assertEqual(len(list(output.glob("*.csv"))), 4)
             self.assertFalse(list(output.glob("*.svg")))
+            self.assertTrue((Path(directory) / "preview.png").is_file())
             manifest = json.loads((output / "manifest_2020_2005_2020.json").read_text())
             self.assertEqual(manifest["settings"]["start_year"], 2005)
             self.assertEqual(manifest["settings"]["end_year"], 2020)
+            self.assertEqual(manifest["preview"], str(Path(directory) / "preview.png"))
             self.assertEqual(len(manifest["source_breakdown_countries"]), 3)
+
+    def test_preview_requires_png_before_writing_output(self):
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
+            output = Path(directory) / "figures"
+            result = subprocess.run(
+                [
+                    sys.executable, "-m", "sketches", "--format", "svg",
+                    "--output-dir", str(output), "--preview", str(Path(directory) / "preview.png"),
+                ],
+                cwd=ROOT, capture_output=True, text=True, check=False,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("--preview requires PNG", result.stderr)
+            self.assertFalse(output.exists())
+            self.assertFalse((Path(directory) / "preview.png").exists())
 
     def test_bad_year_fails_without_output(self):
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:

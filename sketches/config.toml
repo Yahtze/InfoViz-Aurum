@@ -20,16 +20,26 @@ dpi = 160
 # Available sources: nuclear, hydro, solar, wind, bioenergy,
 # other_renewables_excluding_bioenergy.
 [[groups]]
-label = "Wind + solar"
-sources = ["wind", "solar"]
-color = "#D99A24"
+label = "Wind"
+sources = ["wind"]
+color = "#4C78A8"
 
 [[groups]]
-label = "Hydro + nuclear"
-sources = ["hydro", "nuclear"]
-color = "#357BA3"
+label = "Solar"
+sources = ["solar"]
+color = "#E6AC27"
 
 [[groups]]
-label = "Other clean"
+label = "Hydro"
+sources = ["hydro"]
+color = "#3AA7A3"
+
+[[groups]]
+label = "Nuclear"
+sources = ["nuclear"]
+color = "#8D6BB8"
+
+[[groups]]
+label = "Other Clean"
 sources = ["bioenergy", "other_renewables_excluding_bioenergy"]
 color = "#5A9A78"

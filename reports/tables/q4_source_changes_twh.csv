@@ -1,11 +1,11 @@
-Country,Wind + Solar Change (TWh),Hydro + Nuclear Change (TWh),Other Clean Change (TWh),Net Clean Change (TWh)
-Denmark,16.3700,0.0000,2.4700,18.8400
-United Kingdom,87.7400,-19.3800,27.8300,96.1900
-Netherlands,51.2500,-0.4100,-0.3600,50.4800
-Finland,21.1300,11.1800,-0.5800,31.7300
-Belarus,0.4600,16.0400,0.4600,16.9600
-Ireland,9.8300,0.1700,0.6900,10.6900
-Portugal,12.0400,-1.2600,1.1400,11.9200
-United Arab Emirates,15.3900,40.6300,0.2100,56.2300
-Cambodia,1.0700,4.3400,0.0700,5.4800
-Greece,20.9400,-3.8900,0.5200,17.5700
+Country,Wind Change (TWh),Solar Change (TWh),Hydro Change (TWh),Nuclear Change (TWh),Other Clean Change (TWh),Net Clean Change (TWh)
+Denmark,12.6000,3.7700,0.0000,0.0000,2.4700,18.8400
+United Kingdom,72.9900,14.7500,2.1700,-21.5500,27.8300,96.1900
+Netherlands,29.4900,21.7600,-0.0100,-0.4000,-0.3600,50.4800
+Finland,20.1900,0.9400,1.3800,9.8000,-0.5800,31.7300
+Belarus,0.2000,0.2600,0.3500,15.6900,0.4600,16.9600
+Ireland,8.7400,1.0900,0.1700,0.0000,0.6900,10.6900
+Portugal,5.1600,6.8800,-1.2600,0.0000,1.1400,11.9200
+United Arab Emirates,0.2000,15.1900,0.0000,40.6300,0.2100,56.2300
+Cambodia,0.0000,1.0700,4.3400,0.0000,0.0700,5.4800
+Greece,9.8400,11.1000,-3.8900,0.0000,0.5200,17.5700
