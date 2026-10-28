@@ -1,0 +1,35 @@
+# Edit these settings, then run: uv run python -m sketches
+# Years must exist in data/processed/country_year.csv (currently 2000–2024).
+[years]
+snapshot = 2024
+start = 2010
+end = 2024
+
+[selection]
+top_n = 10
+# Applies only to the change and source-breakdown views.
+min_generation_twh = 10
+
+[output]
+# Relative paths are resolved from the repository root.
+directory = "outputs/sketches"
+formats = ["png", "svg"]
+dpi = 160
+
+# Each clean source must appear exactly once. Add/reorder groups as needed.
+# Available sources: nuclear, hydro, solar, wind, bioenergy,
+# other_renewables_excluding_bioenergy.
+[[groups]]
+label = "Wind + solar"
+sources = ["wind", "solar"]
+color = "#D99A24"
+
+[[groups]]
+label = "Hydro + nuclear"
+sources = ["hydro", "nuclear"]
+color = "#357BA3"
+
+[[groups]]
+label = "Other clean"
+sources = ["bioenergy", "other_renewables_excluding_bioenergy"]
+color = "#5A9A78"

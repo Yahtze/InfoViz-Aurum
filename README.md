@@ -19,9 +19,12 @@ Of the 83 countries (out of 108 compared) that raised their clean share, 41 stil
 ## Layout
 
 ```
-prep/build.py      all data processing, in one place
+prep/build.py      source-data processing and checks
+sketches/          configurable Matplotlib EDA views (not the final D3 app)
+tests/             data-selection, configuration, and map-decoding tests
 data/raw/          pinned copies of the source files (do not edit)
 data/processed/    the tables, made by prep/build.py (do not edit by hand)
+outputs/sketches/  generated figures, CSVs, and run settings (ignored)
 ```
 
 ## Tables
@@ -36,19 +39,94 @@ Two tables cover all six questions. Each chart picks its rows with a filter.
 
 ## Rebuild the data
 
-Python 3.11 or later.
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/). Python 3.11 or later is supported;
+`.python-version` selects Python 3.12 for local runs.
 
 ```sh
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python prep/build.py
+uv sync --locked
+uv run python prep/build.py
 ```
+
+`pyproject.toml` declares dependencies; `uv.lock` records the resolved versions.
+Use `uv add <package>` to add a dependency. There is no separate pip requirements file.
 
 The script rebuilds every table in `data/processed/` and checks the numbers. It stops with an error if the main result changes.
 The rules (which rows count as countries, which years, how missing values are handled) are commented at the top of `prep/build.py`.
 
-## Before you sketch
+## Initial EDA sketches
+
+These are static exploratory views, not the final visualization design. The interactive app
+will be built later in D3/JavaScript.
+
+```sh
+uv run python -m sketches
+```
+
+The default run writes six figures, each in PNG and SVG, to `outputs/sketches/`:
+
+| Question | View A | View B |
+|---|---|---|
+| Q2: clean shares in 2024 | World map: geographic patterns | Highest/lowest ranked bars: exact comparisons |
+| Q3: share change, 2010–2024 | Largest gains/losses in percentage points | The same countries' start/end shares: starting mix and final level |
+| Q4: sources behind the largest share gains | Grouped source-share changes in percentage points | The same countries' absolute generation changes in TWh |
+
+Q4 uses diverging stacked bars so declining sources stay visible. Diamonds mark the net
+clean change. Source-share contributions add up to the clean-share change, but this
+accounting breakdown does not prove a causal effect. Both Q4 views use countries selected
+by **clean-share gain**, not by TWh gain.
+
+### Change dates, selections, and categories
+
+Edit **`sketches/config.toml`**. It holds the snapshot year, comparison endpoints, number of
+countries per tail, minimum endpoint generation, source groups/colors, output directory,
+file formats, and resolution. CLI flags override individual settings:
+
+```sh
+uv run python -m sketches --snapshot-year 2020 --start-year 2005 --end-year 2020 --top-n 5
+uv run python -m sketches --min-generation-twh 5 --output-dir outputs/threshold-5
+uv run python -m sketches --config path/to/experiment.toml
+uv run python -m sketches --format png
+```
+
+Output paths in the config and CLI are relative to the repository root unless absolute.
+Date changes recalculate everything from `country_year.csv`; they do not relabel the
+fixed 2010–2024 comparison table. Years must exist in the processed data, currently
+2000–2024. Expanding that range needs a separate update to `prep/build.py` and its checks.
+
+To change categories, edit the `[[groups]]` entries. For example, split hydro and nuclear
+into separate groups. Each of the six clean sources must appear exactly once, so no source
+can be double-counted or silently dropped. The sketch code does not change the definition
+of clean electricity.
+
+Selection rules:
+- Q2 includes all countries and territories, with no generation threshold. Unknown shares
+  remain missing. The map uses longitude/latitude (equirectangular), not equal-area geometry;
+  Antarctica is omitted. Places absent from the map stay in the rankings and CSV.
+- Q3–Q4 require clean-share and fossil-generation data at both endpoints and at least the
+  configured generation threshold in the **end year**, matching the preparation pipeline.
+- Rankings show at most `top_n` countries per tail. Cutoff ties use country name. The high
+  and low snapshot tails do not overlap. Change tails show only positive gains/negative losses.
+- Q4 uses up to `top_n` positive clean-share gainers, in the same order for both measures.
+  Missing source data causes an error instead of being plotted as zero.
+
+Each run also exports the full snapshot, comparison data, both Q4 breakdown tables, and a
+JSON manifest with the settings and selected countries. Filenames include the dates.
+Rerunning the same dates replaces those files; use a separate output directory to preserve
+threshold/category experiments. Generated outputs are not versioned.
+
+### Code and checks
+
+- `sketches/settings.py`: config loading and validation.
+- `sketches/data.py`: reusable selection, rankings, and source-change calculations.
+- `sketches/geography.py`: decode the pinned world-atlas geometry; no GIS install needed.
+- `sketches/plots.py`: rendering only.
+- `sketches/__main__.py`: CLI, exports, and manifest.
+
+```sh
+uv run python -m unittest discover -s tests -v
+```
+
+## Data notes for sketching
 
 - **Which countries:** Q1 uses the World row. Q2 uses every country (221). Q3–Q6 compare 108 countries:
   those with data in both 2010 and 2024 and at least 10 TWh of generation in 2024.
@@ -73,3 +151,4 @@ Course policy allows generative AI if we disclose which parts it produced. We ar
 |---|---|---|---|
 | 2026-10-18 | Claude (Anthropic), Codex (OpenAI) | First draft and review of the M1 proposal text | Yusuke checked each section; Yathin expanded and submitted it |
 | 2026-10-25 | Claude Code (Anthropic), Codex (OpenAI) | Repository setup and `prep/build.py`; Codex reviewed them | Reviewed in a pull request before merging; the script re-checks the main numbers on every run |
+| 2026-10-27 | AI coding assistant (Pi) | Six Matplotlib EDA views, uv setup, and tests | Data rebuild checks, automated tests, and visual inspection; team review pending |
