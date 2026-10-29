@@ -2,7 +2,7 @@
 # Years must exist in data/processed/country_year.csv (currently 2000–2024).
 [years]
 snapshot = 2024
-start = 2010
+start = 2000
 end = 2024
 
 [selection]

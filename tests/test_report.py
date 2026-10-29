@@ -28,11 +28,11 @@ class ReportTests(unittest.TestCase):
         self.assertFalse(dictionary.duplicated(["Table", "Feature"]).any())
         for name, table in (
             ("country_year.csv", self.country_year),
-            ("comparison_2010_2024.csv", self.compared),
+            ("comparison_2000_2024.csv", self.compared),
         ):
             documented = set(dictionary.loc[dictionary["Table"].eq(name), "Feature"])
             self.assertTrue(documented.issubset(table.columns))
-        self.assertEqual(set(dictionary["Table"]), {"country_year.csv", "comparison_2010_2024.csv"})
+        self.assertEqual(set(dictionary["Table"]), {"country_year.csv", "comparison_2000_2024.csv"})
         self.assertFalse(dictionary["Feature"].str.contains("demand|outcome|fossil_reduced|growth").any())
         self.assertFalse(dictionary["Feature"].str.contains("d_wind_solar|d_hydro_nuclear").any())
         self.assertFalse(dictionary.isna().any().any())
@@ -113,6 +113,8 @@ class ReportTests(unittest.TestCase):
             )
             self.assertEqual(re.findall(r"^## (Q[0-9]+) —", text, re.MULTILINE), ["Q2", "Q3", "Q4"])
             self.assertNotIn("robustness.csv", text)
+            self.assertIn("2000–2024 for comparisons", text)
+            self.assertNotIn("2010", text)
             self.assertIn("[Tracked six-figure overview montage](../outputs/preview.png)", text)
             self.assertIn("Individual figure files", text)
             self.assertNotIn("Wind + Solar Change", text)

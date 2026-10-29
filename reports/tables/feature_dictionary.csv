@@ -1,10 +1,10 @@
 Table,Feature,Kind,Unit,Inputs,Transformation or Meaning
 country_year.csv,iso3,Normalized ID,text,iso_code; country,Copy iso_code; assign XKX to Kosovo.
-comparison_2010_2024.csv,iso3,Normalized ID,text,iso_code; country,Copy iso_code; assign XKX to Kosovo.
+comparison_2000_2024.csv,iso3,Normalized ID,text,iso_code; country,Copy iso_code; assign XKX to Kosovo.
 country_year.csv,iso_numeric,Derived ID,text,iso3; pycountry,Look up ISO numeric code; preserve three characters and leading zeros.
-comparison_2010_2024.csv,iso_numeric,Derived ID,text,iso3; pycountry,Look up ISO numeric code; preserve three characters and leading zeros.
+comparison_2000_2024.csv,iso_numeric,Derived ID,text,iso3; pycountry,Look up ISO numeric code; preserve three characters and leading zeros.
 country_year.csv,country,Copied,text,country,Country/territory name; exclude World from these questions.
-comparison_2010_2024.csv,country,Copied,text,country,Country/territory name; exclude World from these questions.
+comparison_2000_2024.csv,country,Copied,text,country,Country/territory name; exclude World from these questions.
 country_year.csv,year,Filtered,year,year,"Keep 2000–2024, inclusive; select the snapshot or endpoint year."
 country_year.csv,on_map,Derived Flag,boolean,iso_numeric; atlas country IDs,True if the ID exists in the atlas countries object.
 country_year.csv,in_comparison_set,Derived Flag,boolean,iso3; comparison IDs,"Fixed baseline country membership repeated on every year, not year-specific eligibility."
@@ -24,24 +24,24 @@ country_year.csv,solar_share_pct,Renamed / Cleaned,%,solar_electricity_share_pct
 country_year.csv,wind_share_pct,Renamed / Cleaned,%,wind_electricity_share_pct,"Rename the OWID field; retain unknown values. For complete source totals and positive generation, fill missing share as 100 × source TWh / generation TWh."
 country_year.csv,bioenergy_share_pct,Renamed / Cleaned,%,bioenergy_electricity_share_pct,"Rename the OWID field; retain unknown values. For complete source totals and positive generation, fill missing share as 100 × source TWh / generation TWh."
 country_year.csv,other_renewables_excluding_bioenergy_share_pct,Renamed / Cleaned,%,other_renewables_excluding_bioenergy_electricity_share_pct,"Rename the OWID field; retain unknown values. For complete source totals and positive generation, fill missing share as 100 × source TWh / generation TWh."
-comparison_2010_2024.csv,rank,Derived Rank,integer,d_clean_share_pp,1-based descending row rank across the comparison set; CSV ties have no specified alphabetical policy.
-comparison_2010_2024.csv,clean_share_pct_2010,Joined Endpoint,%,country_year.clean_share_pct; iso3; year,Inner-join endpoints on ISO3; select year 2010.
-comparison_2010_2024.csv,fossil_twh_2010,Joined Endpoint,TWh,country_year.fossil_twh; iso3; year,Inner-join endpoints on ISO3; select year 2010.
-comparison_2010_2024.csv,clean_share_pct_2024,Joined Endpoint,%,country_year.clean_share_pct; iso3; year,Inner-join endpoints on ISO3; select year 2024.
-comparison_2010_2024.csv,fossil_twh_2024,Joined Endpoint,TWh,country_year.fossil_twh; iso3; year,Inner-join endpoints on ISO3; select year 2024.
-comparison_2010_2024.csv,generation_twh_2024,Joined Endpoint,TWh,country_year.generation_twh,Total generation in 2024; used for the eligibility threshold.
-comparison_2010_2024.csv,d_clean_share_pp,Derived Difference,percentage points,clean_share_pct_2010; clean_share_pct_2024,End share minus start share; not percentage growth.
-comparison_2010_2024.csv,d_nuclear_share_pp,Derived Difference,percentage points,nuclear_share_pct_2010; nuclear_share_pct_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_nuclear_twh,Derived Difference,TWh,nuclear_twh_2010; nuclear_twh_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_hydro_share_pp,Derived Difference,percentage points,hydro_share_pct_2010; hydro_share_pct_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_hydro_twh,Derived Difference,TWh,hydro_twh_2010; hydro_twh_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_solar_share_pp,Derived Difference,percentage points,solar_share_pct_2010; solar_share_pct_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_solar_twh,Derived Difference,TWh,solar_twh_2010; solar_twh_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_wind_share_pp,Derived Difference,percentage points,wind_share_pct_2010; wind_share_pct_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_wind_twh,Derived Difference,TWh,wind_twh_2010; wind_twh_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_bioenergy_share_pp,Derived Difference,percentage points,bioenergy_share_pct_2010; bioenergy_share_pct_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_bioenergy_twh,Derived Difference,TWh,bioenergy_twh_2010; bioenergy_twh_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_other_renewables_excluding_bioenergy_share_pp,Derived Difference,percentage points,other_renewables_excluding_bioenergy_share_pct_2010; other_renewables_excluding_bioenergy_share_pct_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_other_renewables_excluding_bioenergy_twh,Derived Difference,TWh,other_renewables_excluding_bioenergy_twh_2010; other_renewables_excluding_bioenergy_twh_2024,End source value minus start source value.
-comparison_2010_2024.csv,d_other_clean_share_pp,Derived Sum,percentage points,d_bioenergy_share_pp; d_other_renewables_excluding_bioenergy_share_pp,Sum bioenergy and other renewables excluding bioenergy; the four other clean sources are shown separately.
-comparison_2010_2024.csv,d_other_clean_twh,Derived Sum,TWh,d_bioenergy_twh; d_other_renewables_excluding_bioenergy_twh,Sum bioenergy and other renewables excluding bioenergy; the four other clean sources are shown separately.
+comparison_2000_2024.csv,rank,Derived Rank,integer,d_clean_share_pp,1-based descending row rank across the comparison set; CSV ties have no specified alphabetical policy.
+comparison_2000_2024.csv,clean_share_pct_2000,Joined Endpoint,%,country_year.clean_share_pct; iso3; year,Inner-join endpoints on ISO3; select year 2000.
+comparison_2000_2024.csv,fossil_twh_2000,Joined Endpoint,TWh,country_year.fossil_twh; iso3; year,Inner-join endpoints on ISO3; select year 2000.
+comparison_2000_2024.csv,clean_share_pct_2024,Joined Endpoint,%,country_year.clean_share_pct; iso3; year,Inner-join endpoints on ISO3; select year 2024.
+comparison_2000_2024.csv,fossil_twh_2024,Joined Endpoint,TWh,country_year.fossil_twh; iso3; year,Inner-join endpoints on ISO3; select year 2024.
+comparison_2000_2024.csv,generation_twh_2024,Joined Endpoint,TWh,country_year.generation_twh,Total generation in 2024; used for the eligibility threshold.
+comparison_2000_2024.csv,d_clean_share_pp,Derived Difference,percentage points,clean_share_pct_2000; clean_share_pct_2024,End share minus start share; not percentage growth.
+comparison_2000_2024.csv,d_nuclear_share_pp,Derived Difference,percentage points,nuclear_share_pct_2000; nuclear_share_pct_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_nuclear_twh,Derived Difference,TWh,nuclear_twh_2000; nuclear_twh_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_hydro_share_pp,Derived Difference,percentage points,hydro_share_pct_2000; hydro_share_pct_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_hydro_twh,Derived Difference,TWh,hydro_twh_2000; hydro_twh_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_solar_share_pp,Derived Difference,percentage points,solar_share_pct_2000; solar_share_pct_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_solar_twh,Derived Difference,TWh,solar_twh_2000; solar_twh_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_wind_share_pp,Derived Difference,percentage points,wind_share_pct_2000; wind_share_pct_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_wind_twh,Derived Difference,TWh,wind_twh_2000; wind_twh_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_bioenergy_share_pp,Derived Difference,percentage points,bioenergy_share_pct_2000; bioenergy_share_pct_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_bioenergy_twh,Derived Difference,TWh,bioenergy_twh_2000; bioenergy_twh_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_other_renewables_excluding_bioenergy_share_pp,Derived Difference,percentage points,other_renewables_excluding_bioenergy_share_pct_2000; other_renewables_excluding_bioenergy_share_pct_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_other_renewables_excluding_bioenergy_twh,Derived Difference,TWh,other_renewables_excluding_bioenergy_twh_2000; other_renewables_excluding_bioenergy_twh_2024,End source value minus start source value.
+comparison_2000_2024.csv,d_other_clean_share_pp,Derived Sum,percentage points,d_bioenergy_share_pp; d_other_renewables_excluding_bioenergy_share_pp,Sum bioenergy and other renewables excluding bioenergy; the four other clean sources are shown separately.
+comparison_2000_2024.csv,d_other_clean_twh,Derived Sum,TWh,d_bioenergy_twh; d_other_renewables_excluding_bioenergy_twh,Sum bioenergy and other renewables excluding bioenergy; the four other clean sources are shown separately.

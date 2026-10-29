@@ -5,7 +5,7 @@
 This report covers **Q2, Q3, and Q4 only**, the questions explored with the six
 Matplotlib sketches. They are exploratory views, not the final D3 application.
 
-The baseline is 2024 for the snapshot and 2010–2024 for comparisons,
+The baseline is 2024 for the snapshot and 2000–2024 for comparisons,
 with a minimum of 10 TWh generation in 2024. The sketches show
 up to 10 countries per tail. This report reads the preparation baseline tables,
 not custom sketch settings. Custom sketch runs export their own CSVs and settings.
@@ -61,7 +61,7 @@ CSV samples use blank cells for the same unknown values.
 | File in data/processed/ | One Row Per | Size | Uses |
 | --- | --- | --- | --- |
 | country_year.csv | Country or World × observed year | 5,518 × 31 | Q2; Q3–Q4 endpoint/source inputs |
-| comparison_2010_2024.csv | Eligible country | 108 × 46 | Q3–Q4 |
+| comparison_2000_2024.csv | Eligible country | 108 × 46 | Q3–Q4 |
 
 Country-years are observed records, not a fully imputed country × year grid.
 The in_comparison_set flag repeats fixed country membership across years;
@@ -114,10 +114,10 @@ Local figures: [Map](../outputs/sketches/q2_2024_map.png) ·
 
 ## Q3 — Largest Changes in Clean Share
 
-**Question:** Which countries had the largest increases or decreases from 2010 to 2024?
+**Question:** Which countries had the largest increases or decreases from 2000 to 2024?
 
 **Transformation:** use the 108 eligible endpoint pairs. Calculate
-d_clean_share_pp = clean_share_pct_2024 − clean_share_pct_2010.
+d_clean_share_pp = clean_share_pct_2024 − clean_share_pct_2000.
 Select the top 10 strictly positive changes and the top 10 strictly negative
 changes separately. This is a percentage-point difference, not percentage growth.
 
@@ -125,26 +125,26 @@ changes separately. This is a percentage-point difference, not percentage growth
 large-system cases outside those extreme tails. Gain Rank refers to all 108
 compared countries, not to a separate loss ranking.
 
-| Country | Gain Rank | Clean Share 2010 (%) | Clean Share 2024 (%) | Clean Share Change (pp) |
+| Country | Gain Rank | Clean Share 2000 (%) | Clean Share 2024 (%) | Clean Share Change (pp) |
 | --- | --- | --- | --- | --- |
-| Denmark | 1 | 32.08 | 89.19 | 57.11 |
-| United Kingdom | 2 | 23.12 | 64.93 | 41.81 |
-| Netherlands | 3 | 12.84 | 53.66 | 40.82 |
-| Ghana | 108 | 68.68 | 36.22 | -32.46 |
-| Myanmar | 107 | 71.81 | 47.86 | -23.95 |
-| Laos | 106 | 100.00 | 76.72 | -23.28 |
-| China | 26 | 20.47 | 38.17 | 17.70 |
-| India | 54 | 17.58 | 22.49 | 4.91 |
+| Denmark | 1 | 15.54 | 89.19 | 73.65 |
+| Portugal | 2 | 29.78 | 85.19 | 55.41 |
+| Kenya | 3 | 40.37 | 91.48 | 51.11 |
+| Ghana | 108 | 91.35 | 36.22 | -55.14 |
+| Philippines | 107 | 42.89 | 20.47 | -22.42 |
+| Peru | 106 | 81.98 | 60.11 | -21.87 |
+| China | 24 | 17.87 | 38.17 | 20.29 |
+| India | 48 | 16.81 | 22.49 | 5.69 |
 
 [Download CSV](tables/q3_share_changes_sample.csv)
 
 **Sketch A — Change Magnitudes:** horizontal gain/loss bars with a shared zero-centered scale.
-**Sketch B — Start and End Levels:** open circles mark 2010; filled diamonds mark 2024.
+**Sketch B — Start and End Levels:** open circles mark 2000; filled diamonds mark 2024.
 Both sketches use the same countries and order. Lines join endpoints, not annual trends.
 This separates the size of a change from the starting and final electricity mix.
 
-Local figures: [Changes](../outputs/sketches/q3_2010_2024_changes.png) ·
-[Endpoints](../outputs/sketches/q3_2010_2024_endpoints.png).
+Local figures: [Changes](../outputs/sketches/q3_2000_2024_changes.png) ·
+[Endpoints](../outputs/sketches/q3_2000_2024_endpoints.png).
 
 ## Q4 — Clean Sources Behind the Largest Share Gains
 
@@ -166,16 +166,16 @@ total-generation denominator.
 
 | Country | Wind Change (pp) | Solar Change (pp) | Hydro Change (pp) | Nuclear Change (pp) | Other Clean Change (pp) | Net Clean Change (pp) |
 | --- | --- | --- | --- | --- | --- | --- |
-| Denmark | 38.06 | 10.76 | 0.01 | 0.00 | 8.29 | 57.11 |
-| United Kingdom | 26.61 | 5.19 | 1.09 | -1.98 | 10.90 | 41.81 |
-| Netherlands | 23.99 | 17.79 | -0.01 | -0.44 | -0.50 | 40.82 |
-| Finland | 24.45 | 1.14 | 1.30 | 11.22 | -1.02 | 37.09 |
-| Belarus | 0.44 | 0.57 | 0.73 | 34.24 | 0.94 | 36.92 |
-| Ireland | 27.17 | 3.51 | 0.35 | 0.00 | 2.12 | 33.14 |
-| Portugal | 13.17 | 14.61 | 1.30 | 0.00 | 3.10 | 32.18 |
-| United Arab Emirates | 0.11 | 8.56 | 0.00 | 22.92 | 0.12 | 31.71 |
-| Cambodia | 0.00 | 6.91 | 25.14 | 0.00 | -0.51 | 31.54 |
-| Greece | 17.20 | 19.44 | -6.92 | 0.00 | 0.91 | 30.63 |
+| Denmark | 46.39 | 10.78 | -0.03 | 0.00 | 16.51 | 73.65 |
+| Portugal | 29.94 | 15.00 | 5.30 | 0.00 | 5.16 | 55.41 |
+| Kenya | 16.36 | 4.98 | -7.02 | 0.00 | 36.78 | 51.11 |
+| Netherlands | 26.43 | 17.83 | -0.09 | -1.54 | 3.20 | 45.82 |
+| Ireland | 36.27 | 3.51 | -1.12 | 0.00 | 2.84 | 41.49 |
+| Greece | 21.14 | 19.73 | -0.70 | 0.00 | 1.24 | 41.41 |
+| United Kingdom | 29.06 | 5.20 | 0.68 | -8.27 | 13.08 | 39.74 |
+| Belarus | 0.44 | 0.57 | 0.76 | 34.24 | 1.20 | 37.20 |
+| Czechia | 0.92 | 4.93 | 1.24 | 22.15 | 6.68 | 35.91 |
+| Spain | 20.00 | 20.74 | -0.54 | -8.75 | 1.53 | 32.97 |
 
 [Download CSV](tables/q4_source_changes_pp.csv)
 
@@ -183,16 +183,16 @@ total-generation denominator.
 
 | Country | Wind Change (TWh) | Solar Change (TWh) | Hydro Change (TWh) | Nuclear Change (TWh) | Other Clean Change (TWh) | Net Clean Change (TWh) |
 | --- | --- | --- | --- | --- | --- | --- |
-| Denmark | 12.60 | 3.77 | 0.00 | 0.00 | 2.47 | 18.84 |
-| United Kingdom | 72.99 | 14.75 | 2.17 | -21.55 | 27.83 | 96.19 |
-| Netherlands | 29.49 | 21.76 | -0.01 | -0.40 | -0.36 | 50.48 |
-| Finland | 20.19 | 0.94 | 1.38 | 9.80 | -0.58 | 31.73 |
-| Belarus | 0.20 | 0.26 | 0.35 | 15.69 | 0.46 | 16.96 |
-| Ireland | 8.74 | 1.09 | 0.17 | 0.00 | 0.69 | 10.69 |
-| Portugal | 5.16 | 6.88 | -1.26 | 0.00 | 1.14 | 11.92 |
-| United Arab Emirates | 0.20 | 15.19 | 0.00 | 40.63 | 0.21 | 56.23 |
-| Cambodia | 0.00 | 1.07 | 4.34 | 0.00 | 0.07 | 5.48 |
-| Greece | 9.84 | 11.10 | -3.89 | 0.00 | 0.52 | 17.57 |
+| Denmark | 16.17 | 3.78 | -0.01 | 0.00 | 5.76 | 25.70 |
+| Portugal | 14.17 | 7.09 | 3.57 | 0.00 | 2.57 | 27.40 |
+| Kenya | 2.17 | 0.66 | 1.79 | 0.00 | 5.77 | 10.39 |
+| Netherlands | 32.65 | 21.81 | -0.05 | -0.36 | 4.69 | 58.74 |
+| Ireland | 11.35 | 1.09 | -0.08 | 0.00 | 0.91 | 13.27 |
+| Greece | 12.10 | 11.26 | -0.11 | 0.00 | 0.71 | 23.96 |
+| United Kingdom | 82.34 | 14.79 | 0.67 | -44.47 | 36.21 | 89.54 |
+| Belarus | 0.20 | 0.26 | 0.37 | 15.69 | 0.55 | 17.07 |
+| Czechia | 0.67 | 3.59 | 0.90 | 16.11 | 4.86 | 26.13 |
+| Spain | 57.47 | 58.28 | 6.15 | -7.68 | 4.69 | 118.91 |
 
 [Download CSV](tables/q4_source_changes_twh.csv)
 
@@ -201,19 +201,19 @@ total-generation denominator.
 Right-hand segments show increases; left-hand segments show declines.
 The diamond marks the **signed sum**, not the edge of the positive stack.
 
-For example, UK wind rises by 72.99 TWh and solar by
-14.75 TWh; hydro rises by 2.17 TWh,
-while nuclear declines by 21.55 TWh. Other Clean increases
-by 27.83 TWh. These five source contributions sum to net
-clean growth of 96.19 TWh; the separate values make the nuclear
+For example, UK wind rises by 82.34 TWh and solar by
+14.79 TWh; hydro rises by 0.67 TWh,
+while nuclear declines by 44.47 TWh. Other Clean increases
+by 36.21 TWh. These five source contributions sum to net
+clean growth of 89.54 TWh; the separate values make the nuclear
 decline visible rather than masking it within a broader category.
 
 This is an accounting breakdown, not proof of cause. A source can gain TWh but lose share
 when total generation grows faster. Missing source values cause the sketch calculation
 to fail rather than being treated as zero.
 
-Local figures: [Source Shares](../outputs/sketches/q4_2010_2024_source_share.png) ·
-[Source Generation](../outputs/sketches/q4_2010_2024_source_generation.png).
+Local figures: [Source Shares](../outputs/sketches/q4_2000_2024_source_share.png) ·
+[Source Generation](../outputs/sketches/q4_2000_2024_source_generation.png).
 
 ## Created and Derived Features
 

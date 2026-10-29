@@ -3,18 +3,18 @@
 CS-GY 6313 Information Visualization (NYU, Fall 2026), group project.
 Team Aurum: Yathin Reddy Duvuru (yd3288), Yusuke Katsuki (yk3183).
 
-Many countries raised the share of clean electricity between 2010 and 2024.
+Many countries raised the share of clean electricity between 2000 and 2024.
 We ask whether they also generated less electricity from fossil fuels.
-Of the 83 countries (out of 108 compared) that raised their clean share, 41 still generated more fossil electricity.
+Of the 79 countries (out of 108 compared) that raised their clean share, 44 still generated more fossil electricity.
 
 ## Questions
 
 1. How has the global electricity mix changed from 2000 to 2024, both in percentage shares and absolute generation (TWh)?
 2. How do countries compare in their clean electricity shares in 2024? Which countries have the highest and lowest shares?
-3. Which countries experienced the largest increases or decreases in clean electricity share between 2010 and 2024?
+3. Which countries experienced the largest increases or decreases in clean electricity share between 2000 and 2024?
 4. In countries with the largest increases in clean electricity share, how much did wind, solar, hydro, nuclear, and other clean sources each contribute?
 5. Which countries increased their clean electricity share while also reducing fossil-fuel electricity generation, and which increased their clean share but still generated more fossil-fuel electricity?
-6. How do electricity demand growth and the initial electricity mix in 2010 differ between countries that reduced fossil-fuel generation and those that did not?
+6. How do electricity demand growth and the initial electricity mix in 2000 differ between countries that reduced fossil-fuel generation and those that did not?
 
 ## Layout
 
@@ -36,7 +36,7 @@ Two tables cover all six questions. Each chart picks its rows with a filter.
 | Table | One row per | Used for |
 |---|---|---|
 | `country_year.csv` | country (and World) × year, 2000–2024 | Q1: `country == "World"` · Q2: `year == 2024 && country != "World"`, then sort by `clean_share_pct` (highest first, blanks last) · Q5 detail view: the selected country |
-| `comparison_2010_2024.csv` | country, the 108 compared | Q3–Q6: the 2010 and 2024 values, the changes, demand growth, and the 2010 mix |
+| `comparison_2000_2024.csv` | country, the 108 compared | Q3–Q6: the 2000 and 2024 values, the changes, demand growth, and the 2000 mix |
 | `robustness.csv` | setting | the main result for other start years and TWh thresholds |
 
 ## Rebuild the data
@@ -52,7 +52,8 @@ uv run python prep/build.py
 `pyproject.toml` declares dependencies; `uv.lock` records the resolved versions.
 Use `uv add <package>` to add a dependency. There is no separate pip requirements file.
 
-The script rebuilds every table in `data/processed/` and checks the numbers. It stops with an error if the main result changes.
+The script rebuilds the current baseline tables in `data/processed/` and checks the numbers. It stops with an error if the main result changes.
+The old `comparison_2010_2024.csv` stays unchanged for reference. The current baseline uses `comparison_2000_2024.csv`.
 The rules (which rows count as countries, which years, how missing values are handled) are commented at the top of `prep/build.py`.
 
 ## Initial EDA sketches
@@ -77,7 +78,7 @@ The default run writes six figures, each in PNG and SVG, to `outputs/sketches/`:
 | Question | View A | View B |
 |---|---|---|
 | Q2: clean shares in 2024 | World map: geographic patterns | Highest/lowest ranked bars: exact comparisons |
-| Q3: share change, 2010–2024 | Largest gains/losses in percentage points | The same countries' start/end shares: starting mix and final level |
+| Q3: share change, 2000–2024 | Largest gains/losses in percentage points | The same countries' start/end shares: starting mix and final level |
 | Q4: sources behind the largest share gains | Separate source-share changes in percentage points | The same countries' absolute generation changes in TWh |
 
 Q4 uses diverging stacked bars so declining sources stay visible. Diamonds mark the net
@@ -101,7 +102,7 @@ uv run python -m sketches --format png
 
 Output paths in the config and CLI are relative to the repository root unless absolute.
 Date changes recalculate everything from `country_year.csv`; they do not relabel the
-fixed 2010–2024 comparison table. Years must exist in the processed data, currently
+fixed 2000–2024 comparison table. Years must exist in the processed data, currently
 2000–2024. Expanding that range needs a separate update to `prep/build.py` and its checks.
 
 To change categories, edit the `[[groups]]` entries. For example, split Other Clean
@@ -153,7 +154,7 @@ uv run python -m prep.report
 ## Data notes for sketching
 
 - **Which countries:** Q1 uses the World row. Q2 uses every country (221). Q3–Q6 compare 108 countries:
-  those with data in both 2010 and 2024 and at least 10 TWh of generation in 2024.
+  those with data in both 2000 and 2024 and at least 10 TWh of generation in 2024.
 - **Blank means unknown, not 0.** Q2 has 25 countries with no 2024 clean share (Ukraine is one). Show them as "no data".
 - **The map can't draw 8 of Q2's places** (`on_map` = false in `country_year.csv`), including Gibraltar,
   which has one of the lowest shares (0%). Pair the Q2 map with a ranked list.

@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 from prep.build import (
-    CLEAN, CLEAN_GROUPS, END_YEAR, MEASURES, MIN_GENERATION_TWH,
+    CLEAN, CLEAN_GROUPS, COMPARISON_NAME, END_YEAR, MEASURES, MIN_GENERATION_TWH,
     ROOT, START_YEAR, YEARS,
 )
 
@@ -17,7 +17,7 @@ def load_tables():
     types = {"iso3": "string", "iso_numeric": "string"}
     return (
         pd.read_csv(directory / "country_year.csv", dtype=types),
-        pd.read_csv(directory / "comparison_2010_2024.csv", dtype=types),
+        pd.read_csv(directory / f"{COMPARISON_NAME}.csv", dtype=types),
     )
 
 
@@ -109,7 +109,7 @@ def feature_dictionary(country_year, compared):
     }
     for name, metadata in shared.items():
         add("country_year.csv", name, *metadata)
-        add("comparison_2010_2024.csv", name, *metadata)
+        add(f"{COMPARISON_NAME}.csv", name, *metadata)
     add("country_year.csv", "year", "Filtered", "year", "year", f"Keep {YEARS[0]}–{YEARS[1]}, inclusive; select the snapshot or endpoint year.")
     add("country_year.csv", "on_map", "Derived Flag", "boolean", "iso_numeric; atlas country IDs", "True if the ID exists in the atlas countries object.")
     add("country_year.csv", "in_comparison_set", "Derived Flag", "boolean", "iso3; comparison IDs", "Fixed baseline country membership repeated on every year, not year-specific eligibility.")
@@ -127,7 +127,7 @@ def feature_dictionary(country_year, compared):
             rule += " Used for endpoint coverage eligibility, not as a Q4 component."
         add("country_year.csv", processed, "Renamed / Cleaned", "%" if processed.endswith("_pct") else "TWh", raw, rule)
 
-    table = "comparison_2010_2024.csv"
+    table = f"{COMPARISON_NAME}.csv"
     add(table, "rank", "Derived Rank", "integer", "d_clean_share_pp", "1-based descending row rank across the comparison set; CSV ties have no specified alphabetical policy.")
     for year in (START_YEAR, END_YEAR):
         for measure in ("clean_share_pct", "fossil_twh"):
@@ -249,7 +249,7 @@ CSV samples use blank cells for the same unknown values.
 | File in data/processed/ | One Row Per | Size | Uses |
 | --- | --- | --- | --- |
 | country_year.csv | Country or World × observed year | {len(country_year):,} × {len(country_year.columns)} | Q2; Q3–Q4 endpoint/source inputs |
-| comparison_2010_2024.csv | Eligible country | {len(compared)} × {len(compared.columns)} | Q3–Q4 |
+| {COMPARISON_NAME}.csv | Eligible country | {len(compared)} × {len(compared.columns)} | Q3–Q4 |
 
 Country-years are observed records, not a fully imputed country × year grid.
 The in_comparison_set flag repeats fixed country membership across years;

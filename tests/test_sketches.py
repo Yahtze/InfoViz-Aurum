@@ -33,13 +33,18 @@ class SketchDataTests(unittest.TestCase):
         )
 
     def test_default_comparison_matches_pinned_table(self):
-        expected = pd.read_csv(ROOT / "data/processed/comparison_2010_2024.csv").set_index("iso3")
+        expected = pd.read_csv(ROOT / "data/processed/comparison_2000_2024.csv").set_index("iso3")
         actual = self.compared.set_index("iso3").loc[expected.index]
         self.assertEqual(len(actual), 108)
         np.testing.assert_allclose(
             actual["d_clean_share_pp"], expected["d_clean_share_pp"], atol=0.00011, rtol=0,
         )
-        self.assertEqual(int(actual["d_clean_share_pp"].gt(0).sum()), 83)
+        self.assertEqual(int(actual["d_clean_share_pp"].gt(0).sum()), 79)
+        for field, year in (("start", 2000), ("end", 2024)):
+            np.testing.assert_allclose(
+                actual[f"clean_share_pct_{field}"], expected[f"clean_share_pct_{year}"],
+                atol=0.00011, rtol=0,
+            )
         gainers, _ = extremes(actual.reset_index(), "d_clean_share_pp", 10, changes=True)
         self.assertEqual(gainers.iloc[0]["country"], "Denmark")
 
@@ -201,23 +206,23 @@ class PlotTests(unittest.TestCase):
             ),
             (
                 lambda: change_bars(self.compared, self.settings),
-                "Domestic Electricity Generation: Largest Clean-Share Changes · 2010–2024",
+                "Domestic Electricity Generation: Largest Clean-Share Changes · 2000–2024",
                 ["Largest Increases", "Largest Decreases"],
                 ["Change in Clean Share (Percentage Points)"] * 2,
             ),
             (
                 lambda: endpoint_comparison(self.compared, self.settings),
-                "Domestic Electricity Generation: Clean Shares at Start and End · 2010–2024",
+                "Domestic Electricity Generation: Clean Shares at Start and End · 2000–2024",
                 ["Largest Increases", "Largest Decreases"], ["Clean Share (%)"] * 2,
             ),
             (
                 lambda: source_breakdown(self.compared, self.settings, "pp"),
-                "Domestic Electricity Generation: Clean-Source Share Changes · 2010–2024",
+                "Domestic Electricity Generation: Clean-Source Share Changes · 2000–2024",
                 [""], ["Change in Share of Total Electricity Generation (Percentage Points)"],
             ),
             (
                 lambda: source_breakdown(self.compared, self.settings, "twh"),
-                "Domestic Electricity Generation: Clean-Source Output Changes · 2010–2024",
+                "Domestic Electricity Generation: Clean-Source Output Changes · 2000–2024",
                 [""], ["Change in Electricity Generation (TWh)"],
             ),
         )
