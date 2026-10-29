@@ -11,7 +11,7 @@ Rules:
 - Countries are rows with a 3-letter iso_code; regions and "World" have none.
   Kosovo has no code in OWID, so it gets XKX. The World row is kept for Q1.
 - Years 2000-2024 (2025 is incomplete).
-- The comparison (Q3-Q6) uses countries with data in both 2010 and 2024 and >= 10 TWh generation in 2024 (108 countries).
+- The comparison (Q3-Q6) uses countries with data in both 2000 and 2024 and >= 10 TWh generation in 2024 (108 countries).
 - "Clean" is OWID's "low-carbon" (renewables plus nuclear); "fossil" is coal + gas + oil.
 - Missing values: a blank source TWh becomes 0 only when the other sources add up to total generation;
   a blank source share is then computed as TWh / generation (and stays blank when generation is 0);
@@ -35,7 +35,8 @@ OUT = ROOT / "data" / "processed"
 # Analysis settings. Change them only here.
 # robustness.csv shows how the main result moves when they change.
 YEARS = (2000, 2024)  # 2025 has data for only 126 countries
-START_YEAR, END_YEAR = 2010, 2024  # the comparison (Q3-Q6)
+START_YEAR, END_YEAR = YEARS  # the full-horizon comparison (Q3-Q6)
+COMPARISON_NAME = f"comparison_{START_YEAR}_{END_YEAR}"
 MIN_GENERATION_TWH = 10  # the comparison only: generation in END_YEAR
 
 # Countries that OWID lists without an iso_code. XKX is the code the EU and IMF use for Kosovo.
@@ -66,8 +67,8 @@ MEASURES = {
     **{f"{s}_electricity_share_pct": f"{s}_share_pct" for s in SOURCES},
 }
 
-# Expected values for the pinned raw file. Update them if you replace the file.
-EXPECTED = {"countries": 108, "share_up": 83, "share_up_fossil_up": 41}
+# Expected values for the pinned raw file and the baseline settings above.
+EXPECTED = {"countries": 108, "share_up": 79, "share_up_fossil_up": 44}
 
 
 def iso_numeric(alpha3):
@@ -250,7 +251,7 @@ def check(c, tables, comparison, map_ids):
         assert close(comparison[[f"{s}_twh_{y}" for s in CLEAN]].sum(axis=1), comparison[f"clean_twh_{y}"], 0.01), \
             f"{y}: clean sources do not add up to clean generation"
 
-    cmp = tables["comparison_2010_2024"].set_index("iso3")
+    cmp = tables[COMPARISON_NAME].set_index("iso3")
     base = comparison.set_index("iso3").loc[cmp.index]
     assert close(cmp[[f"d_{s}_share_pp" for s in CLEAN]].sum(axis=1), cmp["d_clean_share_pp"], 0.01), \
         "Q4: source changes (pp) do not add up to the change in clean share"
@@ -290,7 +291,7 @@ def main():
 
     tables = {
         "country_year": country_year(df, c, comparison, map_ids),
-        "comparison_2010_2024": comparison_table(comparison),
+        COMPARISON_NAME: comparison_table(comparison),
         "robustness": robustness(c),
     }
 
