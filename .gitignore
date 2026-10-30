@@ -4,3 +4,4 @@ __pycache__/
 .ipynb_checkpoints/
 outputs/*
 !outputs/preview.png
+!outputs/preview-q*.png

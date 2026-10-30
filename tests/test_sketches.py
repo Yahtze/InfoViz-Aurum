@@ -328,15 +328,19 @@ class CommandTests(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertNotIn("UserWarning", result.stderr)
-            self.assertEqual(len(list(output.glob("*.png"))), 6)
-            self.assertEqual(len(list(output.glob("*.csv"))), 4)
+            self.assertEqual(len(list(output.glob("*.png"))), 9)
+            self.assertEqual(len(list(output.glob("*.csv"))), 7)
             self.assertFalse(list(output.glob("*.svg")))
             self.assertTrue((Path(directory) / "preview.png").is_file())
+            for question in ("q1", "q5", "q6"):
+                copy = Path(directory) / f"preview-{question}.png"
+                self.assertEqual(copy.read_bytes(), next(output.glob(f"{question}_*.png")).read_bytes())
             manifest = json.loads((output / "manifest_2020_2005_2020.json").read_text())
             self.assertEqual(manifest["settings"]["start_year"], 2005)
             self.assertEqual(manifest["settings"]["end_year"], 2020)
             self.assertEqual(manifest["preview"], str(Path(directory) / "preview.png"))
             self.assertEqual(len(manifest["source_breakdown_countries"]), 3)
+            self.assertEqual(len(manifest["q6_pairs"]), manifest["settings"]["q6_pairs"])
 
     def test_preview_requires_png_before_writing_output(self):
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:
