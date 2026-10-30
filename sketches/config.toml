@@ -10,6 +10,20 @@ top_n = 10
 # Applies only to the change and source-breakdown views.
 min_generation_twh = 10
 
+[q5]
+# The enlarged scatterplot shows countries within ± this change in fossil generation.
+zoom_twh = 60
+# The selected country in the static sketch. Leave it out to use the rule: the largest
+# end-year generator among "share up, fossil up" countries inside the enlarged band.
+# example = "South Africa"
+
+[q6]
+# The enlarged scatterplot shows countries with demand growth up to this percentage.
+zoom_pct = 300
+# Matched pairs: closest demand growth, one country from each fossil group.
+pairs = 6
+selected_pair = 1
+
 [output]
 # Relative paths are resolved from the repository root.
 directory = "outputs/sketches"
