@@ -8,6 +8,10 @@ from prep.build import (
     CLEAN, CLEAN_GROUPS, COMPARISON_NAME, END_YEAR, MEASURES, MIN_GENERATION_TWH,
     ROOT, START_YEAR, YEARS,
 )
+from prep.report_q156 import (
+    cutoff_section, definitions, facts, q1_section, q5_section, q6_section, q156_dictionary,
+    q156_results, q156_samples,
+)
 
 TOP_N = 10
 
@@ -172,8 +176,12 @@ def markdown_table(table):
 
 def build_report(output_dir=ROOT / "reports"):
     country_year, compared = load_tables()
-    samples = build_samples(country_year, compared)
-    dictionary = feature_dictionary(country_year, compared)
+    results = q156_results()
+    samples = {**build_samples(country_year, compared), **q156_samples(results)}
+    dictionary = pd.concat(
+        [feature_dictionary(country_year, compared), q156_dictionary(country_year, results)], ignore_index=True,
+    )
+    numbers = facts(results)
     output_dir = Path(output_dir)
     table_dir = output_dir / "tables"
     table_dir.mkdir(parents=True, exist_ok=True)
@@ -190,15 +198,18 @@ def build_report(output_dir=ROOT / "reports"):
 
 ## Scope and Current State
 
-This report covers **Q2, Q3, and Q4 only**, the questions explored with the six
-Matplotlib sketches. They are exploratory views, not the final D3 application.
+This report covers **Q1–Q6**. Yathin explored Q2–Q4 with six Matplotlib sketches;
+Yusuke explored Q1, Q5, and Q6 with three. They are exploratory views, not the final
+D3 application.
 
 The baseline is {e} for the snapshot and {s}–{e} for comparisons,
 with a minimum of {MIN_GENERATION_TWH:g} TWh generation in {e}. The sketches show
 up to {TOP_N} countries per tail. This report reads the preparation baseline tables,
 not custom sketch settings. Custom sketch runs export their own CSVs and settings.
 
-[Tracked six-figure overview montage](../outputs/preview.png). Individual figure files
+[Tracked six-figure overview montage](../outputs/preview.png). Q1, Q5, and Q6 are tracked
+separately: [Q1](../outputs/preview-q1.png) · [Q5](../outputs/preview-q5.png) ·
+[Q6](../outputs/preview-q6.png). Individual figure files
 and their data exports remain local and ignored under `outputs/sketches/`.
 
 The tables below contain real processed rows, not synthetic examples. They are
@@ -220,15 +231,17 @@ CSV samples use blank cells for the same unknown values.
 - Clean electricity is nuclear, hydro, wind, solar, bioenergy, and other renewables
   excluding bioenergy. “Clean” is our short name for OWID's low-carbon category.
 - Fossil electricity is coal + gas + oil. These are electricity measures, not total energy use.
-- All six chart titles state **Domestic Electricity Generation**. These views do not
+- The Q1–Q5 chart titles state **Domestic Electricity Generation**. The Q6 title names
+  electricity demand, because its x-axis is demand growth. These views do not
   measure all energy use or classify imported electricity by source.
 - Shares use domestic electricity **generation**, not demand, as the denominator.
 - Percentage points (pp) measure share differences: 20% to 30% is +10 pp, not +10% relative growth.
+{definitions(results, numbers)}
 
 **Filters and Cleaning**
 1. Retain {YEARS[0]}–{YEARS[1]}, inclusive. The preparation code excludes 2025 as incomplete.
 2. Keep country/territory rows with three-letter ISO codes. Assign XKX to Kosovo.
-   Exclude regional aggregates and World from the Q2–Q4 selections.
+   Exclude regional aggregates. Q1 uses only the World row; Q2–Q6 exclude it.
 3. Fill a blank source TWh with zero only when the known source TWh already sum to
    total generation within 0.01 TWh. Do not fill unknown totals or clean shares.
 4. After that completeness check, fill a missing source share as
@@ -248,12 +261,14 @@ CSV samples use blank cells for the same unknown values.
 
 | File in data/processed/ | One Row Per | Size | Uses |
 | --- | --- | --- | --- |
-| country_year.csv | Country or World × observed year | {len(country_year):,} × {len(country_year.columns)} | Q2; Q3–Q4 endpoint/source inputs |
-| {COMPARISON_NAME}.csv | Eligible country | {len(compared)} × {len(compared.columns)} | Q3–Q4 |
+| country_year.csv | Country or World × observed year | {len(country_year):,} × {len(country_year.columns)} | Q1 (World row); Q2; Q3–Q6 endpoint/source inputs |
+| {COMPARISON_NAME}.csv | Eligible country | {len(compared)} × {len(compared.columns)} | Q3–Q4; Q5–Q6 recalculate the same country set |
 
 Country-years are observed records, not a fully imputed country × year grid.
 The in_comparison_set flag repeats fixed country membership across years;
 it is not a test of each individual year's eligibility.
+
+{q1_section(results, numbers, sample)}
 
 ## Q2 — Country Clean Electricity Shares
 
@@ -351,11 +366,18 @@ to fail rather than being treated as zero.
 Local figures: [Source Shares](../outputs/sketches/q4_{s}_{e}_source_share.png) ·
 [Source Generation](../outputs/sketches/q4_{s}_{e}_source_generation.png).
 
+{q5_section(results, numbers, sample)}
+
+{q6_section(results, numbers, sample)}
+
+{cutoff_section(results, markdown_table)}
+
 ## Created and Derived Features
 
-[Feature dictionary](tables/feature_dictionary.csv): **{len(dictionary)} stored columns**
-used for Q2–Q4, with units, input fields, and transformation rules.
-It covers the relevant fields in the two processed tables, not unrelated fields.
+[Feature dictionary](tables/feature_dictionary.csv): **{len(dictionary)} columns**
+used for Q1–Q6, with units, input fields, and transformation rules.
+It covers the relevant fields in the two processed tables and the Q5–Q6 measures
+that the sketches derive, not unrelated fields.
 Copied/renamed source measures are distinguished from newly derived features.
 
 | Feature or Family | Transformation | Unit or Rule |
@@ -371,6 +393,10 @@ Copied/renamed source measures are distinguished from newly derived features.
 | Clean-source TWh deltas | End generation minus start generation | TWh |
 | Other Clean deltas | Sum bioenergy and other renewables excluding bioenergy changes | pp or TWh; keep negative changes |
 | rank | Sort eligible countries by clean-share gain | 1-based row rank |
+| demand_twh, net_imports_twh | Rename OWID demand and net imports | TWh; demand = generation + net imports |
+| Coal, gas, and oil TWh and shares | Rename; same missing-value rules as clean sources | TWh or %; Q1 lines and Q6 start mix |
+| d_fossil_twh, outcome, fossil_reduced | End minus start fossil generation; four outcomes | TWh; categories (Q5) and groups (Q6) |
+| demand_growth_pct, generation_growth_pct | 100 × (end / start − 1) | %; blank if the start is not positive |
 
 Sketch exports use _start and _end suffixes rather than year suffixes. Their source tables
 use configurable group labels as columns and total for net clean change.
@@ -383,6 +409,8 @@ in Q2 but not necessarily in Q3–Q4. Some places cannot appear on the map.
 Case samples do not establish population-level distributions.
 No country-average or generation-weighted aggregation is used in these samples.
 Q4 aggregates source changes within each country, not across countries.
+Q5 and Q6 show associations, not causes. The Q6 pairs are chosen by a rule to show
+exceptions; they are not a sample.
 
 ## Reproduction and Checks
 
@@ -398,9 +426,12 @@ Run from the repository root:
   finite values, and the main country counts.
 - sketches/data.py recalculates selections and source changes for configured dates.
   Source groups must sum to net change within 0.01 in the relevant unit.
-- prep/report.py checks that documented Q2–Q4 fields exist, checks Q4
+- sketches/q156_data.py checks that the eight Q1 lines add up to generation and to 100%,
+  and recalculates the Q5 outcomes and the Q6 groups and pairs for configured dates.
+- prep/report.py checks that documented Q1–Q6 fields exist, checks Q4
   group sums, and rebuilds this report and its CSV tables from processed values.
-- The overview montage is tracked at outputs/preview.png. Individual figure links
+- The overview montage is tracked at outputs/preview.png, and Q1, Q5, and Q6 at
+  outputs/preview-q1.png, preview-q5.png, and preview-q6.png. Individual figure links
   point to local, ignored files under outputs/sketches/; regenerate with the default config.
 - Processed values already use four decimals. The report only rounds for display.
   It does not edit raw data or impute missing values.

@@ -2,15 +2,18 @@
 
 ## Scope and Current State
 
-This report covers **Q2, Q3, and Q4 only**, the questions explored with the six
-Matplotlib sketches. They are exploratory views, not the final D3 application.
+This report covers **Q1–Q6**. Yathin explored Q2–Q4 with six Matplotlib sketches;
+Yusuke explored Q1, Q5, and Q6 with three. They are exploratory views, not the final
+D3 application.
 
 The baseline is 2024 for the snapshot and 2000–2024 for comparisons,
 with a minimum of 10 TWh generation in 2024. The sketches show
 up to 10 countries per tail. This report reads the preparation baseline tables,
 not custom sketch settings. Custom sketch runs export their own CSVs and settings.
 
-[Tracked six-figure overview montage](../outputs/preview.png). Individual figure files
+[Tracked six-figure overview montage](../outputs/preview.png). Q1, Q5, and Q6 are tracked
+separately: [Q1](../outputs/preview-q1.png) · [Q5](../outputs/preview-q5.png) ·
+[Q6](../outputs/preview-q6.png). Individual figure files
 and their data exports remain local and ignored under `outputs/sketches/`.
 
 The tables below contain real processed rows, not synthetic examples. They are
@@ -32,15 +35,21 @@ CSV samples use blank cells for the same unknown values.
 - Clean electricity is nuclear, hydro, wind, solar, bioenergy, and other renewables
   excluding bioenergy. “Clean” is our short name for OWID's low-carbon category.
 - Fossil electricity is coal + gas + oil. These are electricity measures, not total energy use.
-- All six chart titles state **Domestic Electricity Generation**. These views do not
+- The Q1–Q5 chart titles state **Domestic Electricity Generation**. The Q6 title names
+  electricity demand, because its x-axis is demand growth. These views do not
   measure all energy use or classify imported electricity by source.
 - Shares use domestic electricity **generation**, not demand, as the denominator.
 - Percentage points (pp) measure share differences: 20% to 30% is +10 pp, not +10% relative growth.
+- TWh (terawatt-hours) measures amounts of electricity: 1 TWh = 1 billion kWh.
+- Demand is domestic generation plus net imports (OWID electricity_demand_twh).
+  Generation and demand differ when a country trades electricity: 29 of the
+  108 compared countries had net trade above 10% of their 2024 demand
+  (15 net importers, 14 net exporters).
 
 **Filters and Cleaning**
 1. Retain 2000–2024, inclusive. The preparation code excludes 2025 as incomplete.
 2. Keep country/territory rows with three-letter ISO codes. Assign XKX to Kosovo.
-   Exclude regional aggregates and World from the Q2–Q4 selections.
+   Exclude regional aggregates. Q1 uses only the World row; Q2–Q6 exclude it.
 3. Fill a blank source TWh with zero only when the known source TWh already sum to
    total generation within 0.01 TWh. Do not fill unknown totals or clean shares.
 4. After that completeness check, fill a missing source share as
@@ -60,12 +69,61 @@ CSV samples use blank cells for the same unknown values.
 
 | File in data/processed/ | One Row Per | Size | Uses |
 | --- | --- | --- | --- |
-| country_year.csv | Country or World × observed year | 5,518 × 31 | Q2; Q3–Q4 endpoint/source inputs |
-| comparison_2000_2024.csv | Eligible country | 108 × 46 | Q3–Q4 |
+| country_year.csv | Country or World × observed year | 5,518 × 31 | Q1 (World row); Q2; Q3–Q6 endpoint/source inputs |
+| comparison_2000_2024.csv | Eligible country | 108 × 46 | Q3–Q4; Q5–Q6 recalculate the same country set |
 
 Country-years are observed records, not a fully imputed country × year grid.
 The in_comparison_set flag repeats fixed country membership across years;
 it is not a test of each individual year's eligibility.
+
+## Q1 — The World's Electricity Mix
+
+**Question:** How has the global electricity mix changed from 2000 to 2024, in shares and in TWh?
+
+**Transformation:** select the World row for 2000–2024. Group the sources into eight lines:
+Coal, Gas, Oil, and the five clean groups used in Q4 (Wind, Solar, Hydro, Nuclear,
+Other Clean). Each year's eight values add up to total generation in TWh and to 100%
+in shares; the sketch code checks both within 0.01.
+
+**What it shows:** the clean share was 35.3% in 2000, fell to
+31.7% in 2007, and reached 40.9% in 2024.
+Fossil generation still grew, from 9,879 TWh to 18,276 TWh,
+because total generation grew. A rising clean share did not mean less fossil electricity
+for the world; Q5 asks the same question for each country.
+
+**Sample rule:** every fourth year from 2000, plus 2024. The first table matches the share chart,
+the second the TWh chart.
+
+| Year | Coal (%) | Gas (%) | Oil (%) | Wind (%) | Solar (%) | Hydro (%) | Nuclear (%) | Other Clean (%) | Total Generation (TWh) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2000 | 38.02 | 17.97 | 8.67 | 0.20 | 0.01 | 17.21 | 16.63 | 1.29 | 15,278.78 |
+| 2004 | 39.03 | 20.12 | 7.26 | 0.49 | 0.02 | 16.09 | 15.62 | 1.38 | 17,414.99 |
+| 2008 | 40.16 | 21.69 | 5.83 | 1.10 | 0.06 | 16.14 | 13.40 | 1.61 | 20,102.64 |
+| 2012 | 39.80 | 22.92 | 5.50 | 2.35 | 0.43 | 16.26 | 10.80 | 1.94 | 22,515.66 |
+| 2016 | 37.77 | 23.69 | 4.39 | 3.89 | 1.33 | 16.26 | 10.41 | 2.26 | 24,694.51 |
+| 2020 | 35.31 | 23.89 | 2.90 | 5.96 | 3.19 | 16.27 | 9.91 | 2.57 | 26,723.37 |
+| 2024 | 34.07 | 22.25 | 2.76 | 8.11 | 6.93 | 14.33 | 8.98 | 2.56 | 30,930.23 |
+
+[Download CSV](tables/q1_world_share_sample.csv)
+
+| Year | Coal (TWh) | Gas (TWh) | Oil (TWh) | Wind (TWh) | Solar (TWh) | Hydro (TWh) | Nuclear (TWh) | Other Clean (TWh) | Total Generation (TWh) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2000 | 5,808.81 | 2,745.57 | 1,324.32 | 31.15 | 1.02 | 2,629.67 | 2,540.46 | 197.78 | 15,278.78 |
+| 2004 | 6,797.30 | 3,503.08 | 1,263.66 | 85.48 | 2.78 | 2,802.61 | 2,719.41 | 240.67 | 17,414.99 |
+| 2008 | 8,074.19 | 4,360.99 | 1,171.72 | 220.85 | 11.85 | 3,245.35 | 2,694.72 | 322.97 | 20,102.64 |
+| 2012 | 8,960.28 | 5,161.35 | 1,238.60 | 529.26 | 96.92 | 3,660.17 | 2,432.22 | 436.86 | 22,515.66 |
+| 2016 | 9,327.96 | 5,849.92 | 1,085.11 | 960.30 | 327.47 | 4,014.75 | 2,571.05 | 557.95 | 24,694.51 |
+| 2020 | 9,437.05 | 6,382.94 | 775.88 | 1,591.47 | 853.39 | 4,347.02 | 2,648.33 | 687.29 | 26,723.37 |
+| 2024 | 10,538.94 | 6,882.73 | 853.84 | 2,509.50 | 2,142.65 | 4,433.65 | 2,777.11 | 791.81 | 30,930.23 |
+
+[Download CSV](tables/q1_world_twh_sample.csv)
+
+**Sketch:** two line charts with the same eight lines, shares (%) on the left and
+generation (TWh) on the right; two charts rather than two y-axes. Fossil lines are dashed;
+clean lines use the Q4 colors. **Planned interaction:** hovering a line highlights that
+source in both charts and shows its share and TWh for the year.
+
+Local figure: [World Mix](../outputs/sketches/q1_2000_2024_world_mix.png).
 
 ## Q2 — Country Clean Electricity Shares
 
@@ -215,11 +273,140 @@ to fail rather than being treated as zero.
 Local figures: [Source Shares](../outputs/sketches/q4_2000_2024_source_share.png) ·
 [Source Generation](../outputs/sketches/q4_2000_2024_source_generation.png).
 
+## Q5 — Clean Share and Fossil Generation
+
+**Question:** Which countries raised their clean share while cutting fossil generation,
+and which raised it but still generated more fossil electricity?
+
+**Transformation:** use the same 108 eligible countries as Q3–Q4. Calculate
+d_fossil_twh = fossil_twh_2024 − fossil_twh_2000, then sort each country into one of four
+outcomes: clean share up and fossil down, up and fossil up, up and fossil unchanged,
+or clean share not up. Fossil change stays in TWh. Percentage change is not used:
+4 countries had no fossil generation in 2000, and small starting values
+give changes as large as 32,700%.
+
+**Result:** 35 countries raised their clean share and cut fossil
+generation; 44 raised it and still generated more fossil electricity;
+0 raised it with fossil generation unchanged; 29 did not
+raise it. Of the 79 countries whose clean share rose, 55.7%
+also generated more fossil electricity.
+
+**Scale:** fossil change runs from -182.4 TWh to
++5,123.9 TWh (China). On one linear axis,
+85 of the 108 countries fall within ±60 TWh and overlap near zero. The sketch
+shows the overview and an enlarged ±60 TWh band, both linear and with the same x scale.
+
+**Selected country:** the static sketch selects the largest 2024 generator among the
+"share up, fossil up" countries inside the band. With this rule the selected country is **South Africa**: +8.7 pp clean share, +12.7 TWh fossil generation. Its mix appears below the
+scatterplots in the Q1 charts.
+
+**Sample rule:** the 12 largest 2024 generators, plus the selected country.
+
+| Country | Outcome | Clean Share Change (pp) | Fossil Generation 2000 (TWh) | Fossil Generation 2024 (TWh) | Fossil Generation Change (TWh) | Total Generation 2024 (TWh) |
+| --- | --- | --- | --- | --- | --- | --- |
+| China | Clean Share Up, Fossil Up | 20.29 | 1,113.30 | 6,237.20 | 5,123.90 | 10,086.88 |
+| United States | Clean Share Up, Fossil Down | 12.81 | 2,697.28 | 2,552.53 | -144.75 | 4,391.02 |
+| India | Clean Share Up, Fossil Up | 5.69 | 475.35 | 1,578.43 | 1,103.08 | 2,036.52 |
+| Russia | Clean Share Up, Fossil Up | 2.34 | 582.89 | 774.74 | 191.85 | 1,209.31 |
+| Japan | Clean Share Not Up | -6.92 | 679.52 | 698.37 | 18.85 | 1,016.39 |
+| Brazil | Clean Share Not Up | -1.78 | 30.62 | 78.68 | 48.06 | 745.72 |
+| Canada | Clean Share Up, Fossil Down | 5.11 | 165.57 | 142.04 | -23.53 | 636.79 |
+| South Korea | Clean Share Up, Fossil Up | 0.96 | 177.37 | 375.91 | 198.54 | 625.38 |
+| France | Clean Share Up, Fossil Down | 4.21 | 49.57 | 28.66 | -20.91 | 561.78 |
+| Germany | Clean Share Up, Fossil Down | 22.61 | 363.93 | 205.13 | -158.80 | 495.99 |
+| Saudi Arabia | Clean Share Up, Fossil Up | 2.16 | 138.69 | 444.82 | 306.13 | 454.64 |
+| Iran | Clean Share Up, Fossil Up | 3.97 | 115.53 | 367.39 | 251.86 | 395.79 |
+| South Africa | Clean Share Up, Fossil Up | 8.74 | 196.07 | 208.75 | 12.68 | 247.52 |
+
+[Download CSV](tables/q5_fossil_outcomes_sample.csv)
+
+**Sketch:** two scatterplots (x = clean-share change in pp, y = fossil change in TWh).
+Color and marker shape both show the outcome. **Planned interaction:** clicking a dot or
+choosing a country from a menu shows that country's mix over 2000–2024.
+
+Local figure: [Fossil Outcomes](../outputs/sketches/q5_2000_2024_fossil_outcomes.png).
+
+## Q6 — Demand Growth and the Starting Mix
+
+**Question:** How do demand growth and the 2000 mix differ between countries that reduced
+fossil generation and those that did not?
+
+**Transformation:** start from the Q5 table. Leave out 4 countries with zero
+fossil generation in both 2000 and 2024 (Bhutan, Democratic Republic of Congo, Iceland, Paraguay); they had no fossil
+generation to cut. That leaves 104. Calculate
+demand_growth_pct = 100 × (demand_2024 / demand_2000 − 1). Group countries by
+fossil_reduced (d_fossil_twh < 0).
+
+**Result:** the group comparison answers Q6. Median demand growth was
+10.4% where fossil generation fell and
+165.3% where it did not.
+
+| Group | Countries | Median Demand Growth (%) | Lower Quartile (%) | Upper Quartile (%) |
+| --- | --- | --- | --- | --- |
+| Fossil Generation Fell | 35 | 10.41 | 2.80 | 30.35 |
+| Did Not Fall | 69 | 165.27 | 79.25 | 231.50 |
+
+[Download CSV](tables/q6_group_summary.csv)
+
+**Matched pairs:** for each country whose fossil generation fell, the sketch finds a
+country whose fossil generation did not fall with the closest demand growth. It takes the
+smallest gaps first, uses each country once, and breaks ties by name. The
+6 pairs show exceptions to the group pattern: similar demand growth,
+opposite fossil outcomes. They are illustrations, not a sample.
+
+| Pair | Fossil Fell | Demand Growth, Fell (%) | Fossil Did Not Fall | Demand Growth, Did Not Fall (%) | Gap (pp) |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Netherlands | 10.41 | South Africa | 10.42 | 0.00 |
+| 2 | Greece | 7.25 | Serbia | 7.21 | 0.05 |
+| 3 | Sweden | -7.47 | Japan | -7.57 | 0.10 |
+| 4 | Costa Rica | 75.59 | Uzbekistan | 75.38 | 0.20 |
+| 5 | Hungary | 26.15 | Tajikistan | 25.88 | 0.26 |
+| 6 | Australia | 29.89 | Cuba | 29.27 | 0.61 |
+
+[Download CSV](tables/q6_matched_pairs.csv)
+
+**Scale:** demand growth runs from -18.9% to +4,066.7%
+(Cambodia). 89 of the 104 countries are at or below 300%,
+so the sketch shows the overview and an enlarged band up to 300%, both linear.
+
+**Sketch:** two scatterplots (x = demand growth, y = clean share in 2000) with each group's
+median as a dashed line; bars compare the selected pair's 2000 mix, and a table shows their
+numbers. **Planned interaction:** a button for each pair rings both countries and updates
+the bars and the table.
+
+Local figure: [Demand Pairs](../outputs/sketches/q6_2000_2024_demand_pairs.png).
+
+## Cutoffs and Sensitivity
+
+**Start year 2000:** the processed tables begin in 2000. In the raw OWID file, 81
+places have generation data in 1999 and 211 in 2000, so an earlier start would
+compare a much smaller set of countries.
+
+**Size threshold 10 TWh in 2024:** in a small system, one new plant can move the
+clean share by many points. The threshold keeps 108 of the 193
+countries with data in both 2000 and 2024.
+
+**Sensitivity:** data/processed/robustness.csv recalculates the Q5 result for four start
+years and five thresholds: the percentage of countries with a rising clean share that also
+generated more fossil electricity.
+
+| Start Year | ≥ 0 TWh (%) | ≥ 5 TWh (%) | ≥ 10 TWh (%) | ≥ 20 TWh (%) | ≥ 50 TWh (%) |
+| --- | --- | --- | --- | --- | --- |
+| 2000 | 59.90 | 56.40 | 55.70 | 56.90 | 53.70 |
+| 2005 | 52.50 | 48.90 | 49.40 | 50.00 | 50.00 |
+| 2010 | 51.40 | 47.50 | 49.40 | 47.10 | 52.20 |
+| 2015 | 46.70 | 45.70 | 46.70 | 45.80 | 47.90 |
+
+Across these 20 settings, the value ranges from 45.7% to
+59.9%. The baseline is 55.7%
+(44 of 79).
+
 ## Created and Derived Features
 
-[Feature dictionary](tables/feature_dictionary.csv): **46 stored columns**
-used for Q2–Q4, with units, input fields, and transformation rules.
-It covers the relevant fields in the two processed tables, not unrelated fields.
+[Feature dictionary](tables/feature_dictionary.csv): **60 columns**
+used for Q1–Q6, with units, input fields, and transformation rules.
+It covers the relevant fields in the two processed tables and the Q5–Q6 measures
+that the sketches derive, not unrelated fields.
 Copied/renamed source measures are distinguished from newly derived features.
 
 | Feature or Family | Transformation | Unit or Rule |
@@ -235,6 +422,10 @@ Copied/renamed source measures are distinguished from newly derived features.
 | Clean-source TWh deltas | End generation minus start generation | TWh |
 | Other Clean deltas | Sum bioenergy and other renewables excluding bioenergy changes | pp or TWh; keep negative changes |
 | rank | Sort eligible countries by clean-share gain | 1-based row rank |
+| demand_twh, net_imports_twh | Rename OWID demand and net imports | TWh; demand = generation + net imports |
+| Coal, gas, and oil TWh and shares | Rename; same missing-value rules as clean sources | TWh or %; Q1 lines and Q6 start mix |
+| d_fossil_twh, outcome, fossil_reduced | End minus start fossil generation; four outcomes | TWh; categories (Q5) and groups (Q6) |
+| demand_growth_pct, generation_growth_pct | 100 × (end / start − 1) | %; blank if the start is not positive |
 
 Sketch exports use _start and _end suffixes rather than year suffixes. Their source tables
 use configurable group labels as columns and total for net clean change.
@@ -247,6 +438,8 @@ in Q2 but not necessarily in Q3–Q4. Some places cannot appear on the map.
 Case samples do not establish population-level distributions.
 No country-average or generation-weighted aggregation is used in these samples.
 Q4 aggregates source changes within each country, not across countries.
+Q5 and Q6 show associations, not causes. The Q6 pairs are chosen by a rule to show
+exceptions; they are not a sample.
 
 ## Reproduction and Checks
 
@@ -262,9 +455,12 @@ Run from the repository root:
   finite values, and the main country counts.
 - sketches/data.py recalculates selections and source changes for configured dates.
   Source groups must sum to net change within 0.01 in the relevant unit.
-- prep/report.py checks that documented Q2–Q4 fields exist, checks Q4
+- sketches/q156_data.py checks that the eight Q1 lines add up to generation and to 100%,
+  and recalculates the Q5 outcomes and the Q6 groups and pairs for configured dates.
+- prep/report.py checks that documented Q1–Q6 fields exist, checks Q4
   group sums, and rebuilds this report and its CSV tables from processed values.
-- The overview montage is tracked at outputs/preview.png. Individual figure links
+- The overview montage is tracked at outputs/preview.png, and Q1, Q5, and Q6 at
+  outputs/preview-q1.png, preview-q5.png, and preview-q6.png. Individual figure links
   point to local, ignored files under outputs/sketches/; regenerate with the default config.
 - Processed values already use four decimals. The report only rounds for display.
   It does not edit raw data or impute missing values.

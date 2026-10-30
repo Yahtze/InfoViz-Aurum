@@ -12,6 +12,7 @@ from prep.report import (
     TOP_N, build_report, build_samples, feature_dictionary, load_tables,
     markdown_table,
 )
+from prep.report_q156 import q156_results, q156_samples
 from sketches.data import comparison, extremes, load_country_year, source_changes
 from sketches.settings import ROOT, load_settings
 
@@ -102,7 +103,8 @@ class ReportTests(unittest.TestCase):
             self.assertIn(expected, result)
 
     def test_report_and_csvs_rebuild_reproducibly(self):
-        expected = {f"{name}.csv" for name in self.samples} | {"feature_dictionary.csv"}
+        names = [*self.samples, *q156_samples(q156_results())]
+        expected = {f"{name}.csv" for name in names} | {"feature_dictionary.csv"}
         self.assertEqual({path.name for path in (ROOT / "reports/tables").glob("*.csv")}, expected)
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             report = build_report(Path(directory))
@@ -111,10 +113,17 @@ class ReportTests(unittest.TestCase):
             self.assertEqual(
                 {path.name for path in (report.parent / "tables").glob("*.csv")}, expected,
             )
-            self.assertEqual(re.findall(r"^## (Q[0-9]+) —", text, re.MULTILINE), ["Q2", "Q3", "Q4"])
-            self.assertNotIn("robustness.csv", text)
+            self.assertEqual(
+                re.findall(r"^## (Q[0-9]+) —", text, re.MULTILINE), ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6"],
+            )
+            # Other start years and robustness.csv belong only to the cutoff section.
+            cutoffs = re.search(r"^## Cutoffs and Sensitivity\n.*?(?=^## )", text, re.MULTILINE | re.DOTALL)
+            self.assertIsNotNone(cutoffs)
+            self.assertIn("robustness.csv", cutoffs.group())
+            rest = text.replace(cutoffs.group(), "")
+            self.assertNotIn("robustness.csv", rest)
             self.assertIn("2000–2024 for comparisons", text)
-            self.assertNotIn("2010", text)
+            self.assertNotIn("2010", rest)
             self.assertIn("[Tracked six-figure overview montage](../outputs/preview.png)", text)
             self.assertIn("Individual figure files", text)
             self.assertNotIn("Wind + Solar Change", text)

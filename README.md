@@ -25,7 +25,8 @@ tests/             data-selection, configuration, map, and report tests
 reports/           sample tables and feature dictionary
 data/raw/          pinned copies of the source files (do not edit)
 data/processed/    the tables, made by prep/build.py (do not edit by hand)
-outputs/preview.png  combined six-figure preview (tracked)
+outputs/preview.png  combined six-figure preview, Q2–Q4 (tracked)
+outputs/preview-q*.png  Q1, Q5, and Q6 previews (tracked)
 outputs/sketches/  generated figures, CSVs, and run settings (ignored)
 ```
 
@@ -59,9 +60,9 @@ The rules (which rows count as countries, which years, how missing values are ha
 ## Initial EDA sketches
 
 These are static exploratory views, not the final visualization design. The interactive app
-will be built later in D3/JavaScript. All six chart titles state **Domestic Electricity
-Generation**. The charts do not measure all energy use or classify imported electricity
-by source.
+will be built later in D3/JavaScript. The Q1–Q5 chart titles state **Domestic Electricity
+Generation**; the Q6 title names electricity demand, because its x-axis is demand growth.
+The charts do not measure all energy use or classify imported electricity by source.
 
 ```sh
 uv run python -m sketches --preview outputs/preview.png
@@ -69,17 +70,34 @@ uv run python -m sketches --preview outputs/preview.png
 
 ![Six Exploratory Electricity Sketches](outputs/preview.png)
 
-The combined PNG above is tracked in version control. Other files under `outputs/`
-remain ignored. The `--preview` option requires PNG output and assembles the six views
-at their exported resolution. Omit it for experiments that should not replace the preview.
+![Q1 World Mix](outputs/preview-q1.png)
+![Q5 Fossil Outcomes](outputs/preview-q5.png)
+![Q6 Demand Pairs](outputs/preview-q6.png)
 
-The default run writes six figures, each in PNG and SVG, to `outputs/sketches/`:
+The combined PNG above is tracked in version control. Other files under `outputs/`
+remain ignored. The `--preview` option requires PNG output and assembles the six Q2–Q4 views
+at their exported resolution; it copies the Q1, Q5, and Q6 figures next to it as
+`preview-q1.png`, `preview-q5.png`, and `preview-q6.png`. Omit it for experiments that should
+not replace the previews.
+
+The default run writes nine figures, each in PNG and SVG, to `outputs/sketches/`:
 
 | Question | View A | View B |
 |---|---|---|
 | Q2: clean shares in 2024 | World map: geographic patterns | Highest/lowest ranked bars: exact comparisons |
 | Q3: share change, 2000–2024 | Largest gains/losses in percentage points | The same countries' start/end shares: starting mix and final level |
 | Q4: sources behind the largest share gains | Separate source-share changes in percentage points | The same countries' absolute generation changes in TWh |
+| Q1: the world mix, 2000–2024 | Eight source lines in shares (%) | The same lines in TWh |
+| Q5: clean share vs. fossil generation | Scatterplots: all countries and an enlarged ±60 TWh band | The selected country's mix over the period (the Q1 charts) |
+| Q6: demand growth and the 2000 mix | Scatterplots: all countries and an enlarged band up to 300% growth | One matched pair's 2000 mix and numbers |
+
+The Q1, Q5, and Q6 figures (Yusuke) also sketch the planned interaction: a dashed box
+describes it, and the image shows one state (a hover, a selected country, a selected pair).
+Q5 and Q6 show an overview and an enlarged band on the same linear scale, because a few
+very large values (China's fossil growth, Cambodia's demand growth) squeeze most countries
+into a corner. Q5 keeps four outcomes, including "fossil unchanged", which appears in
+other windows. Q6 answers the question with the two groups' medians; the pairs (closest
+demand growth, opposite fossil outcomes) show exceptions, not a sample.
 
 Q4 uses diverging stacked bars so declining sources stay visible. Diamonds mark the net
 clean change. Source-share contributions add up to the clean-share change, but this
@@ -91,7 +109,9 @@ separately. Other Clean combines bioenergy and other renewables excluding bioene
 
 Edit **`sketches/config.toml`**. It holds the snapshot year, comparison endpoints, number of
 countries per tail, minimum endpoint generation, source groups/colors, output directory,
-file formats, and resolution. CLI flags override individual settings:
+file formats, and resolution. `[q5]` and `[q6]` set the enlarged bands, the Q5 example
+(by default chosen by a rule: the largest end-year generator among "share up, fossil up"
+countries in the band), and the number of Q6 pairs. CLI flags override individual settings:
 
 ```sh
 uv run python -m sketches --snapshot-year 2020 --start-year 2005 --end-year 2020 --top-n 5
@@ -120,12 +140,17 @@ Selection rules:
   and low snapshot tails do not overlap. Change tails show only positive gains/negative losses.
 - Q4 uses up to `top_n` positive clean-share gainers, in the same order for both measures.
   Missing source data causes an error instead of being plotted as zero.
+- Q5 uses the same countries as Q3–Q4. Fossil change stays in TWh; percentage change is not
+  used because some countries start from zero or near zero.
+- Q6 leaves out countries with zero fossil generation at both endpoints (nothing to cut).
+  Pairs are chosen greedily by the smallest demand-growth gap, each country once, ties by name.
 
-Each run also exports the full snapshot, comparison data, both Q4 breakdown tables, and a
+Each run also exports the full snapshot, comparison data, both Q4 breakdown tables, the
+Q1 world mix, the Q5 outcomes, the Q6 pairs, and a
 JSON manifest with the settings and selected countries. Filenames include the dates.
 Rerunning the same dates replaces those files; use a separate output directory to preserve
-threshold/category experiments. Only `outputs/preview.png` is versioned; individual
-figures, exported CSVs, and manifests remain ignored.
+threshold/category experiments. Only `outputs/preview.png` and `outputs/preview-q*.png` are
+versioned; individual figures, exported CSVs, and manifests remain ignored.
 
 ### Code and checks
 
@@ -135,6 +160,8 @@ figures, exported CSVs, and manifests remain ignored.
 - `sketches/plots.py`: rendering only.
 - `sketches/__main__.py`: CLI, exports, and manifest.
 - `sketches/preview.py`: combined six-figure PNG.
+- `sketches/q156_data.py`, `sketches/q156_plots.py`: Q1, Q5, and Q6 calculations and rendering.
+- `prep/report_q156.py`: the Q1, Q5, Q6, and cutoff sections of the report.
 
 ```sh
 uv run python -m unittest discover -s tests -v
@@ -142,7 +169,7 @@ uv run python -m unittest discover -s tests -v
 
 ## Sample Tables and Feature Dictionary
 
-[CSV sample tables](reports/tables/) cover Q2, Q3, and Q4 only, including source
+[CSV sample tables](reports/tables/) cover Q1–Q6, including source
 breakdowns in both pp and TWh. The [feature dictionary](reports/tables/feature_dictionary.csv)
 documents the processed fields used for these questions. These tables use the preparation
 baseline, not custom sketch settings. Rebuild them after rebuilding the processed tables:
@@ -176,3 +203,4 @@ Course policy allows generative AI if we disclose which parts it produced. We ar
 |---|---|---|---|
 | 2026-10-18 | Claude (Anthropic), Codex (OpenAI) | First draft and review of the M1 proposal text | Yusuke checked each section; Yathin expanded and submitted it |
 | 2026-10-25 | Claude Code (Anthropic), Codex (OpenAI) | Repository setup and `prep/build.py`; Codex reviewed them | Reviewed in a pull request before merging; the script re-checks the main numbers on every run |
+| 2026-10-27 to 10-30 | Claude Code (Anthropic), Codex (OpenAI) | Code for Yusuke's Q1, Q5, and Q6 sketches, their report sections, and tests; Codex reviewed the plan and the code | Yusuke chose the designs and reviewed the figures; tests check the sums, counts, and that the report matches the sketches |

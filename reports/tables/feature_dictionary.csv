@@ -45,3 +45,17 @@ comparison_2000_2024.csv,d_other_renewables_excluding_bioenergy_share_pp,Derived
 comparison_2000_2024.csv,d_other_renewables_excluding_bioenergy_twh,Derived Difference,TWh,other_renewables_excluding_bioenergy_twh_2000; other_renewables_excluding_bioenergy_twh_2024,End source value minus start source value.
 comparison_2000_2024.csv,d_other_clean_share_pp,Derived Sum,percentage points,d_bioenergy_share_pp; d_other_renewables_excluding_bioenergy_share_pp,Sum bioenergy and other renewables excluding bioenergy; the four other clean sources are shown separately.
 comparison_2000_2024.csv,d_other_clean_twh,Derived Sum,TWh,d_bioenergy_twh; d_other_renewables_excluding_bioenergy_twh,Sum bioenergy and other renewables excluding bioenergy; the four other clean sources are shown separately.
+country_year.csv,demand_twh,Renamed / Cleaned,TWh,electricity_demand_twh,Rename the OWID field; generation + net imports. Retain unknown values.
+country_year.csv,net_imports_twh,Renamed / Cleaned,TWh,electricity_net_imports_twh,Rename the OWID field; negative means net exports.
+country_year.csv,coal_twh,Renamed / Cleaned,TWh,coal_electricity_twh,Rename the OWID field; the same zero-fill rule as the clean sources.
+country_year.csv,coal_share_pct,Renamed / Cleaned,%,coal_electricity_share_pct,Rename the OWID field; the same fill rule as the clean-source shares.
+country_year.csv,gas_twh,Renamed / Cleaned,TWh,gas_electricity_twh,Rename the OWID field; the same zero-fill rule as the clean sources.
+country_year.csv,gas_share_pct,Renamed / Cleaned,%,gas_electricity_share_pct,Rename the OWID field; the same fill rule as the clean-source shares.
+country_year.csv,oil_twh,Renamed / Cleaned,TWh,oil_electricity_twh,Rename the OWID field; the same zero-fill rule as the clean sources.
+country_year.csv,oil_share_pct,Renamed / Cleaned,%,oil_electricity_share_pct,Rename the OWID field; the same fill rule as the clean-source shares.
+q5_2000_2024_fossil_outcomes.csv (sketch export),d_fossil_twh,Derived Difference,TWh,fossil_twh_end; fossil_twh_start,End fossil generation minus start; not percentage growth.
+q5_2000_2024_fossil_outcomes.csv (sketch export),outcome,Derived Category,text,d_clean_share_pp; d_fossil_twh,"Clean share up (> 0 pp) with fossil down, up, or unchanged; otherwise clean share not up."
+q5_2000_2024_fossil_outcomes.csv (sketch export),fossil_reduced,Derived Flag,boolean,d_fossil_twh,True if d_fossil_twh < 0 (Q6 groups).
+q5_2000_2024_fossil_outcomes.csv (sketch export),demand_growth_pct,Derived Growth,%,demand_twh_end; demand_twh_start,100 × (end / start − 1); blank if start demand is not positive.
+q5_2000_2024_fossil_outcomes.csv (sketch export),generation_growth_pct,Derived Growth,%,generation_twh_end; generation_twh_start,100 × (end / start − 1); blank if start generation is not positive.
+q5_2000_2024_fossil_outcomes.csv (sketch export),net_imports_share_of_demand_pct_end,Derived Ratio,%,net_imports_twh_end; demand_twh_end,100 × net imports / demand in 2024; blank if demand is not positive.
