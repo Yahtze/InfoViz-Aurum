@@ -8,7 +8,7 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from prep.report_q156 import q156_results, q156_samples
+from prep.report_q156 import baseline_settings, q156_results, q156_samples
 from sketches.data import load_country_year
 from sketches.q156_data import (
     OUTCOME_LABELS, OUTCOMES, fossil_outcomes, group_summary, growth_pct, load_world, matched_pairs,
@@ -163,6 +163,13 @@ class SettingsTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 replace(settings, **change)
 
+    def test_rejects_labels_that_clash_with_mix_columns(self):
+        settings = load_settings()
+        for label in ("year", "Coal", "Gas", "Oil"):
+            groups = (replace(settings.groups[0], label=label), *settings.groups[1:])
+            with self.subTest(label=label), self.assertRaisesRegex(ValueError, "reserved"):
+                replace(settings, groups=groups)
+
 
 class PlotTests(unittest.TestCase):
     @classmethod
@@ -230,6 +237,65 @@ class PlotTests(unittest.TestCase):
                     finally:
                         plt.close(fig)
 
+    def test_q5_note_names_a_configured_example(self):
+        import matplotlib.pyplot as plt
+
+        for settings, expected, absent in (
+            (self.settings, "Example rule:", "set in the config"),
+            (replace(self.settings, q5_example="Germany"), "Example: Germany, set in the config (q5.example).",
+             "Example rule:"),
+        ):
+            with self.subTest(example=settings.q5_example):
+                fig = self.render(settings)[1]
+                try:
+                    note = " ".join(next(text.get_text() for text in fig.texts
+                                         if text.get_text().startswith("Source: OWID")).split())
+                    self.assertIn(expected, note)
+                    self.assertNotIn(absent, note)
+                finally:
+                    plt.close(fig)
+
+    def test_q6_overview_axis_with_one_country(self):
+        import matplotlib.pyplot as plt
+
+        # Only the United States is left, with negative demand growth.
+        settings = replace(self.settings, end_year=2001, min_generation_twh=3000.0)
+        fig = self.render(settings)[2]
+        try:
+            ax = fig.axes[0]
+            growth = ax.collections[0].get_offsets()[:, 0].tolist() + ax.collections[1].get_offsets()[:, 0].tolist()
+            self.assertEqual(len(growth), 1)
+            self.assertLess(growth[0], 0)
+            left, right = ax.get_xlim()
+            self.assertLess(left, right)
+            self.assertTrue(all(left < value < right for value in growth))
+        finally:
+            plt.close(fig)
+
+    def test_q6_pair_buttons_do_not_cover_the_legend_or_charts(self):
+        import matplotlib.pyplot as plt
+
+        for pairs in (6, 12, 35):
+            with self.subTest(pairs=pairs):
+                fig = self.render(replace(self.settings, q6_pairs=pairs))[2]
+                try:
+                    fig.canvas.draw()
+                    renderer = fig.canvas.get_renderer()
+                    buttons = [text.get_bbox_patch().get_window_extent(renderer) for text in fig.texts
+                               if text.get_bbox_patch() is not None and " – " in text.get_text()
+                               and not text.get_text().startswith("Planned Interaction:")]
+                    self.assertEqual(len(buttons), pairs)
+                    legend = fig.legends[0].get_window_extent(renderer)
+                    charts = max(ax.get_tightbbox(renderer).y1 for ax in fig.axes[:2])
+                    self.assertGreater(legend.y0, charts)
+                    for i, button in enumerate(buttons):
+                        self.assertFalse(button.overlaps(legend))
+                        self.assertGreater(button.y0, legend.y1)
+                        self.assertLess(button.x1, fig.bbox.width)
+                        self.assertFalse(any(button.overlaps(other) for other in buttons[i + 1:]))
+                finally:
+                    plt.close(fig)
+
 
 class ReportConsistencyTests(unittest.TestCase):
     """The report's Q1, Q5 and Q6 tables must match what the default sketches compute."""
@@ -243,8 +309,18 @@ class ReportConsistencyTests(unittest.TestCase):
 
     def test_report_baseline_is_the_default_config(self):
         report = self.results["settings"]
-        for name in ("start_year", "end_year", "min_generation_twh", "q5_zoom_twh", "q6_pairs"):
+        for name in ("start_year", "end_year", "min_generation_twh", "q5_zoom_twh", "q5_example", "q6_zoom_pct",
+                     "q6_pairs", "q6_selected_pair", "groups"):
             self.assertEqual(getattr(report, name), getattr(self.settings, name))
+
+    def test_report_does_not_read_the_sketch_config(self):
+        from unittest import mock
+
+        with mock.patch("sketches.settings.tomllib.load", side_effect=AssertionError("config was read")):
+            settings = baseline_settings()
+        self.assertEqual([group.label for group in settings.groups],
+                         ["Wind", "Solar", "Hydro", "Nuclear", "Other Clean"])
+        self.assertIsNone(settings.q5_example)
 
     def test_samples_match_sketch_values(self):
         q5 = self.samples["q5_fossil_outcomes_sample"].set_index("Country")

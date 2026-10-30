@@ -56,7 +56,7 @@ class Settings:
         if any(not is_color_like(group.color) for group in self.groups):
             raise ValueError("Each source group must have a valid Matplotlib color")
         labels = [group.label for group in self.groups]
-        if set(labels) & {"iso3", "country", "d_clean_share_pp", "total"}:
+        if set(labels) & {"iso3", "country", "d_clean_share_pp", "total", "year", "Coal", "Gas", "Oil"}:
             raise ValueError("Source group labels must not use reserved table column names")
         if any(not label.strip() for label in labels) or len(set(labels)) != len(labels):
             raise ValueError("source group labels must be nonempty and unique")

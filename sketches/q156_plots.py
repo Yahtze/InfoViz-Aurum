@@ -256,13 +256,16 @@ def fossil_outcome_scatter(table, countries, settings, example):
     fig.text(0.07, 0.465, "Selected Country", fontsize=12, fontweight="bold", va="center", color=INK)
     control(fig, 0.2, 0.465, f"Country:  {example['country'] if example is not None else 'Choose'}  ▾")
     no_start = int(table["fossil_twh_start"].eq(0).sum())
+    if settings.q5_example:
+        rule = f"Example: {settings.q5_example}, set in the config (q5.example)."
+    else:
+        rule = f"Example rule: the largest {e} generator among \"share up, fossil up\" countries in the band."
     return frame(
         fig, f"Domestic Electricity Generation: Clean-Share Change vs. Fossil Change · {s}–{e}",
         f"Source: OWID. {len(table)} countries with endpoint data and ≥ {settings.min_generation_twh:g} TWh "
         f"generation in {e}. Both scatterplots use the same linear x scale. Percent change in fossil generation "
         f"is not used: small bases give extreme percentages, and {no_start} countries had no fossil generation "
-        f"in {s}. Example rule: the largest {e} generator among \"share up, fossil up\" countries in the band. "
-        "Clean = renewables + nuclear. Not causal.",
+        f"in {s}. {rule} Clean = renewables + nuclear. Not causal.",
     )
 
 
@@ -275,9 +278,32 @@ def demand_pairs(table, left_out, pairs, summary, settings):
     in_zoom = table.loc[table["demand_growth_pct"].le(zoom)]
 
     fig = plt.figure(figsize=(14, 13.5))
-    top = fig.add_gridspec(1, 2, left=0.07, right=0.97, top=0.79, bottom=0.5, wspace=0.22)
-    bottom = fig.add_gridspec(1, 2, left=0.07, right=0.97, top=0.4, bottom=0.08, width_ratios=[1, 1.1],
-                              wspace=0.3)
+    # Lay out the pair buttons first. Each extra row makes the figure 0.4 in taller, so the
+    # legend and the charts below the buttons keep their size.
+    renderer = fig.canvas.get_renderer()
+    button_rows, bx = [[]], 0.115
+    for row in pairs.itertuples(index=False):
+        text = f"{row.country_reduced} – {row.country_other}"
+        probe = control(fig, 0, 0, text)
+        width = probe.get_window_extent(renderer).width / fig.bbox.width
+        probe.remove()
+        if bx + width > 0.97 and button_rows[-1]:
+            button_rows.append([])
+            bx = 0.115
+        button_rows[-1].append((bx, text, row.pair == settings.q6_selected_pair))
+        bx += width + 0.015
+    height = 13.5 + 0.4 * (len(button_rows) - 1)
+    fig.set_size_inches(14, height)
+
+    def below(y):  # The same distance from the bottom as in the 13.5 in layout.
+        return y * 13.5 / height
+
+    def above(y):  # The same distance from the top.
+        return 1 - (1 - y) * 13.5 / height
+
+    top = fig.add_gridspec(1, 2, left=0.07, right=0.97, top=below(0.79), bottom=below(0.5), wspace=0.22)
+    bottom = fig.add_gridspec(1, 2, left=0.07, right=0.97, top=below(0.4), bottom=below(0.08),
+                              width_ratios=[1, 1.1], wspace=0.3)
     ax_all, ax_zoom = fig.add_subplot(top[0, 0]), fig.add_subplot(top[0, 1])
     ax_bars, ax_table = fig.add_subplot(bottom[0, 0]), fig.add_subplot(bottom[0, 1])
 
@@ -301,7 +327,8 @@ def demand_pairs(table, left_out, pairs, summary, settings):
     style(ax_all, xlabel, ylabel, f"All {len(table)} Countries")
     style(ax_zoom, xlabel, ylabel, f"Enlarged: {len(in_zoom)} Countries With Growth ≤ {zoom:,.0f}%")
     x = table["demand_growth_pct"]
-    ax_all.set_xlim(x.min() - (x.max() - x.min()) * 0.03, x.max() * 1.12)
+    spread = max(x.max() - x.min(), 50)  # A few close values still get a readable range.
+    ax_all.set_xlim(x.min() - spread * 0.03, x.max() + spread * 0.12)
     ax_all.axvspan(x.min(), zoom, facecolor="#F0F0F0", edgecolor="#999999", linestyle="--", linewidth=0.8, zorder=0)
     ax_all.annotate(f"≤ {zoom:,.0f}% Band,\nEnlarged at Right", xy=(zoom, 78), xytext=(18, 0),
                     textcoords="offset points", va="center", fontsize=8.5, color=MUTED,
@@ -362,25 +389,16 @@ def demand_pairs(table, left_out, pairs, summary, settings):
         handles.append(Line2D([], [], linestyle="none", marker="o", markersize=12, markerfacecolor="none",
                               markeredgecolor=INK, markeredgewidth=1.8))
         labels.append(f"Selected Pair: {' and '.join(names)}")
-    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.07, 0.86), ncol=len(handles), frameon=False,
-               fontsize=9.5, columnspacing=1.4, handletextpad=0.4)
-    interaction(fig, 0.07, 0.94,
+    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.07, below(0.86)), ncol=len(handles),
+               frameon=False, fontsize=9.5, columnspacing=1.4, handletextpad=0.4)
+    interaction(fig, 0.07, above(0.94),
                 "click a pair button; both countries are ringed in the scatterplots, and the bars and the table "
                 f"show their {s} mix and numbers.\nEach pair has similar demand growth but opposite fossil outcomes. "
                 f"Shown: pair {settings.q6_selected_pair}, {' – '.join(names) if names else 'none'}.")
-    # Pair buttons, wrapped onto a second row when they do not fit.
-    fig.text(0.07, 0.885, "Pairs:", fontsize=9.5, va="center", fontweight="bold", color=INK)
-    renderer = fig.canvas.get_renderer()
-    bx, by = 0.115, 0.885
-    for row in pairs.itertuples(index=False):
-        text = f"{row.country_reduced} – {row.country_other}"
-        button = control(fig, bx, by, text, selected=row.pair == settings.q6_selected_pair)
-        width = button.get_window_extent(renderer).width / fig.bbox.width
-        if bx + width > 0.97:
-            button.remove()
-            bx, by = 0.115, by - 0.03
-            button = control(fig, bx, by, text, selected=row.pair == settings.q6_selected_pair)
-        bx += width + 0.015
+    fig.text(0.07, above(0.885), "Pairs:", fontsize=9.5, va="center", fontweight="bold", color=INK)
+    for i, buttons in enumerate(button_rows):
+        for bx, text, selected in buttons:
+            control(fig, bx, above(0.885) - i * 0.4 / height, text, selected=selected)
 
     reduced, other = (summary.set_index("fossil_reduced").loc[flag] for flag in (True, False))
     return frame(

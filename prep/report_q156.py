@@ -4,8 +4,6 @@ The numbers come from the same sketches/q156_data.py functions the sketches use,
 run at the preparation baseline (years and size threshold from prep/build.py).
 """
 
-from dataclasses import replace
-
 import pandas as pd
 
 from prep.build import END_YEAR, MEASURES, MIN_GENERATION_TWH, RAW, ROOT, START_YEAR
@@ -14,24 +12,36 @@ from sketches.q156_data import (
     OUTCOME_LABELS, fossil_outcomes, group_summary, growth_pct, load_world, matched_pairs, mix_table,
     q5_example, q6_countries, window,
 )
-from sketches.settings import load_settings
+from sketches.settings import Settings, SourceGroup
 
 Q5_SAMPLE_SIZE = 12
 # Net trade above this share of demand makes generation and demand differ noticeably.
 TRADE_PCT = 10
 RAW_NAME = {processed: raw for raw, processed in MEASURES.items()}
+# The five clean groups of the default config (as in Q4). Colors are not used in the report.
+BASELINE_GROUPS = (
+    SourceGroup("Wind", ("wind",), "#4C78A8"),
+    SourceGroup("Solar", ("solar",), "#E6AC27"),
+    SourceGroup("Hydro", ("hydro",), "#3AA7A3"),
+    SourceGroup("Nuclear", ("nuclear",), "#8D6BB8"),
+    SourceGroup("Other Clean", ("bioenergy", "other_renewables_excluding_bioenergy"), "#5A9A78"),
+)
 
 
 def baseline_settings():
-    """The default sketch config, at the report's baseline years and threshold."""
-    return replace(
-        load_settings(), snapshot_year=END_YEAR, start_year=START_YEAR, end_year=END_YEAR,
-        min_generation_twh=float(MIN_GENERATION_TWH),
+    """Fixed report settings: the preparation baseline and the Q5/Q6 defaults.
+
+    They do not read sketches/config.toml, so editing the sketch config does not change the report.
+    """
+    return Settings(
+        snapshot_year=END_YEAR, start_year=START_YEAR, end_year=END_YEAR, top_n=10,
+        min_generation_twh=float(MIN_GENERATION_TWH), output_dir=ROOT / "outputs/sketches", formats=("png",),
+        dpi=160, groups=BASELINE_GROUPS,
     )
 
 
-def q156_results(settings=None):
-    settings = settings or baseline_settings()
+def q156_results():
+    settings = baseline_settings()
     countries = load_country_year()
     outcomes = fossil_outcomes(countries, settings)
     q6_table, left_out = q6_countries(outcomes)
