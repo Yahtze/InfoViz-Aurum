@@ -22,6 +22,7 @@ Of the 83 countries (out of 108 compared) that raised their clean share, 41 stil
 prep/build.py      all data processing, in one place
 data/raw/          pinned copies of the source files (do not edit)
 data/processed/    the tables, made by prep/build.py (do not edit by hand)
+sketches/          the M2 sketches, drawn with Matplotlib (python sketches/q1.py writes sketches/q1.png)
 ```
 
 ## Tables
@@ -52,6 +53,7 @@ The rules (which rows count as countries, which years, how missing values are ha
 
 - **Which countries:** Q1 uses the World row. Q2 uses every country (221). Q3–Q6 compare 108 countries:
   those with data in both 2010 and 2024 and at least 10 TWh of generation in 2024.
+  Q6 leaves out the 4 with no fossil generation in 2010 or 2024 (Paraguay, Iceland, Bhutan, Nepal), so it has 104.
 - **Blank means unknown, not 0.** Q2 has 25 countries with no 2024 clean share (Ukraine is one). Show them as "no data".
 - **The map can't draw 8 of Q2's places** (`on_map` = false in `country_year.csv`), including Gibraltar,
   which has one of the lowest shares (0%). Pair the Q2 map with a ranked list.
