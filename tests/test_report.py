@@ -8,12 +8,17 @@ import unittest
 import numpy as np
 import pandas as pd
 
+from sketches.data import comparison, extremes, load_country_year, source_changes
+from sketches.settings import ROOT, load_settings
+
+# prep/report.py is kept out of the repository (.gitignore), so a fresh clone skips these tests.
+if not (ROOT / "prep" / "report.py").is_file():
+    raise unittest.SkipTest("prep/report.py is not in this checkout")
+
 from prep.report import (
     TOP_N, build_report, build_samples, feature_dictionary, load_tables,
     markdown_table,
 )
-from sketches.data import comparison, extremes, load_country_year, source_changes
-from sketches.settings import ROOT, load_settings
 
 
 class ReportTests(unittest.TestCase):
