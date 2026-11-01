@@ -32,6 +32,11 @@ class Settings:
     formats: tuple[str, ...]
     dpi: int
     groups: tuple[SourceGroup, ...]
+    # Q5 and Q6 (optional in the config; these are the defaults).
+    q5_zoom_twh: float = 60.0
+    q5_example: str | None = None
+    q6_pairs: int = 6
+    q6_selected_pair: int = 1
 
     def __post_init__(self):
         for name in ("snapshot_year", "start_year", "end_year", "top_n", "dpi"):
@@ -50,7 +55,7 @@ class Settings:
         if any(not is_color_like(group.color) for group in self.groups):
             raise ValueError("Each source group must have a valid Matplotlib color")
         labels = [group.label for group in self.groups]
-        if set(labels) & {"iso3", "country", "d_clean_share_pp", "total"}:
+        if set(labels) & {"iso3", "country", "d_clean_share_pp", "total", "year", "Coal", "Gas", "Oil"}:
             raise ValueError("Source group labels must not use reserved table column names")
         if any(not label.strip() for label in labels) or len(set(labels)) != len(labels):
             raise ValueError("source group labels must be nonempty and unique")
@@ -59,12 +64,23 @@ class Settings:
             raise ValueError("source groups must not be empty")
         if len(sources) != len(set(sources)) or set(sources) != set(CLEAN_SOURCES):
             raise ValueError("source groups must contain each clean source exactly once")
+        value = self.q5_zoom_twh
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value <= 0:
+            raise ValueError("q5_zoom_twh must be a positive number")
+        for name in ("q6_pairs", "q6_selected_pair"):
+            if type(getattr(self, name)) is not int or getattr(self, name) < 1:
+                raise ValueError(f"{name} must be a positive integer")
+        if self.q6_selected_pair > self.q6_pairs:
+            raise ValueError("q6_selected_pair must not exceed q6_pairs")
+        if self.q5_example is not None and (not isinstance(self.q5_example, str) or not self.q5_example.strip()):
+            raise ValueError("q5_example must be a country name")
 
 
 def load_settings(path: Path = ROOT / "sketches" / "config.toml") -> Settings:
     with path.open("rb") as handle:
         config = tomllib.load(handle)
     years, selection, output = (config[key] for key in ("years", "selection", "output"))
+    q5, q6 = config.get("q5", {}), config.get("q6", {})
     directory = Path(output["directory"])
     return Settings(
         snapshot_year=years["snapshot"],
@@ -79,4 +95,8 @@ def load_settings(path: Path = ROOT / "sketches" / "config.toml") -> Settings:
             SourceGroup(group["label"], tuple(group["sources"]), group["color"])
             for group in config["groups"]
         ),
+        q5_zoom_twh=q5.get("zoom_twh", 60.0),
+        q5_example=q5.get("example"),
+        q6_pairs=q6.get("pairs", 6),
+        q6_selected_pair=q6.get("selected_pair", 1),
     )
