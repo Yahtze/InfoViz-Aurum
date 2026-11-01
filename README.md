@@ -20,12 +20,14 @@ Of the 79 countries (out of 108 compared) that raised their clean share, 44 stil
 
 ```
 prep/buildTables.py      source-data processing and checks
+prep/report_q156.py      the Q1, Q5, and Q6 report and its tables
 sketches/          configurable Matplotlib EDA views (not the final D3 app)
 tests/             data-selection, configuration, map, and report tests
-reports/           sample tables and feature dictionary
+reports/           data-handling reports, sample tables, and feature dictionaries
 data/raw/          pinned copies of the source files (do not edit)
 data/processed/    the tables, made by prep/buildTables.py (do not edit by hand)
-outputs/sketchesQ2-4.png  combined six-figure preview (tracked)
+outputs/sketchesQ2-4.png  combined six-figure preview, Q2–Q4 (tracked)
+outputs/sketchesQ1.png, sketchesQ5.png, sketchesQ6.png  Q1, Q5, and Q6 sketches (tracked)
 outputs/sketches/  generated figures, CSVs, and run settings (ignored)
 ```
 
@@ -36,7 +38,7 @@ Two tables cover all six questions. Each chart picks its rows with a filter.
 | Table | One row per | Used for |
 |---|---|---|
 | `country_year.csv` | country (and World) × year, 2000–2024 | Q1: `country == "World"` · Q2: `year == 2024 && country != "World"`, then sort by `clean_share_pct` (highest first, blanks last) · Q5 detail view: the selected country |
-| `comparison_2000_2024.csv` | country, the 108 compared | Q3–Q6: the 2000 and 2024 values, the changes, demand growth, and the 2000 mix |
+| `comparison_2000_2024.csv` | country, the 108 compared | Q3–Q4, and a check for Q5–Q6: the 2000 and 2024 values, the changes, demand growth, and the 2000 mix (the Q5–Q6 sketches recalculate them from `country_year.csv` for the configured dates; the Q1, Q5, and Q6 report always uses the fixed 2000–2024 baseline) |
 | `robustness.csv` | setting | the main result for other start years and TWh thresholds |
 
 ## Rebuild the Data
@@ -59,9 +61,9 @@ The rules (which rows count as countries, which years, how missing values are ha
 ## Initial EDA Sketches
 
 These are static exploratory views, not the final visualization design. The interactive app
-will be built later in D3/JavaScript. All six chart titles state **Domestic Electricity
-Generation**. The charts do not measure all energy use or classify imported electricity
-by source.
+will be built later in D3/JavaScript. The Q1–Q5 chart titles state **Domestic Electricity
+Generation**; the Q6 title names electricity demand, because its x-axis is demand growth.
+The charts do not measure all energy use or classify imported electricity by source.
 
 ```sh
 uv run python -m sketches --preview outputs/sketchesQ2-4.png
@@ -69,23 +71,46 @@ uv run python -m sketches --preview outputs/sketchesQ2-4.png
 
 ![Six Exploratory Electricity Sketches](outputs/sketchesQ2-4.png)
 
-The combined PNG above is tracked in version control. Other files under `outputs/`
-remain ignored. The `--preview` option requires PNG output and assembles the six views
-at their exported resolution. Omit it for experiments that should not replace the preview.
+The combined PNG above is tracked in version control, and so are the Q1, Q5, and Q6
+figures below. Other files under `outputs/` remain ignored. The `--preview` option requires
+PNG output and assembles the six Q2–Q4 views at their exported resolution; it also copies the
+Q1, Q5, and Q6 figures next to it as `sketchesQ1.png`, `sketchesQ5.png`, and `sketchesQ6.png`.
+Omit it for experiments that should not replace the previews.
 
-The default run writes six figures, each in PNG and SVG, to `outputs/sketches/`:
+The default run writes nine figures, each in PNG and SVG, to `outputs/sketches/`:
 
 | Question | View A | View B |
 |---|---|---|
+| Q1: the world mix, 2000–2024 | Eight stacked source layers in shares (%), fossil at the bottom | The same layers in TWh; the top is total generation |
 | Q2: clean shares in 2024 | World map: geographic patterns | Highest/lowest ranked bars: exact comparisons |
 | Q3: share change, 2000–2024 | Largest gains/losses in percentage points | The same countries' start/end shares: starting mix and final level |
 | Q4: sources behind the largest share gains | Separate source-share changes in percentage points | The same countries' absolute generation changes in TWh |
+| Q5: clean share vs. fossil generation | Scatterplots: all countries and an enlarged ±60 TWh band | The selected country's clean share and its fossil and clean generation over the period: the dot's x and y as lines |
+| Q6: demand growth and the 2000 mix | Both groups' demand growth: boxes and every country, log scale of demand 2024 ÷ demand 2000 | The same comparison for the 2000 share of coal, gas, oil, and clean generation |
 
 Q4 uses diverging stacked bars so declining sources stay visible.
 Source-share contributions add up to the clean-share change, but this
 accounting breakdown does not prove a causal effect. Both Q4 views use countries selected
 by **clean-share gain**, not by TWh gain. Wind, Solar, Hydro, and Nuclear appear
 separately. Other Clean combines bioenergy and other renewables excluding bioenergy.
+
+### Q1, Q5, and Q6
+
+![Q1 World Mix](outputs/sketchesQ1.png)
+![Q5 Fossil Outcomes](outputs/sketchesQ5.png)
+![Q6 Demand Pairs](outputs/sketchesQ6.png)
+
+The Q1, Q5, and Q6 figures (Yusuke) also sketch the planned interaction: a dashed box
+describes it, and the image shows one state (a year under the cursor, a selected country, a
+selected pair). Q1 stacks the sources so the total and the fossil part are visible: fossil
+sources are grays at the bottom, clean sources keep the Q4 colors, and a dark line marks the top
+of the fossil layers in both charts. Q5 shows an overview and an enlarged band on
+the same linear scale, because China's fossil growth squeezes most countries into a corner. Its
+country detail uses lines, not the Q1 stacks: a dominant source such as coal filled the stack and
+hid the clean-share change. Q5 keeps four outcomes, including "fossil unchanged", which appears in other windows. Q6 compares the
+two groups directly in each chart (boxes and every country); demand growth uses a log scale of
+the demand ratio, because Cambodia's +4,067% would squeeze the rest into a corner. The pairs
+(closest demand growth, opposite fossil outcomes) show exceptions, not a sample.
 
 ### Code and Checks
 
@@ -95,6 +120,8 @@ separately. Other Clean combines bioenergy and other renewables excluding bioene
 - `sketches/plots.py`: rendering only.
 - `sketches/__main__.py`: CLI, exports, and manifest.
 - `sketches/preview.py`: combined six-figure PNG.
+- `sketches/q156_data.py`, `sketches/q156_plots.py`: Q1, Q5, and Q6 calculations and rendering.
+- `prep/report_q156.py`: the Q1, Q5, and Q6 report and its tables.
 
 ```sh
 uv run python -m unittest discover -s tests -v
@@ -108,10 +135,16 @@ documents the processed fields used for these questions. These tables use the pr
 baseline, not custom sketch settings. See [Data Handling and Initial Sketches](reports/dataHandlingSketches.md)
 for the selection rules, sample data, and transformations.
 
+Q1, Q5, and Q6 have their own report, [Data Handling for Q1, Q5, and Q6](reports/dataHandlingQ1Q5Q6.md),
+with [sample tables and a feature dictionary](reports/tablesQ1Q5Q6/) for these questions. It also
+explains the 2000 start year and the 10 TWh threshold, and how the main result changes with them
+(`robustness.csv`). Rebuild it with `uv run python -m prep.report_q156`.
+
 ## Data Notes for Sketching
 
 - **Which countries:** Q1 uses the World row. Q2 uses every country (221). Q3–Q6 compare 108 countries:
-  those with data in both 2000 and 2024 and at least 10 TWh of generation in 2024.
+  those with data in both 2000 and 2024 and at least 10 TWh of generation in 2024. Q6 leaves out the 4
+  of them with no fossil generation in either year, so it compares 104.
 - **Blank means unknown, not 0.** Q2 has 25 countries with no 2024 clean share (Ukraine is one). Show them as "no data".
 - **The map can't draw 8 of Q2's places** (`on_map` = false in `country_year.csv`), including Gibraltar,
   which has one of the lowest shares (0%). Pair the Q2 map with a ranked list.
@@ -131,6 +164,5 @@ Course policy allows generative AI if we disclose which parts it produced. We ar
 
 | Date | Tool | What it produced | How we checked it |
 |---|---|---|---|
-| 2026-10-18 | Claude (Anthropic), Codex (OpenAI) | First draft and review of the M1 proposal text | Yusuke checked each section; Yathin expanded and submitted it |
-| 2026-10-25 | Claude Code (Anthropic), Codex (OpenAI) | Repository setup and `prep/buildTables.py`; Codex reviewed them | Reviewed in a pull request before merging; the script re-checks the main numbers on every run |
+| 2026-10-18 to 11-01 | Claude and Claude Code (Anthropic), Codex (OpenAI) | The M1 proposal draft; the repository setup and `prep/buildTables.py`; Q1, Q5, and Q6 code, report, and tests, based on designs chosen by Yusuke; the combined M2 report. Codex reviewed them | Yusuke reviewed the text and figures; tests check sums, counts, and that the report matches the sketches |
 | 2026-10-31 | Codex (OpenAI) | Python code and Matplotlib syntax for Q2–Q4, based on plot types and visualization descriptions specified by Yathin | Automated tests check data selection, source totals, and plot structure |
