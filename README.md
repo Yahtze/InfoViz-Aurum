@@ -87,46 +87,6 @@ accounting breakdown does not prove a causal effect. Both Q4 views use countries
 by **clean-share gain**, not by TWh gain. Wind, Solar, Hydro, and Nuclear appear
 separately. Other Clean combines bioenergy and other renewables excluding bioenergy.
 
-### Change dates, selections, and categories
-
-Edit **`sketches/config.toml`**. It holds the snapshot year, comparison endpoints, number of
-countries per tail, minimum endpoint generation, source groups/colors, output directory,
-file formats, and resolution. CLI flags override individual settings:
-
-```sh
-uv run python -m sketches --snapshot-year 2020 --start-year 2005 --end-year 2020 --top-n 5
-uv run python -m sketches --min-generation-twh 5 --output-dir outputs/threshold-5
-uv run python -m sketches --config path/to/experiment.toml
-uv run python -m sketches --format png
-```
-
-Output paths in the config and CLI are relative to the repository root unless absolute.
-Date changes recalculate everything from `country_year.csv`; they do not relabel the
-fixed 2000–2024 comparison table. Years must exist in the processed data, currently
-2000–2024. Expanding that range needs a separate update to `prep/buildTables.py` and its checks.
-
-To change categories, edit the `[[groups]]` entries. For example, split Other Clean
-into Bioenergy and Other Renewables Excluding Bioenergy. Each of the six clean sources must appear exactly once, so no source
-can be double-counted or silently dropped. The sketch code does not change the definition
-of clean electricity.
-
-Selection rules:
-- Q2 includes all countries and territories, with no generation threshold. Unknown shares
-  remain missing. The map uses longitude/latitude (equirectangular), not equal-area geometry;
-  Antarctica is omitted. Places absent from the map stay in the rankings and CSV.
-- Q3–Q4 require clean-share and fossil-generation data at both endpoints and at least the
-  configured generation threshold in the **end year**, matching the preparation pipeline.
-- Rankings show at most `top_n` countries per tail. Cutoff ties use country name. The high
-  and low snapshot tails do not overlap. Change tails show only positive gains/negative losses.
-- Q4 uses up to `top_n` positive clean-share gainers, in the same order for both measures.
-  Missing source data causes an error instead of being plotted as zero.
-
-Each run also exports the full snapshot, comparison data, both Q4 breakdown tables, and a
-JSON manifest with the settings and selected countries. Filenames include the dates.
-Rerunning the same dates replaces those files; use a separate output directory to preserve
-threshold/category experiments. Only `outputs/sketchesQ2-4.png` is versioned; individual
-figures, exported CSVs, and manifests remain ignored.
-
 ### Code and checks
 
 - `sketches/settings.py`: config loading and validation.
@@ -169,10 +129,8 @@ for the selection rules, sample data, and transformations.
 
 Course policy allows generative AI if we disclose which parts it produced. We are responsible for any errors, and we can explain all submitted work.
 
-Yathin specified the plot types and described the intended Matplotlib visualizations for Q2–Q4.
-AI generated the Python code and Matplotlib syntax to implement those specifications.
-
 | Date | Tool | What it produced | How we checked it |
 |---|---|---|---|
 | 2026-10-18 | Claude (Anthropic), Codex (OpenAI) | First draft and review of the M1 proposal text | Yusuke checked each section; Yathin expanded and submitted it |
 | 2026-10-25 | Claude Code (Anthropic), Codex (OpenAI) | Repository setup and `prep/buildTables.py`; Codex reviewed them | Reviewed in a pull request before merging; the script re-checks the main numbers on every run |
+| 2026-10-31 | Generative AI | Python code and Matplotlib syntax for Q2–Q4, based on plot types and visualization descriptions specified by Yathin | Automated tests check data selection, source totals, and plot structure |
