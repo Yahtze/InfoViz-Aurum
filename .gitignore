@@ -2,5 +2,6 @@
 __pycache__/
 .DS_Store
 .ipynb_checkpoints/
+/prep/report.py
 outputs/*
-!outputs/preview.png
+!outputs/sketchesQ2-4.png

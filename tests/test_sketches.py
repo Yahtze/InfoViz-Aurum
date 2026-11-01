@@ -266,7 +266,7 @@ class PlotTests(unittest.TestCase):
             try:
                 labels = [text.get_text() for text in fig.axes[0].get_legend().get_texts()]
                 self.assertEqual(
-                    labels, ["Wind", "Solar", "Hydro", "Nuclear", "Other Clean", "Net Clean Change"],
+                    labels, ["Wind", "Solar", "Hydro", "Nuclear", "Other Clean"],
                 )
                 fig.canvas.draw()
                 renderer = fig.canvas.get_renderer()
@@ -277,6 +277,25 @@ class PlotTests(unittest.TestCase):
                 self.assertLessEqual(bounds.y1, fig.bbox.height)
             finally:
                 plt.close(fig)
+
+    def test_source_breakdowns_have_no_net_markers(self):
+        from sketches.plots import source_breakdown
+        import matplotlib.pyplot as plt
+
+        for unit in ("pp", "twh"):
+            with self.subTest(unit=unit):
+                fig = source_breakdown(self.compared, self.settings, unit)
+                try:
+                    ax = fig.axes[0]
+                    self.assertEqual(len(ax.collections), 0)
+                    self.assertEqual(len(ax.containers), len(self.settings.groups))
+                    self.assertNotIn("diamond", fig.texts[1].get_text().lower())
+                    self.assertNotIn(
+                        "Net Clean Change",
+                        [text.get_text() for text in ax.get_legend().get_texts()],
+                    )
+                finally:
+                    plt.close(fig)
 
     def test_regrouped_source_extremes_have_padding(self):
         from sketches.plots import source_breakdown

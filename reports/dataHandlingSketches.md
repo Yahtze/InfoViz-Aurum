@@ -10,8 +10,7 @@ with a minimum of 10 TWh generation in 2024. The sketches show
 up to 10 countries per tail. This report reads the preparation baseline tables,
 not custom sketch settings. Custom sketch runs export their own CSVs and settings.
 
-[Tracked six-figure overview montage](../outputs/preview.png). Individual figure files
-and their data exports remain local and ignored under `outputs/sketches/`.
+[Tracked six-figure overview montage](../outputs/sketchesQ2-4.png).
 
 The tables below contain real processed rows, not synthetic examples. They are
 **case samples**, not random or population-weighted samples. Each section states
@@ -81,9 +80,6 @@ Join numeric IDs to atlas geometry, but retain unmapped places in the tabular da
 8 places have no drawable map geometry.
 A false map flag does not imply a missing electricity value.
 
-**Sample rule:** three highest and three lowest shares, then China, Germany,
-the United States, Gibraltar, Kosovo, Ukraine, and Lesotho, without duplicates.
-These cases show middle values, unmapped places, unknown values, and zero generation.
 Map IDs are text; keep leading zeros when importing the CSV.
 
 | Country | ISO3 | Map ID | Total Generation 2024 (TWh) | Clean Share 2024 (%) | On Map |
@@ -109,9 +105,6 @@ Gray means no matched data. The equirectangular map is not equal-area; Antarctic
 Unknown values are excluded, not replaced with zero. Several leaders tie at 100%,
 so the cutoff does not establish a unique best country.
 
-Local figures: [Map](../outputs/sketches/q2_2024_map.png) ·
-[Rankings](../outputs/sketches/q2_2024_ranking.png).
-
 ## Q3 — Largest Changes in Clean Share
 
 **Question:** Which countries had the largest increases or decreases from 2000 to 2024?
@@ -121,9 +114,7 @@ d_clean_share_pp = clean_share_pct_2024 − clean_share_pct_2000.
 Select the top 10 strictly positive changes and the top 10 strictly negative
 changes separately. This is a percentage-point difference, not percentage growth.
 
-**Sample rule:** three largest gains, three largest losses, plus China and India as
-large-system cases outside those extreme tails. Gain Rank refers to all 108
-compared countries, not to a separate loss ranking.
+Gain Rank refers to all 108 compared countries, not to a separate loss ranking.
 
 | Country | Gain Rank | Clean Share 2000 (%) | Clean Share 2024 (%) | Clean Share Change (pp) |
 | --- | --- | --- | --- | --- |
@@ -142,9 +133,6 @@ compared countries, not to a separate loss ranking.
 **Sketch B — Start and End Levels:** open circles mark 2000; filled diamonds mark 2024.
 Both sketches use the same countries and order. Lines join endpoints, not annual trends.
 This separates the size of a change from the starting and final electricity mix.
-
-Local figures: [Changes](../outputs/sketches/q3_2000_2024_changes.png) ·
-[Endpoints](../outputs/sketches/q3_2000_2024_endpoints.png).
 
 ## Q4 — Clean Sources Behind the Largest Share Gains
 
@@ -199,7 +187,8 @@ total-generation denominator.
 **Sketch A:** diverging stacked changes in share, in pp.
 **Sketch B:** diverging stacked generation changes, in TWh.
 Right-hand segments show increases; left-hand segments show declines.
-The diamond marks the **signed sum**, not the edge of the positive stack.
+The plots show source contributions only, without net-change diamonds.
+The sample tables retain the signed net clean change for reference.
 
 For example, UK wind rises by 82.34 TWh and solar by
 14.79 TWh; hydro rises by 0.67 TWh,
@@ -211,9 +200,6 @@ decline visible rather than masking it within a broader category.
 This is an accounting breakdown, not proof of cause. A source can gain TWh but lose share
 when total generation grows faster. Missing source values cause the sketch calculation
 to fail rather than being treated as zero.
-
-Local figures: [Source Shares](../outputs/sketches/q4_2000_2024_source_share.png) ·
-[Source Generation](../outputs/sketches/q4_2000_2024_source_generation.png).
 
 ## Created and Derived Features
 
@@ -240,31 +226,19 @@ Sketch exports use _start and _end suffixes rather than year suffixes. Their sou
 use configurable group labels as columns and total for net clean change.
 Custom sketch groups must include every clean source exactly once.
 
-## Limits
-
-Results depend on the window, size threshold, and endpoint coverage. Small systems remain
-in Q2 but not necessarily in Q3–Q4. Some places cannot appear on the map.
-Case samples do not establish population-level distributions.
-No country-average or generation-weighted aggregation is used in these samples.
-Q4 aggregates source changes within each country, not across countries.
-
 ## Reproduction and Checks
 
 Run from the repository root:
 
     uv sync --locked
-    uv run python prep/build.py
-    uv run python -m sketches --preview outputs/preview.png
-    uv run python -m prep.report
+    uv run python prep/buildTables.py
+    uv run python -m sketches --preview outputs/sketchesQ2-4.png
     uv run python -m unittest discover -s tests -v
 
-- prep/build.py checks source totals, clean shares, endpoint consistency, map coverage,
+- prep/buildTables.py checks source totals, clean shares, endpoint consistency, map coverage,
   finite values, and the main country counts.
 - sketches/data.py recalculates selections and source changes for configured dates.
   Source groups must sum to net change within 0.01 in the relevant unit.
-- prep/report.py checks that documented Q2–Q4 fields exist, checks Q4
-  group sums, and rebuilds this report and its CSV tables from processed values.
-- The overview montage is tracked at outputs/preview.png. Individual figure links
-  point to local, ignored files under outputs/sketches/; regenerate with the default config.
+- The overview montage is tracked at outputs/sketchesQ2-4.png.
 - Processed values already use four decimals. The report only rounds for display.
   It does not edit raw data or impute missing values.

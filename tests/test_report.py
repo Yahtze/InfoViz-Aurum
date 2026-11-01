@@ -107,7 +107,7 @@ class ReportTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             report = build_report(Path(directory))
             text = report.read_text()
-            self.assertEqual(text, (ROOT / "reports/data-handling.md").read_text())
+            self.assertEqual(text, (ROOT / "reports/dataHandlingSketches.md").read_text())
             self.assertEqual(
                 {path.name for path in (report.parent / "tables").glob("*.csv")}, expected,
             )
@@ -115,8 +115,14 @@ class ReportTests(unittest.TestCase):
             self.assertNotIn("robustness.csv", text)
             self.assertIn("2000–2024 for comparisons", text)
             self.assertNotIn("2010", text)
-            self.assertIn("[Tracked six-figure overview montage](../outputs/preview.png)", text)
-            self.assertIn("Individual figure files", text)
+            self.assertIn("[Tracked six-figure overview montage](../outputs/sketchesQ2-4.png)", text)
+            self.assertEqual(report.name, "dataHandlingSketches.md")
+            self.assertNotIn("../outputs/sketches/", text)
+            self.assertNotIn("## Limits", text)
+            self.assertNotIn("prep/report.py", text)
+            self.assertNotIn("prep.report", text)
+            self.assertNotIn("The diamond marks", text)
+            self.assertIn("without net-change diamonds", text)
             self.assertNotIn("Wind + Solar Change", text)
             self.assertNotIn("Hydro + Nuclear Change", text)
             self.assertIn("Wind Change (TWh)", text)

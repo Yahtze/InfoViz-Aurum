@@ -190,14 +190,13 @@ def source_breakdown(comparison, settings, unit):
             handles.append(ax.barh(y, values, left=left, color=group.color, height=0.65, label=group.label.title()))
             positive += np.maximum(values, 0)
             negative += np.minimum(values, 0)
-        handles.append(ax.scatter(table["total"], y, color="#222222", marker="D", s=26, zorder=5, label="Net Clean Change"))
         ax.set_yticks(y, table["country"])
         ax.invert_yaxis()
         ax.legend(handles=handles, loc="lower left", bbox_to_anchor=(0, 1.02), ncol=min(6, len(handles)), frameon=False, fontsize=9)
-        # Zero-width segments at an extreme create sticky bar edges. Set explicit
-        # padding so regrouping cannot clip the net marker at that extreme.
-        lower = min(float(negative.min()), float(table["total"].min()), 0)
-        upper = max(float(positive.max()), float(table["total"].max()), 0)
+        # Zero-width segments at an extreme create sticky bar edges. Keep
+        # explicit padding around the full source stacks when regrouping.
+        lower = min(float(negative.min()), 0)
+        upper = max(float(positive.max()), 0)
         padding = max(upper - lower, 1) * 0.12
         ax.set_xlim(lower - padding, upper + padding)
     ax.axvline(0, color="#777777", linewidth=0.8)
@@ -210,7 +209,7 @@ def source_breakdown(comparison, settings, unit):
     note = (
         "Source: OWID. " + selection_note(settings, len(comparison))
         + " Both source views use the largest clean-share gainers, ranked by percentage-point gain. "
-        "Negative segments show declining sources; diamonds show the net sum. "
+        "Negative segments show declining sources. "
         + (
             "Share changes are an accounting breakdown, not proof of cause."
             if unit == "pp" else

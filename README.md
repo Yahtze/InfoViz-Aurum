@@ -19,13 +19,13 @@ Of the 79 countries (out of 108 compared) that raised their clean share, 44 stil
 ## Layout
 
 ```
-prep/build.py      source-data processing and checks
+prep/buildTables.py      source-data processing and checks
 sketches/          configurable Matplotlib EDA views (not the final D3 app)
 tests/             data-selection, configuration, map, and report tests
 reports/           sample tables and feature dictionary
 data/raw/          pinned copies of the source files (do not edit)
-data/processed/    the tables, made by prep/build.py (do not edit by hand)
-outputs/preview.png  combined six-figure preview (tracked)
+data/processed/    the tables, made by prep/buildTables.py (do not edit by hand)
+outputs/sketchesQ2-4.png  combined six-figure preview (tracked)
 outputs/sketches/  generated figures, CSVs, and run settings (ignored)
 ```
 
@@ -46,7 +46,7 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/). Python 3.
 
 ```sh
 uv sync --locked
-uv run python prep/build.py
+uv run python prep/buildTables.py
 ```
 
 `pyproject.toml` declares dependencies; `uv.lock` records the resolved versions.
@@ -54,7 +54,7 @@ Use `uv add <package>` to add a dependency. There is no separate pip requirement
 
 The script rebuilds the current baseline tables in `data/processed/` and checks the numbers. It stops with an error if the main result changes.
 The old `comparison_2010_2024.csv` stays unchanged for reference. The current baseline uses `comparison_2000_2024.csv`.
-The rules (which rows count as countries, which years, how missing values are handled) are commented at the top of `prep/build.py`.
+The rules (which rows count as countries, which years, how missing values are handled) are commented at the top of `prep/buildTables.py`.
 
 ## Initial EDA sketches
 
@@ -64,10 +64,10 @@ Generation**. The charts do not measure all energy use or classify imported elec
 by source.
 
 ```sh
-uv run python -m sketches --preview outputs/preview.png
+uv run python -m sketches --preview outputs/sketchesQ2-4.png
 ```
 
-![Six Exploratory Electricity Sketches](outputs/preview.png)
+![Six Exploratory Electricity Sketches](outputs/sketchesQ2-4.png)
 
 The combined PNG above is tracked in version control. Other files under `outputs/`
 remain ignored. The `--preview` option requires PNG output and assembles the six views
@@ -81,8 +81,8 @@ The default run writes six figures, each in PNG and SVG, to `outputs/sketches/`:
 | Q3: share change, 2000–2024 | Largest gains/losses in percentage points | The same countries' start/end shares: starting mix and final level |
 | Q4: sources behind the largest share gains | Separate source-share changes in percentage points | The same countries' absolute generation changes in TWh |
 
-Q4 uses diverging stacked bars so declining sources stay visible. Diamonds mark the net
-clean change. Source-share contributions add up to the clean-share change, but this
+Q4 uses diverging stacked bars so declining sources stay visible.
+Source-share contributions add up to the clean-share change, but this
 accounting breakdown does not prove a causal effect. Both Q4 views use countries selected
 by **clean-share gain**, not by TWh gain. Wind, Solar, Hydro, and Nuclear appear
 separately. Other Clean combines bioenergy and other renewables excluding bioenergy.
@@ -103,7 +103,7 @@ uv run python -m sketches --format png
 Output paths in the config and CLI are relative to the repository root unless absolute.
 Date changes recalculate everything from `country_year.csv`; they do not relabel the
 fixed 2000–2024 comparison table. Years must exist in the processed data, currently
-2000–2024. Expanding that range needs a separate update to `prep/build.py` and its checks.
+2000–2024. Expanding that range needs a separate update to `prep/buildTables.py` and its checks.
 
 To change categories, edit the `[[groups]]` entries. For example, split Other Clean
 into Bioenergy and Other Renewables Excluding Bioenergy. Each of the six clean sources must appear exactly once, so no source
@@ -124,7 +124,7 @@ Selection rules:
 Each run also exports the full snapshot, comparison data, both Q4 breakdown tables, and a
 JSON manifest with the settings and selected countries. Filenames include the dates.
 Rerunning the same dates replaces those files; use a separate output directory to preserve
-threshold/category experiments. Only `outputs/preview.png` is versioned; individual
+threshold/category experiments. Only `outputs/sketchesQ2-4.png` is versioned; individual
 figures, exported CSVs, and manifests remain ignored.
 
 ### Code and checks
@@ -145,11 +145,8 @@ uv run python -m unittest discover -s tests -v
 [CSV sample tables](reports/tables/) cover Q2, Q3, and Q4 only, including source
 breakdowns in both pp and TWh. The [feature dictionary](reports/tables/feature_dictionary.csv)
 documents the processed fields used for these questions. These tables use the preparation
-baseline, not custom sketch settings. Rebuild them after rebuilding the processed tables:
-
-```sh
-uv run python -m prep.report
-```
+baseline, not custom sketch settings. See [Data Handling and Initial Sketches](reports/dataHandlingSketches.md)
+for the selection rules, sample data, and transformations.
 
 ## Data notes for sketching
 
@@ -172,7 +169,10 @@ uv run python -m prep.report
 
 Course policy allows generative AI if we disclose which parts it produced. We are responsible for any errors, and we can explain all submitted work.
 
+Yathin specified the plot types and described the intended Matplotlib visualizations for Q2–Q4.
+AI generated the Python code and Matplotlib syntax to implement those specifications.
+
 | Date | Tool | What it produced | How we checked it |
 |---|---|---|---|
 | 2026-10-18 | Claude (Anthropic), Codex (OpenAI) | First draft and review of the M1 proposal text | Yusuke checked each section; Yathin expanded and submitted it |
-| 2026-10-25 | Claude Code (Anthropic), Codex (OpenAI) | Repository setup and `prep/build.py`; Codex reviewed them | Reviewed in a pull request before merging; the script re-checks the main numbers on every run |
+| 2026-10-25 | Claude Code (Anthropic), Codex (OpenAI) | Repository setup and `prep/buildTables.py`; Codex reviewed them | Reviewed in a pull request before merging; the script re-checks the main numbers on every run |
