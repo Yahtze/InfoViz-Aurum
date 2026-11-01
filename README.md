@@ -133,4 +133,4 @@ Course policy allows generative AI if we disclose which parts it produced. We ar
 |---|---|---|---|
 | 2026-10-18 | Claude (Anthropic), Codex (OpenAI) | First draft and review of the M1 proposal text | Yusuke checked each section; Yathin expanded and submitted it |
 | 2026-10-25 | Claude Code (Anthropic), Codex (OpenAI) | Repository setup and `prep/buildTables.py`; Codex reviewed them | Reviewed in a pull request before merging; the script re-checks the main numbers on every run |
-| 2026-10-31 | Generative AI | Python code and Matplotlib syntax for Q2–Q4, based on plot types and visualization descriptions specified by Yathin | Automated tests check data selection, source totals, and plot structure |
+| 2026-10-31 | Codex (OpenAI) | Python code and Matplotlib syntax for Q2–Q4, based on plot types and visualization descriptions specified by Yathin | Automated tests check data selection, source totals, and plot structure |
