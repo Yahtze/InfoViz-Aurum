@@ -1,4 +1,4 @@
-# Aurum: Cleaner Share, More Fossil Power? (working title)
+# Aurum: Cleaner Share, More Fossil Power? (Working Title)
 
 CS-GY 6313 Information Visualization (NYU, Fall 2026), group project.
 Team Aurum: Yathin Reddy Duvuru (yd3288), Yusuke Katsuki (yk3183).
@@ -39,7 +39,7 @@ Two tables cover all six questions. Each chart picks its rows with a filter.
 | `comparison_2000_2024.csv` | country, the 108 compared | Q3–Q6: the 2000 and 2024 values, the changes, demand growth, and the 2000 mix |
 | `robustness.csv` | setting | the main result for other start years and TWh thresholds |
 
-## Rebuild the data
+## Rebuild the Data
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/). Python 3.11 or later is supported;
 `.python-version` selects Python 3.12 for local runs.
@@ -56,7 +56,7 @@ The script rebuilds the current baseline tables in `data/processed/` and checks 
 The old `comparison_2010_2024.csv` stays unchanged for reference. The current baseline uses `comparison_2000_2024.csv`.
 The rules (which rows count as countries, which years, how missing values are handled) are commented at the top of `prep/buildTables.py`.
 
-## Initial EDA sketches
+## Initial EDA Sketches
 
 These are static exploratory views, not the final visualization design. The interactive app
 will be built later in D3/JavaScript. All six chart titles state **Domestic Electricity
@@ -87,7 +87,7 @@ accounting breakdown does not prove a causal effect. Both Q4 views use countries
 by **clean-share gain**, not by TWh gain. Wind, Solar, Hydro, and Nuclear appear
 separately. Other Clean combines bioenergy and other renewables excluding bioenergy.
 
-### Code and checks
+### Code and Checks
 
 - `sketches/settings.py`: config loading and validation.
 - `sketches/data.py`: reusable selection, rankings, and source-change calculations.
@@ -108,7 +108,7 @@ documents the processed fields used for these questions. These tables use the pr
 baseline, not custom sketch settings. See [Data Handling and Initial Sketches](reports/dataHandlingSketches.md)
 for the selection rules, sample data, and transformations.
 
-## Data notes for sketching
+## Data Notes for Sketching
 
 - **Which countries:** Q1 uses the World row. Q2 uses every country (221). Q3–Q6 compare 108 countries:
   those with data in both 2000 and 2024 and at least 10 TWh of generation in 2024.
@@ -125,7 +125,7 @@ for the selection rules, sample data, and transformations.
 - **World map:** world-atlas 2.0.2, `countries-50m.json` (ISC license, made from Natural Earth).
   <https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json> · pinned copy in `data/raw/`.
 
-## AI use
+## AI Use
 
 Course policy allows generative AI if we disclose which parts it produced. We are responsible for any errors, and we can explain all submitted work.
 
