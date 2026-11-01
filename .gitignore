@@ -5,3 +5,4 @@ __pycache__/
 /prep/report.py
 outputs/*
 !outputs/sketchesQ2-4.png
+!outputs/sketchesQ[156].png
