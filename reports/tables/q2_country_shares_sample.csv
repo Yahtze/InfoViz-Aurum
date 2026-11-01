@@ -1,0 +1,13 @@
+Country,ISO3,Map ID,Total Generation 2024 (TWh),Clean Share 2024 (%),On Map
+Albania,ALB,008,8.3400,100.0000,True
+Bhutan,BTN,064,11.0000,100.0000,True
+Democratic Republic of Congo,COD,180,15.9200,100.0000,True
+East Timor,TLS,626,0.5100,0.0000,True
+Gambia,GMB,270,0.5100,0.0000,True
+Gibraltar,GIB,292,0.2200,0.0000,False
+China,CHN,156,10086.8800,38.1652,True
+Germany,DEU,276,495.9900,58.6423,True
+United States,USA,840,4391.0200,41.8693,True
+Kosovo,XKX,,6.7700,8.5672,False
+Ukraine,UKR,804,,,True
+Lesotho,LSO,426,0.0000,,True
