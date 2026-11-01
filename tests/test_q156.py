@@ -718,17 +718,18 @@ class ReportTextTests(unittest.TestCase):
         cls.text = render(cls.results)
 
     def test_q1_gives_total_generation(self):
-        self.assertIn("Total generation grew from 15,279 TWh to 30,930 TWh.", self.text["q1"])
-        self.assertIn("fossil share fell from 64.7% to 59.1%, but a smaller share", self.text["q1"])
+        self.assertIn("the clean share rose from 35.3% to 40.9%, but total generation grew from 15,279 TWh to "
+                      "30,930 TWh.", self.text["q1"])
+        self.assertIn("So fossil generation also grew, from 9,879 TWh to 18,276 TWh.", self.text["q1"])
 
     def test_q1_directions_follow_the_data(self):
         f = facts(self.results)
-        f.update(generation_start=200, generation_end=100, fossil_share_start=50, fossil_share_end=60,
-                 fossil_start=100, fossil_end=60)
+        f.update(clean_start=50, clean_end=40, generation_start=200, generation_end=100, fossil_share_start=50,
+                 fossil_share_end=60, fossil_start=100, fossil_end=60)
         text = q1_section(self.results, f, lambda name: "")
-        self.assertIn("Total generation fell from 200 TWh to 100 TWh.", text)
-        self.assertIn("The fossil share grew from 50.0% to 60.0%, and fossil generation fell", text)
-        self.assertNotIn("smaller share of a larger total", text)
+        self.assertIn("the clean share fell from 50.0% to 40.0%, and total generation fell from 200 TWh to 100 TWh.", text)
+        self.assertIn("Fossil generation fell from 100 TWh to 60 TWh.", text)
+        self.assertNotIn("also grew", text)
 
     def test_start_mix_answers_the_other_half_of_q6(self):
         mix = self.results["start_mix"].set_index("fossil_reduced")
@@ -741,10 +742,8 @@ class ReportTextTests(unittest.TestCase):
                 self.assertAlmostEqual(mix.loc[reduced, label], group[f"{label.lower()}_share_pct_start"].median())
         np.testing.assert_allclose(mix.loc[True, ["Clean", "clean_q1", "clean_q3"]], [51.27, 23.48, 73.30], atol=0.01)
         np.testing.assert_allclose(mix.loc[False, ["Clean", "clean_q1", "clean_q3"]], [23.86, 5.62, 50.15], atol=0.01)
-        self.assertIn("the median 2000 clean share was 51.3%. Where it did not fall, it was 23.9%.", self.text["q6"])
-        self.assertIn("These ranges overlap", self.text["q6"])
-        self.assertIn("a higher median coal share and lower median gas and oil shares", self.text["q6"])
-        self.assertIn("17 of the 35 countries where fossil generation fell had some nuclear", self.text["q6"])
+        self.assertIn("the median 2000 clean share was higher: 51.3% against 23.9%.", self.text["q6"])
+        self.assertIn("The middle halves overlap", self.text["q6"])
 
     @staticmethod
     def start_table(reduced, coal):
@@ -760,7 +759,7 @@ class ReportTextTests(unittest.TestCase):
         after = start_mix_summary(table).set_index("fossil_reduced")
         self.assertEqual(after.loc[True, "Coal"], 60.0)
         self.assertEqual(after.loc[False, "Coal"], 60.0)
-        self.assertIn("ranges do not overlap", start_mix_text(start_mix_summary(
+        self.assertIn("middle halves do not overlap", start_mix_text(start_mix_summary(
             self.start_table([True, True, False, False], [10.0, 30.0, 50.0, 70.0]).assign(
                 clean_share_pct_start=[80.0, 90.0, 10.0, 20.0])), 2000))
 
@@ -774,48 +773,53 @@ class ReportTextTests(unittest.TestCase):
     def test_hypothesis_check_uses_countries_whose_share_rose(self):
         h = self.results["hypothesis"]
         self.assertEqual((h["eligible"], h["countries"], h["fell"], h["other"]), (79, 79, 35, 44))
-        self.assertAlmostEqual(h["median_other"], 157.8, places=1)  # 165.3% for all 69 Q6 countries
         self.assertEqual((h["slower"], h["slower_fell"], h["faster"], h["faster_fell"]), (40, 30, 39, 5))
         self.assertEqual(h["faster_fell_names"], ["Costa Rica", "Ethiopia", "Kenya", "Nepal", "Uruguay"])
-        self.assertIn("More frequent cuts in the faster-growing group would run against the hypothesis", self.text["q6"])
-        self.assertIn("This descriptive pattern is consistent with the hypothesis.", self.text["q6"])
+        self.assertIn("more frequent cuts there would contradict it", self.text["q6"])
+        self.assertIn("This is consistent with the hypothesis but does not show a cause.", self.text["q6"])
+        self.assertIn("The fast-growing exceptions are Costa Rica, Ethiopia, Kenya, Nepal, and Uruguay.", self.text["q6"])
 
     @staticmethod
     def hypothesis(rows):
         return hypothesis_text(hypothesis_check(pd.DataFrame(
             rows, columns=["country", "d_clean_share_pp", "demand_growth_pct", "fossil_reduced"],
-        )), 10)
+        )))
 
     def test_hypothesis_reading_follows_the_rates(self):
         consistent = [("A", 1, 0, True), ("B", 1, 10, True), ("C", 1, 100, False), ("D", 1, 200, False),
                       ("E", -1, 500, True)]  # E's clean share did not rise, so it is left out.
         text = self.hypothesis(consistent)
-        self.assertIn("among the 4 Q5 countries whose clean share rose", text)
-        self.assertIn("fell in 2 of the 2 countries at or below it", text)
+        self.assertIn("Among the 4 countries whose clean share rose", text)
+        self.assertIn("fell in 2 of the 2 at or below it", text)
         self.assertIn("consistent with the hypothesis", text)
         reversed_rows = [(c, d, g, not fell) for c, d, g, fell in consistent]
         self.assertIn("runs against the hypothesis", self.hypothesis(reversed_rows))
         equal = [("A", 1, 0, True), ("B", 1, 10, False), ("C", 1, 100, True), ("D", 1, 200, False)]
         self.assertIn("rates are equal, so the data do not support", self.hypothesis(equal))
+        one_exception = [("A", 1, 0, True), ("B", 1, 10, True), ("C", 1, 20, False), ("D", 1, 100, True),
+                         ("E", 1, 200, False), ("F", 1, 300, False)]
+        self.assertIn("The fast-growing exception is D.", self.hypothesis(one_exception))
+
+    def test_q5_without_a_selected_country(self):
+        results = {**self.results, "example": None}
+        text = q5_section(results, facts(results), lambda name: "")
+        self.assertIn("No country fits the sketch's selection rule", text)
+        self.assertIn("draws no line charts", text)
+        self.assertNotIn("trace the selected country", text)
 
     def test_hypothesis_ties_empty_groups_and_missing_demand(self):
         ties = [("A", 1, 50, True), ("B", 1, 50, False), ("C", 1, 50, True), ("D", 1, 50, False)]
         self.assertIn("cannot be evaluated", self.hypothesis(ties))  # all at the median: no faster group
         self.assertIn("cannot be evaluated", self.hypothesis([("A", 1, 0, False), ("B", 1, 10, False)]))
         missing = [("A", 1, 0, True), ("B", 1, None, True), ("C", 1, 100, False), ("D", 1, 200, False)]
-        self.assertIn("the 3 of the 4 Q5 countries whose clean share rose that have demand data", self.hypothesis(missing))
-
-    def test_pair_is_explained_in_numbers(self):
-        self.assertIn("Netherlands and South Africa both had demand growth of 10.4%", self.text["q6"])
-        self.assertIn("-24.5 TWh in Netherlands and by +12.7 TWh in South Africa", self.text["q6"])
+        self.assertIn("the 3 of the 4 countries whose clean share rose that have demand data", self.hypothesis(missing))
 
     def test_cutoffs_explain_the_proposal_start_year(self):
         text = self.text["cutoffs"]
-        self.assertIn("the proposal compared countries from 2010", text)
-        self.assertIn("Q2 stays a 2024 snapshot", text)
-        self.assertIn("both start years compare the same number of countries (108)", text)
-        self.assertIn("the value is 49.4% (41 of 83)", text)
-        self.assertIn("more than half in 8, exactly half in 2, and less than half in 10 of the 20 settings", text)
+        self.assertIn("the proposal started in 2010", text)
+        self.assertIn("both start years compare 108 countries", text)
+        self.assertIn("Whether they are a majority depends on the cutoffs.", text)
+        self.assertIn("The proposal's 2010 start at 10 TWh gives 49.4% (41 of 83).", text)
 
     def test_majority_reading_follows_the_counts(self):
         def grid(*pairs):
@@ -824,10 +828,9 @@ class ReportTextTests(unittest.TestCase):
         # 10001 of 20000 rounds to 50.0% but is more than half.
         self.assertIn("in all 2 settings", majority_text(grid((6, 10), (10001, 20000))))
         self.assertIn("in any of the 2 settings", majority_text(grid((5, 10), (4, 10))))
-        self.assertIn("more than half in 1 and less than half in 1 of the 2", majority_text(grid((6, 10), (4, 10))))
+        self.assertEqual(majority_text(grid((6, 10), (4, 10))), "Whether they are a majority depends on the cutoffs.")
         with_empty = majority_text(grid((6, 10), (4, 10), (0, 0)))
-        self.assertIn("of the 2 settings. 1 setting has no country whose clean share rose", with_empty)
-        self.assertNotIn("exactly half", with_empty)
+        self.assertIn("depends on the cutoffs. 1 setting has no country whose clean share rose", with_empty)
         self.assertEqual(majority_text(grid((0, 0))), "No setting has a country whose clean share rose.")
 
 

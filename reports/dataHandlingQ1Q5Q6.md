@@ -38,17 +38,14 @@ cells for the same unknown values. Q5 and Q6 show associations, not causes.
 
 **Question:** How has the global electricity mix changed from 2000 to 2024, in shares and in TWh?
 
-**Transformation:** select the World row for 2000–2024. Group the sources into eight groups:
-Coal, Gas, Oil, and the five clean groups used in Q4 (Wind, Solar, Hydro, Nuclear,
-Other Clean). Each year's eight values add up to total generation in TWh and to 100%
-in shares; the sketch code checks both within 0.01.
+**Transformation:** select the World row for 2000–2024. Group the sources into Coal, Gas, Oil,
+Wind, Solar, Hydro, Nuclear, and Other Clean. The sketch checks that each year's values add up
+to total generation and to 100% within 0.01.
 
-**What it shows:** the clean share was 35.3% in 2000, fell to
-31.7% in 2007, and reached 40.9% in 2024.
-Total generation grew from 15,279 TWh to 30,930 TWh. The fossil share fell from 64.7% to 59.1%, but a smaller share of a larger total was still more electricity: fossil generation grew from 9,879 TWh to 18,276 TWh. A rising clean share did not mean less fossil electricity for the world; Q5 asks the same question for each country.
+**Result:** the clean share rose from 35.3% to 40.9%, but total generation grew from 15,279 TWh to 30,930 TWh. So fossil generation also grew, from 9,879 TWh to 18,276 TWh.
+Q5 asks the same question for each country.
 
-**Sample rule:** every fourth year from 2000, plus 2024. The first table matches the share chart,
-the second the TWh chart.
+**Sample:** every fourth year from 2000 through 2024. The first table gives shares, the second TWh.
 
 | Year | Coal (%) | Gas (%) | Oil (%) | Wind (%) | Solar (%) | Hydro (%) | Nuclear (%) | Other Clean (%) | Total Generation (TWh) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -74,15 +71,13 @@ the second the TWh chart.
 
 [Download CSV](tablesQ1Q5Q6/q1_world_twh_sample.csv)
 
-**Sketch:** two stacked area charts with the same eight layers, shares (%) on the left and
-generation (TWh) on the right; two charts rather than two y-axes. Coal, gas, and oil sit at the
-bottom in grays, and a dark line marks the top of the fossil layers, so the fossil share and the
-fossil amount are read at the same place in both charts. The top of the TWh stack is total
-generation. Clean layers use the Q4 colors, so fossil and clean read apart by color, and brackets
-group the source names at the right into Fossil and Clean. Middle layers are harder to read in a
-stack than on a common baseline. **Planned interaction:** a cursor marks the year in both charts
-and a tooltip lists every source; clicking a source's name shows that source alone as a line in
-both units.
+**Sketch:** two stacked area charts with the same eight layers, in shares (%) and in TWh.
+Fossil layers are grays at the bottom, and a dark line marks their top. Clean layers use the
+Q4 colors. Brackets label the Fossil and Clean groups, so the split does not rely on color alone.
+The top of the TWh stack is total generation.
+**Planned interaction:** a cursor marks the year in both charts, and a tooltip lists every
+source. Clicking a source's name shows it alone as a line in both units, because middle layers
+are hard to compare in a stack.
 
 ![Q1 World Mix sketch](../outputs/sketchesQ1.png)
 
@@ -91,32 +86,14 @@ both units.
 **Question:** Which countries raised their clean share while cutting fossil generation,
 and which raised it but still generated more fossil electricity?
 
-**Transformation:** use the same 108 eligible countries as Q3–Q4. Calculate
-d_fossil_twh = fossil_twh_2024 − fossil_twh_2000, then sort each country into one of four
-outcomes: clean share up and fossil down, up and fossil up, up and fossil unchanged,
-or clean share not up. Fossil change stays in TWh. Percentage change is not used:
-4 countries had no fossil generation in 2000, and small starting values
-give changes as large as 32,700%.
+**Transformation:** use the 108 countries of Q3–Q4. Calculate
+d_fossil_twh = fossil_twh_2024 − fossil_twh_2000. Sort each country into one of four
+outcomes: clean share up with fossil down, up, or unchanged, or clean share not up.
+Fossil change stays in TWh, because 4 countries had no fossil generation in 2000.
 
-**Result:** 35 countries raised their clean share and cut fossil
-generation; 44 raised it and still generated more fossil electricity;
-0 raised it with fossil generation unchanged; 29 did not
-raise it. Of the 79 countries whose clean share rose, 55.7%
-also generated more fossil electricity.
+**Result:** of the 79 countries whose clean share rose, 35 cut fossil generation and 44 (55.7%) still generated more.
 
-**Scale:** fossil change runs from -182.4 TWh to
-+5,123.9 TWh (China). On one linear axis,
-85 of the 108 countries fall within ±60 TWh and overlap near zero. The sketch
-shows the overview and an enlarged ±60 TWh band, both linear and with the same x scale.
-
-**Selected country:** the static sketch selects the largest 2024 generator among the
-"share up, fossil up" countries inside the band. With this rule the selected country is **South Africa**: +8.7 pp clean share, +12.7 TWh fossil generation. Below the scatterplots, two line
-charts trace the values behind its dot over 2000–2024: the clean share (its change is the x) and
-fossil and clean generation in TWh (the fossil change is the y). They replace the Q1 stacks used
-here before: where one source dominates, as coal does in many countries, its layer filled most
-of the stack and hid the clean-share change.
-
-**Sample rule:** the 12 largest 2024 generators, plus the selected country.
+**Sample:** the 12 largest 2024 generators, plus South Africa. The sketch selects South Africa as the largest 2024 generator among the "share up, fossil up" countries inside the ±60 TWh band.
 
 | Country | Outcome | Clean Share Change (pp) | Fossil Generation 2000 (TWh) | Fossil Generation 2024 (TWh) | Fossil Generation Change (TWh) | Total Generation 2024 (TWh) |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -136,11 +113,12 @@ of the stack and hid the clean-share change.
 
 [Download CSV](tablesQ1Q5Q6/q5_fossil_outcomes_sample.csv)
 
-**Sketch:** two scatterplots (x = clean-share change in pp, y = fossil change in TWh).
-Color and marker shape both show the outcome. Below them, the selected country's two line
-charts: fossil is a solid gray line and clean a dashed green line, so the clean line is not read
-as the "fossil down" color. **Planned interaction:** clicking a dot or choosing a country from a
-menu redraws the lines for that country, and a tooltip lists each source by year.
+**Sketch:** two scatterplots of clean-share change (x, pp) and fossil change (y, TWh): all
+countries, and an enlarged ±60 TWh band with the same x scale. The band holds 85 of the 108
+countries, which overlap near zero next to China's +5,123.9 TWh. Color and marker
+shape both show the outcome. Below them, two line charts trace the selected country over 2000–2024: its clean share, and its fossil (solid gray) and clean (dashed green) generation.
+**Planned interaction:** clicking a dot or choosing a country from a menu redraws the lines,
+and a tooltip lists each source by year.
 
 ![Q5 Fossil Outcomes sketch](../outputs/sketchesQ5.png)
 
@@ -149,15 +127,11 @@ menu redraws the lines for that country, and a tooltip lists each source by year
 **Question:** How do demand growth and the 2000 mix differ between countries that reduced
 fossil generation and those that did not?
 
-**Transformation:** start from the Q5 table. Leave out 4 countries with zero
-fossil generation in both 2000 and 2024 (Bhutan, Democratic Republic of Congo, Iceland, Paraguay); they had no fossil
-generation to cut. That leaves 104. Calculate
+**Transformation:** start from the Q5 table. Leave out the 4 countries with no fossil generation in either year, which leaves 104. Calculate
 demand_growth_pct = 100 × (demand_2024 / demand_2000 − 1). Group countries by
 fossil_reduced (d_fossil_twh < 0).
 
-**Result:** the group comparisons answer Q6. Median demand growth was
-10.4% where fossil generation fell and
-165.3% where it did not.
+**Sample A — Groups:** demand growth by group.
 
 | Group | Countries | Median Demand Growth (%) | Lower Quartile (%) | Upper Quartile (%) |
 | --- | --- | --- | --- | --- |
@@ -166,7 +140,7 @@ fossil_reduced (d_fossil_twh < 0).
 
 [Download CSV](tablesQ1Q5Q6/q6_group_summary.csv)
 
-**Starting mix:** where fossil generation fell, the median 2000 clean share was 51.3%. Where it did not fall, it was 23.9%. The middle half of countries (lower to upper quartile) spans 23.5%–73.3% where fossil generation fell. It spans 5.6%–50.2% where it did not. These ranges overlap, so the starting share alone does not separate the groups. Among fossil sources, countries where it fell also had a higher median coal share and lower median gas and oil shares. Clean includes nuclear: 17 of the 35 countries where fossil generation fell had some nuclear generation in 2000, against 11 of the 69 where it did not. The table gives the medians of the four 2000 shares that the sketch's starting-mix charts compare. Medians of separate sources need not add up to 100%.
+**Starting mix:** where fossil generation fell, the median 2000 clean share was higher: 51.3% against 23.9%. The middle halves overlap, so the starting share alone does not separate the groups. The table gives the medians of the four 2000 shares; separate medians need not add up to 100%.
 
 | Group | Countries | Median Coal 2000 (%) | Median Gas 2000 (%) | Median Oil 2000 (%) | Median Clean 2000 (%) | Clean Lower Quartile (%) | Clean Upper Quartile (%) | Countries With Nuclear 2000 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -175,13 +149,12 @@ fossil_reduced (d_fossil_twh < 0).
 
 [Download CSV](tablesQ1Q5Q6/q6_start_mix.csv)
 
-**Hypothesis check:** the proposal expected that countries with fast demand growth are more likely to raise their clean share without cutting fossil generation. This check asks, among the 79 Q5 countries whose clean share rose (not all 104 Q6 countries), whether fossil cuts were less common where demand grew faster. Median demand growth was 10.4% for the 35 where fossil generation fell. It was 157.8% for the 44 where it did not. Split at their median demand growth (75.4%), fossil generation fell in 30 of the 40 countries at or below it. It fell in 5 of the 39 countries above it. More frequent cuts in the faster-growing group would run against the hypothesis; equal rates would leave it unsupported. Here cuts were less common in the faster-growing group. This descriptive pattern is consistent with the hypothesis. It does not establish a cause. The faster-growing countries where fossil generation fell are exceptions to the overall pattern: Costa Rica, Ethiopia, Kenya, Nepal, and Uruguay.
+**Hypothesis check:** the proposal expected fossil cuts to be less common where demand grew fast; more frequent cuts there would contradict it. Among the 79 countries whose clean share rose, split at their median demand growth (75.4%), fossil generation fell in 30 of the 40 at or below it and in 5 of the 39 above it. This is consistent with the hypothesis but does not show a cause. The fast-growing exceptions are Costa Rica, Ethiopia, Kenya, Nepal, and Uruguay.
 
-**Matched pairs:** for each country whose fossil generation fell, the sketch finds a
-country whose fossil generation did not fall with the closest demand growth. It takes the
-smallest gaps first, uses each country once, and breaks ties by name. The
-6 pairs show exceptions to the group pattern: similar demand growth,
-opposite fossil outcomes. They are illustrations, not a sample.
+**Sample B — Matched Pairs:** for each country whose fossil generation fell, find the country
+with the closest demand growth whose fossil generation did not fall. Take the smallest gaps
+first, use each country once, and break ties by name. The 6 pairs illustrate exceptions,
+not a sample.
 
 | Pair | Fossil Fell | Demand Growth, Fell (%) | Fossil Did Not Fall | Demand Growth, Did Not Fall (%) | Gap (pp) |
 | --- | --- | --- | --- | --- | --- |
@@ -194,17 +167,11 @@ opposite fossil outcomes. They are illustrations, not a sample.
 
 [Download CSV](tablesQ1Q5Q6/q6_matched_pairs.csv)
 
-Pair 1 is the one the sketch shows first. Netherlands and South Africa both had demand growth of 10.4%. Fossil generation changed by -24.5 TWh in Netherlands and by +12.7 TWh in South Africa. Their clean shares changed by +45.8 and +8.7 pp. Similar demand growth came with opposite fossil outcomes.
-
-**Scale:** demand growth runs from -18.9% to +4,066.7%
-(Cambodia), that is 0.81× to 41.7×
-the 2000 demand. On one linear axis most countries would crowd into a corner, so the sketch draws
-the ratio demand_2024 / demand_2000 on a log scale (1× = no change) and labels it as percent change.
-
-**Sketch:** five charts compare the two groups directly, each with a box (quartiles and median)
-and every country as a dot: demand growth, then the 2000 share of coal, gas, oil, and clean
-generation on a common 0–100% scale. A country's dot sits at the same height within its group
-in every chart. The pairs are buttons that ring two countries; they illustrate exceptions.
+**Sketch:** five charts, each with one box per group (quartiles and median) and every country
+as a dot: demand growth, then the 2000 share of coal, gas, oil, and clean generation on a
+common 0–100% scale. Demand growth uses a log scale of demand_2024 / demand_2000 (1× = no
+change), labeled as percent change, because Cambodia's +4,066.7% would crowd the rest.
+A country's dot keeps the same height within its group in every chart.
 **Planned interaction:** hovering a dot highlights that country in all five charts; a pair
 button rings both countries of the pair.
 
@@ -212,16 +179,12 @@ button rings both countries of the pair.
 
 ## Cutoffs and Sensitivity
 
-**Start year 2000:** the proposal compared countries from 2010. The country comparisons
-now start in 2000, the same year as the Q1 world overview. All questions about change cover 2000–2024;
-Q2 stays a 2024 snapshot.
-At 10 TWh, both start years compare the same number of countries (108), so the longer period does not shrink the comparison. The processed tables begin in 2000: in the raw OWID file, 81 places have
-generation data in 1999 and 211 in 2000, so an earlier start would compare a much smaller
-set of countries. The 2010 start stays in the sensitivity table below.
+**Start year 2000:** the proposal started in 2010. The comparisons now start in 2000, like Q1.
+At 10 TWh, both start years compare 108 countries. An earlier start would compare fewer: the
+raw OWID file has generation data for 81 places in 1999 and 211 in 2000.
 
-**Size threshold 10 TWh in 2024:** in a small system, one new plant can move the
-clean share by many points. The threshold keeps 108 of the 193
-countries with data in both 2000 and 2024.
+**Size threshold 10 TWh in 2024:** in a small system, one new plant can move the clean share
+by many points. The threshold keeps 108 of the 193 countries with data in both years.
 
 **Sensitivity:** data/processed/robustness.csv recalculates the Q5 result for four start
 years and five thresholds: the percentage of countries with a rising clean share that also
@@ -234,14 +197,9 @@ generated more fossil electricity.
 | 2010 | 51.40 | 47.50 | 49.40 | 47.10 | 52.20 |
 | 2015 | 46.70 | 45.70 | 46.70 | 45.80 | 47.90 |
 
-Across these 20 settings, the value ranges from 45.7% to
-59.9%. The baseline is 55.7%
-(44 of 79).
-
-**What the sensitivity shows:** every setting has at least 20 countries whose clean share rose while fossil generation also rose, so the distinction between share and amount from Q1 does not depend on these cutoffs. Whether they are more than half of the countries whose clean share rose depends on the cutoffs: more than half in 8, exactly half in 2, and less than half in 10 of the 20 settings. With the proposal's
-2010 start at 10 TWh, the value is 49.4%
-(41 of 83). The grid recalculates only this
-Q5 result; it does not test the Q6 comparisons.
+**Result:** every setting has at least 20 countries whose clean share and fossil generation both rose, so the gap between share and amount appears with every cutoff. Whether they are a majority depends on the cutoffs.
+The proposal's 2010 start at 10 TWh gives 49.4% (41 of 83).
+The grid checks only the Q5 result, not Q6.
 
 ## Created and Derived Features
 
