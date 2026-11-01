@@ -12,7 +12,7 @@ import pandas as pd
 from prep.buildTables import END_YEAR, MEASURES, MIN_GENERATION_TWH, RAW, ROOT, START_YEAR
 from sketches.data import load_country_year
 from sketches.q156_data import (
-    OUTCOME_LABELS, fossil_outcomes, group_summary, growth_pct, load_world, matched_pairs, mix_table,
+    OUTCOME_LABELS, fossil_outcomes, group_summary, load_world, matched_pairs, mix_table,
     q5_example, q6_countries, window,
 )
 from sketches.settings import Settings, SourceGroup
@@ -100,8 +100,6 @@ def hypothesis_check(outcomes):
     slower = up["demand_growth_pct"].le(split)
     return {
         "eligible": len(eligible), "countries": len(up), "fell": int(fell.sum()), "other": int((~fell).sum()),
-        "median_fell": up.loc[fell, "demand_growth_pct"].median(),
-        "median_other": up.loc[~fell, "demand_growth_pct"].median(),
         "split": split, "slower": int(slower.sum()), "faster": int((~slower).sum()),
         "slower_fell": int((slower & fell).sum()), "faster_fell": int((~slower & fell).sum()),
         "faster_fell_names": sorted(up.loc[~slower & fell, "country"]),
@@ -209,13 +207,11 @@ def facts(results):
     generation = world.set_index("year")["generation_twh"]
     counts = outcomes["outcome"].value_counts()
     share_up = int(outcomes["d_clean_share_pp"].gt(0).sum())
-    fossil_pct = growth_pct(outcomes["fossil_twh_end"], outcomes["fossil_twh_start"])
     trade = outcomes["net_imports_share_of_demand_pct_end"]
     largest_fossil = outcomes.loc[outcomes["d_fossil_twh"].idxmax()]
     largest_demand = q6.loc[q6["demand_growth_pct"].idxmax()]
     return {
         "clean_start": clean.loc[s], "clean_end": clean.iloc[-1],
-        "clean_min_year": int(clean.idxmin()), "clean_min": clean.min(),
         "fossil_start": fossil.loc[s], "fossil_end": fossil.iloc[-1],
         "generation_start": generation.loc[s], "generation_end": generation.iloc[-1],
         "fossil_share_start": 100 * fossil.loc[s] / generation.loc[s],
@@ -223,14 +219,11 @@ def facts(results):
         **{key: int(counts.get(key, 0)) for key in OUTCOME_LABELS},
         "share_up": share_up,
         "zero_fossil_start": int(outcomes["fossil_twh_start"].eq(0).sum()),
-        "max_fossil_pct": fossil_pct.max(),
-        "fossil_change_min": outcomes["d_fossil_twh"].min(),
         "largest_fossil": largest_fossil,
         "in_band": int(outcomes["d_fossil_twh"].abs().le(settings.q5_zoom_twh).sum()),
         "traders": int(trade.abs().gt(TRADE_PCT).sum()),
         "importers": int(trade.gt(TRADE_PCT).sum()),
         "exporters": int(trade.lt(-TRADE_PCT).sum()),
-        "demand_min": q6["demand_growth_pct"].min(),
         "largest_demand": largest_demand,
     }
 
@@ -245,56 +238,49 @@ def definitions(results, f):
   ({f["importers"]} net importers, {f["exporters"]} net exporters)."""
 
 
-def moved(start, end):
-    return "grew" if end > start else "fell" if end < start else "stayed the same,"
+def moved(start, end, up="grew"):
+    return up if end > start else "fell" if end < start else "stayed the same,"
 
 
 def world_amounts(f):
     """Q1's share-versus-amount reading, with the directions taken from the data."""
-    generation = (f"Total generation {moved(f['generation_start'], f['generation_end'])} from "
-                  f"{f['generation_start']:,.0f} TWh to {f['generation_end']:,.0f} TWh.")
-    share = f"{f['fossil_share_start']:.1f}% to {f['fossil_share_end']:.1f}%"
+    clean = (f"the clean share {moved(f['clean_start'], f['clean_end'], 'rose')} from {f['clean_start']:.1f}% "
+             f"to {f['clean_end']:.1f}%")
+    generation = (f"total generation {moved(f['generation_start'], f['generation_end'])} from "
+                  f"{f['generation_start']:,.0f} TWh to {f['generation_end']:,.0f} TWh")
     amount = f"{f['fossil_start']:,.0f} TWh to {f['fossil_end']:,.0f} TWh"
     if f["fossil_share_end"] < f["fossil_share_start"] and f["fossil_end"] > f["fossil_start"]:
-        return (f"{generation} The fossil share fell from {share}, but a smaller share of a larger total was "
-                f"still more electricity: fossil generation grew from {amount}. A rising clean share did not "
-                "mean less fossil electricity for the world; Q5 asks the same question for each country.")
-    return (f"{generation} The fossil share {moved(f['fossil_share_start'], f['fossil_share_end'])} from "
-            f"{share}, and fossil generation {moved(f['fossil_start'], f['fossil_end'])} from {amount}. "
-            "Q5 asks the same question for each country.")
+        return f"{clean}, but {generation}. So fossil generation also grew, from {amount}."
+    return f"{clean}, and {generation}. Fossil generation {moved(f['fossil_start'], f['fossil_end'])} from {amount}."
 
 
 def q1_section(results, f, sample):
     s, e = results["settings"].start_year, results["settings"].end_year
+    years = f"every fourth year from {s} through {e}" if (e - s) % 4 == 0 else f"every fourth year from {s}, plus {e}"
     return f"""## Q1 — The World's Electricity Mix
 
 **Question:** How has the global electricity mix changed from {s} to {e}, in shares and in TWh?
 
-**Transformation:** select the World row for {s}–{e}. Group the sources into eight groups:
-Coal, Gas, Oil, and the five clean groups used in Q4 (Wind, Solar, Hydro, Nuclear,
-Other Clean). Each year's eight values add up to total generation in TWh and to 100%
-in shares; the sketch code checks both within 0.01.
+**Transformation:** select the World row for {s}–{e}. Group the sources into Coal, Gas, Oil,
+Wind, Solar, Hydro, Nuclear, and Other Clean. The sketch checks that each year's values add up
+to total generation and to 100% within 0.01.
 
-**What it shows:** the clean share was {f["clean_start"]:.1f}% in {s}, fell to
-{f["clean_min"]:.1f}% in {f["clean_min_year"]}, and reached {f["clean_end"]:.1f}% in {e}.
-{world_amounts(f)}
+**Result:** {world_amounts(f)}
+Q5 asks the same question for each country.
 
-**Sample rule:** every fourth year from {s}, plus {e}. The first table matches the share chart,
-the second the TWh chart.
+**Sample:** {years}. The first table gives shares, the second TWh.
 
 {sample("q1_world_share_sample")}
 
 {sample("q1_world_twh_sample")}
 
-**Sketch:** two stacked area charts with the same eight layers, shares (%) on the left and
-generation (TWh) on the right; two charts rather than two y-axes. Coal, gas, and oil sit at the
-bottom in grays, and a dark line marks the top of the fossil layers, so the fossil share and the
-fossil amount are read at the same place in both charts. The top of the TWh stack is total
-generation. Clean layers use the Q4 colors, so fossil and clean read apart by color, and brackets
-group the source names at the right into Fossil and Clean. Middle layers are harder to read in a
-stack than on a common baseline. **Planned interaction:** a cursor marks the year in both charts
-and a tooltip lists every source; clicking a source's name shows that source alone as a line in
-both units.
+**Sketch:** two stacked area charts with the same eight layers, in shares (%) and in TWh.
+Fossil layers are grays at the bottom, and a dark line marks their top. Clean layers use the
+Q4 colors. Brackets label the Fossil and Clean groups, so the split does not rely on color alone.
+The top of the TWh stack is total generation.
+**Planned interaction:** a cursor marks the year in both charts, and a tooltip lists every
+source. Clicking a source's name shows it alone as a line in both units, because middle layers
+are hard to compare in a stack.
 
 ![Q1 World Mix sketch](../outputs/sketchesQ1.png)"""
 
@@ -303,55 +289,46 @@ def q5_section(results, f, sample):
     settings = results["settings"]
     s, e, zoom = settings.start_year, settings.end_year, settings.q5_zoom_twh
     n = len(results["outcomes"])
-    up_up = f["share_up_fossil_up"]
+    up_up, flat = f["share_up_fossil_up"], f["share_up_fossil_flat"]
+    up_up = f"{up_up} ({100 * up_up / f['share_up']:.1f}%) still generated more"
+    down = f"{f['share_up_fossil_down']} cut fossil generation"
+    result = f"{down}, {flat} kept it unchanged, and {up_up}" if flat else f"{down} and {up_up}"
+    zero = f["zero_fossil_start"]
+    in_tw = f", because {zero} countries had no fossil generation in {s}" if zero else ""
     example = results["example"]
+    rule = f'the largest {e} generator among the "share up, fossil up" countries inside the ±{zoom:g} TWh band'
     if example is None:
-        selected = "No country fits the rule for these settings, so no country is selected."
+        selected = (f"the {Q5_SAMPLE_SIZE} largest {e} generators. No country fits the sketch's selection rule, "
+                    f"{rule}, for these settings.")
+        detail = "No country is selected, so the sketch draws no line charts below them."
     else:
-        selected = (
-            f"With this rule the selected country is **{example['country']}**: "
-            f"{example['d_clean_share_pp']:+.1f} pp clean share, {example['d_fossil_twh']:+.1f} TWh fossil generation."
-        )
+        selected = (f"the {Q5_SAMPLE_SIZE} largest {e} generators, plus {example['country']}. "
+                    f"The sketch selects {example['country']} as {rule}.")
+        detail = (f"Below them, two line charts trace the selected country over {s}–{e}: its clean share, "
+                  "and its fossil (solid gray) and clean (dashed green) generation.")
     largest = f["largest_fossil"]
     return f"""## Q5 — Clean Share and Fossil Generation
 
 **Question:** Which countries raised their clean share while cutting fossil generation,
 and which raised it but still generated more fossil electricity?
 
-**Transformation:** use the same {n} eligible countries as Q3–Q4. Calculate
-d_fossil_twh = fossil_twh_{e} − fossil_twh_{s}, then sort each country into one of four
-outcomes: clean share up and fossil down, up and fossil up, up and fossil unchanged,
-or clean share not up. Fossil change stays in TWh. Percentage change is not used:
-{f["zero_fossil_start"]} countries had no fossil generation in {s}, and small starting values
-give changes as large as {f["max_fossil_pct"]:,.0f}%.
+**Transformation:** use the {n} countries of Q3–Q4. Calculate
+d_fossil_twh = fossil_twh_{e} − fossil_twh_{s}. Sort each country into one of four
+outcomes: clean share up with fossil down, up, or unchanged, or clean share not up.
+Fossil change stays in TWh{in_tw}.
 
-**Result:** {f["share_up_fossil_down"]} countries raised their clean share and cut fossil
-generation; {up_up} raised it and still generated more fossil electricity;
-{f["share_up_fossil_flat"]} raised it with fossil generation unchanged; {f["share_not_up"]} did not
-raise it. Of the {f["share_up"]} countries whose clean share rose, {100 * up_up / f["share_up"]:.1f}%
-also generated more fossil electricity.
+**Result:** of the {f["share_up"]} countries whose clean share rose, {result}.
 
-**Scale:** fossil change runs from {f["fossil_change_min"]:,.1f} TWh to
-{largest["d_fossil_twh"]:+,.1f} TWh ({largest["country"]}). On one linear axis,
-{f["in_band"]} of the {n} countries fall within ±{zoom:g} TWh and overlap near zero. The sketch
-shows the overview and an enlarged ±{zoom:g} TWh band, both linear and with the same x scale.
-
-**Selected country:** the static sketch selects the largest {e} generator among the
-"share up, fossil up" countries inside the band. {selected} Below the scatterplots, two line
-charts trace the values behind its dot over {s}–{e}: the clean share (its change is the x) and
-fossil and clean generation in TWh (the fossil change is the y). They replace the Q1 stacks used
-here before: where one source dominates, as coal does in many countries, its layer filled most
-of the stack and hid the clean-share change.
-
-**Sample rule:** the {Q5_SAMPLE_SIZE} largest {e} generators, plus the selected country.
+**Sample:** {selected}
 
 {sample("q5_fossil_outcomes_sample")}
 
-**Sketch:** two scatterplots (x = clean-share change in pp, y = fossil change in TWh).
-Color and marker shape both show the outcome. Below them, the selected country's two line
-charts: fossil is a solid gray line and clean a dashed green line, so the clean line is not read
-as the "fossil down" color. **Planned interaction:** clicking a dot or choosing a country from a
-menu redraws the lines for that country, and a tooltip lists each source by year.
+**Sketch:** two scatterplots of clean-share change (x, pp) and fossil change (y, TWh): all
+countries, and an enlarged ±{zoom:g} TWh band with the same x scale. The band holds {f["in_band"]} of the {n}
+countries, which overlap near zero next to {largest["country"]}'s {largest["d_fossil_twh"]:+,.1f} TWh. Color and marker
+shape both show the outcome. {detail}
+**Planned interaction:** clicking a dot or choosing a country from a menu redraws the lines,
+and a tooltip lists each source by year.
 
 ![Q5 Fossil Outcomes sketch](../outputs/sketchesQ5.png)"""
 
@@ -361,92 +338,42 @@ def start_mix_text(mix, s):
     if not (fell["countries"] and other["countries"]):
         return "one of the groups is empty, so their starting mixes cannot be compared."
     overlap = fell["clean_q1"] <= other["clean_q3"] and other["clean_q1"] <= fell["clean_q3"]
-    text = [
-        f"where fossil generation fell, the median {s} clean share was {fell['Clean']:.1f}%.",
-        f"Where it did not fall, it was {other['Clean']:.1f}%.",
-        f"The middle half of countries (lower to upper quartile) spans {fell['clean_q1']:.1f}%–"
-        f"{fell['clean_q3']:.1f}% where fossil generation fell.",
-        f"It spans {other['clean_q1']:.1f}%–{other['clean_q3']:.1f}% where it did not.",
-        "These ranges overlap, so the starting share alone does not separate the groups." if overlap
-        else "These ranges do not overlap.",
-    ]
-    parts = []
-    for word, names in (
-        ("higher", [label.lower() for label in START_MIX[:3] if fell[label] > other[label]]),
-        ("lower", [label.lower() for label in START_MIX[:3] if fell[label] < other[label]]),
-    ):
-        if names:
-            parts.append(f"a {word} median {names[0]} share" if len(names) == 1
-                         else f"{word} median {and_list(names)} shares")
-    if parts:
-        text.append(f"Among fossil sources, countries where it fell also had {' and '.join(parts)}.")
-    text += [
-        f"Clean includes nuclear: {int(fell['nuclear_countries'])} of the {int(fell['countries'])} countries "
-        f"where fossil generation fell had some nuclear generation in {s}, against "
-        f"{int(other['nuclear_countries'])} of the {int(other['countries'])} where it did not.",
-        f"The table gives the medians of the four {s} shares that the sketch's starting-mix charts compare.",
-        "Medians of separate sources need not add up to 100%.",
-    ]
-    return " ".join(text)
+    compared = "higher" if fell["Clean"] > other["Clean"] else "lower" if fell["Clean"] < other["Clean"] else "the same"
+    return " ".join([
+        f"where fossil generation fell, the median {s} clean share was {compared}: "
+        f"{fell['Clean']:.1f}% against {other['Clean']:.1f}%.",
+        "The middle halves overlap, so the starting share alone does not separate the groups." if overlap
+        else "The middle halves do not overlap.",
+        f"The table gives the medians of the four {s} shares; separate medians need not add up to 100%.",
+    ])
 
 
-def hypothesis_text(h, q6_countries):
+def hypothesis_text(h):
     """The proposal's hypothesis, tested among countries whose clean share rose (see hypothesis_check)."""
     if h["countries"] == h["eligible"]:
-        tested = f"the {h['countries']} Q5 countries whose clean share rose"
+        tested = f"the {h['countries']} countries whose clean share rose"
     else:
-        tested = (f"the {h['countries']} of the {h['eligible']} Q5 countries whose clean share rose "
-                  "that have demand data")
-    text = [
-        "the proposal expected that countries with fast demand growth are more likely to raise their clean "
-        "share without cutting fossil generation.",
-        f"This check asks, among {tested} (not all {q6_countries} Q6 countries), whether fossil cuts were "
-        "less common where demand grew faster.",
-    ]
+        tested = f"the {h['countries']} of the {h['eligible']} countries whose clean share rose that have demand data"
+    text = ["the proposal expected fossil cuts to be less common where demand grew fast; more frequent cuts there "
+            "would contradict it."]
     if not all(h[key] for key in ("fell", "other", "slower", "faster")):
         return " ".join(text + ["One of the groups is empty, so this comparison cannot be evaluated."])
     slower_rate, faster_rate = h["slower_fell"] * h["faster"], h["faster_fell"] * h["slower"]
-    text += [
-        f"Median demand growth was {h['median_fell']:.1f}% for the {h['fell']} where fossil generation fell.",
-        f"It was {h['median_other']:.1f}% for the {h['other']} where it did not.",
-        f"Split at their median demand growth ({h['split']:.1f}%), fossil generation fell in "
-        f"{h['slower_fell']} of the {h['slower']} countries at or below it.",
-        f"It fell in {h['faster_fell']} of the {h['faster']} countries above it.",
-        "More frequent cuts in the faster-growing group would run against the hypothesis; equal rates would "
-        "leave it unsupported.",
-    ]
+    text.append(f"Among {tested}, split at their median demand growth ({h['split']:.1f}%), fossil generation fell "
+                f"in {h['slower_fell']} of the {h['slower']} at or below it and in {h['faster_fell']} of the "
+                f"{h['faster']} above it.")
     if slower_rate > faster_rate:
-        text += [
-            "Here cuts were less common in the faster-growing group.",
-            "This descriptive pattern is consistent with the hypothesis. It does not establish a cause.",
-        ]
-        if h["faster_fell_names"]:
-            text.append(f"The faster-growing countries where fossil generation fell are exceptions to the "
-                        f"overall pattern: {and_list(h['faster_fell_names'])}.")
+        text.append("This is consistent with the hypothesis but does not show a cause.")
+        names = h["faster_fell_names"]
+        if len(names) == 1:
+            text.append(f"The fast-growing exception is {names[0]}.")
+        elif names:
+            text.append(f"The fast-growing exceptions are {and_list(names)}.")
     elif slower_rate == faster_rate:
-        text.append("Here the rates are equal, so the data do not support the hypothesis.")
+        text.append("The rates are equal, so the data do not support the hypothesis.")
     else:
-        text.append("Here cuts were more common in the faster-growing group, which runs against the hypothesis.")
+        text.append("Cuts were more common in the faster-growing group, which runs against the hypothesis.")
     return " ".join(text)
-
-
-def pair_text(results):
-    """The pair the sketch shows first, explained in numbers."""
-    pairs, k = results["pairs"], results["settings"].q6_selected_pair
-    if len(pairs) < k:
-        return ""
-    pair = pairs.iloc[k - 1]
-    a, b = pair["country_reduced"], pair["country_other"]
-    rows = results["q6"].set_index("country").loc[[a, b]]
-    growth = [f"{pair[f'demand_growth_pct_{side}']:.1f}%" for side in ("reduced", "other")]
-    growth = f"both had demand growth of {growth[0]}" if growth[0] == growth[1] else (
-        f"had demand growth of {growth[0]} and {growth[1]}")
-    return (
-        f"\n\nPair {k} is the one the sketch shows first. {a} and {b} {growth}. Fossil generation changed by "
-        f"{rows.loc[a, 'd_fossil_twh']:+.1f} TWh in {a} and by {rows.loc[b, 'd_fossil_twh']:+.1f} TWh in {b}. "
-        f"Their clean shares changed by {rows.loc[a, 'd_clean_share_pp']:+.1f} and "
-        f"{rows.loc[b, 'd_clean_share_pp']:+.1f} pp. Similar demand growth came with opposite fossil outcomes."
-    )
 
 
 def q6_section(results, f, sample):
@@ -454,21 +381,18 @@ def q6_section(results, f, sample):
     s, e = settings.start_year, settings.end_year
     q6, left_out = results["q6"], results["left_out"]
     largest = f["largest_demand"]
-    reduced, other = (results["summary"].set_index("fossil_reduced").loc[flag] for flag in (True, False))
+    leave = (f"Leave out the {len(left_out)} countries with no fossil generation in either year, which leaves {len(q6)}."
+             if left_out else f"No country lacks fossil generation in both years, so all {len(q6)} stay.")
     return f"""## Q6 — Demand Growth and the Starting Mix
 
 **Question:** How do demand growth and the {s} mix differ between countries that reduced
 fossil generation and those that did not?
 
-**Transformation:** start from the Q5 table. Leave out {len(left_out)} countries with zero
-fossil generation in both {s} and {e} ({", ".join(left_out) or "none"}); they had no fossil
-generation to cut. That leaves {len(q6)}. Calculate
+**Transformation:** start from the Q5 table. {leave} Calculate
 demand_growth_pct = 100 × (demand_{e} / demand_{s} − 1). Group countries by
 fossil_reduced (d_fossil_twh < 0).
 
-**Result:** the group comparisons answer Q6. Median demand growth was
-{reduced["median_demand_growth_pct"]:.1f}% where fossil generation fell and
-{other["median_demand_growth_pct"]:.1f}% where it did not.
+**Sample A — Groups:** demand growth by group.
 
 {sample("q6_group_summary")}
 
@@ -476,25 +400,20 @@ fossil_reduced (d_fossil_twh < 0).
 
 {sample("q6_start_mix")}
 
-**Hypothesis check:** {hypothesis_text(results["hypothesis"], len(q6))}
+**Hypothesis check:** {hypothesis_text(results["hypothesis"])}
 
-**Matched pairs:** for each country whose fossil generation fell, the sketch finds a
-country whose fossil generation did not fall with the closest demand growth. It takes the
-smallest gaps first, uses each country once, and breaks ties by name. The
-{len(results["pairs"])} pairs show exceptions to the group pattern: similar demand growth,
-opposite fossil outcomes. They are illustrations, not a sample.
+**Sample B — Matched Pairs:** for each country whose fossil generation fell, find the country
+with the closest demand growth whose fossil generation did not fall. Take the smallest gaps
+first, use each country once, and break ties by name. The {len(results["pairs"])} pairs illustrate exceptions,
+not a sample.
 
-{sample("q6_matched_pairs")}{pair_text(results)}
+{sample("q6_matched_pairs")}
 
-**Scale:** demand growth runs from {f["demand_min"]:+,.1f}% to {largest["demand_growth_pct"]:+,.1f}%
-({largest["country"]}), that is {1 + f["demand_min"] / 100:.2f}× to {1 + largest["demand_growth_pct"] / 100:.1f}×
-the {s} demand. On one linear axis most countries would crowd into a corner, so the sketch draws
-the ratio demand_{e} / demand_{s} on a log scale (1× = no change) and labels it as percent change.
-
-**Sketch:** five charts compare the two groups directly, each with a box (quartiles and median)
-and every country as a dot: demand growth, then the {s} share of coal, gas, oil, and clean
-generation on a common 0–100% scale. A country's dot sits at the same height within its group
-in every chart. The pairs are buttons that ring two countries; they illustrate exceptions.
+**Sketch:** five charts, each with one box per group (quartiles and median) and every country
+as a dot: demand growth, then the {s} share of coal, gas, oil, and clean generation on a
+common 0–100% scale. Demand growth uses a log scale of demand_{e} / demand_{s} (1× = no
+change), labeled as percent change, because {largest["country"]}'s {largest["demand_growth_pct"]:+,.1f}% would crowd the rest.
+A country's dot keeps the same height within its group in every chart.
 **Planned interaction:** hovering a dot highlights that country in all five charts; a pair
 button rings both countries of the pair.
 
@@ -514,7 +433,7 @@ def majority_text(grid):
     empty = int(grid["share_up"].eq(0).sum())
     grid = grid.loc[grid["share_up"].gt(0)]
     up, base, n = grid["share_up_fossil_up"], grid["share_up"], len(grid)
-    above, half = int((2 * up > base).sum()), int((2 * up == base).sum())
+    above = int((2 * up > base).sum())
     skipped = ""
     if empty == 1:
         skipped = " 1 setting has no country whose clean share rose, so it is left out."
@@ -523,14 +442,10 @@ def majority_text(grid):
     if n == 0:
         return "No setting has a country whose clean share rose."
     if above == n:
-        return f"They are more than half of the countries whose clean share rose in all {n} settings.{skipped}"
+        return f"They are a majority of the countries whose clean share rose in all {n} settings.{skipped}"
     if above == 0:
-        return (f"They are not more than half of the countries whose clean share rose in any of the {n} settings."
-                f"{skipped}")
-    counts = [(above, "more than half"), (half, "exactly half"), (n - above - half, "less than half")]
-    parts = and_list(f"{label} in {count}" for count, label in counts if count)
-    return (f"Whether they are more than half of the countries whose clean share rose depends on the cutoffs: "
-            f"{parts} of the {n} settings.{skipped}")
+        return f"They are not a majority of the countries whose clean share rose in any of the {n} settings.{skipped}"
+    return f"Whether they are a majority depends on the cutoffs.{skipped}"
 
 
 def cutoff_section(results, markdown_table):
@@ -546,27 +461,22 @@ def cutoff_section(results, markdown_table):
     unfiltered = grid.loc[(s, 0), "countries"]
     proposal = grid.loc[(PROPOSAL_START_YEAR, MIN_GENERATION_TWH)]
     if proposal["countries"] == baseline["countries"]:
-        same = (f"At {MIN_GENERATION_TWH:g} TWh, both start years compare the same number of countries "
-                f"({int(baseline['countries'])}), so the longer period does not shrink the comparison.")
+        same = f"At {MIN_GENERATION_TWH:g} TWh, both start years compare {int(baseline['countries'])} countries."
     else:
         same = (f"At {MIN_GENERATION_TWH:g} TWh, a {PROPOSAL_START_YEAR} start would compare "
                 f"{int(proposal['countries'])} countries; {s} compares {int(baseline['countries'])}.")
     fewest = int(robustness["share_up_fossil_up"].min())
-    holds = (f"every setting has at least {fewest} countries whose clean share rose while fossil generation also "
-             "rose, so the distinction between share and amount from Q1 does not depend on these cutoffs."
+    holds = (f"every setting has at least {fewest} countries whose clean share and fossil generation both rose, "
+             "so the gap between share and amount appears with every cutoff."
              if fewest else "at least one setting has no country whose clean share and fossil generation both rose.")
     return f"""## Cutoffs and Sensitivity
 
-**Start year {s}:** the proposal compared countries from {PROPOSAL_START_YEAR}. The country comparisons
-now start in {s}, the same year as the Q1 world overview. All questions about change cover {s}–{e};
-Q2 stays a {results["settings"].snapshot_year} snapshot.
-{same} The processed tables begin in {s}: in the raw OWID file, {coverage[s - 1]} places have
-generation data in {s - 1} and {coverage[s]} in {s}, so an earlier start would compare a much smaller
-set of countries. The {PROPOSAL_START_YEAR} start stays in the sensitivity table below.
+**Start year {s}:** the proposal started in {PROPOSAL_START_YEAR}. The comparisons now start in {s}, like Q1.
+{same} An earlier start would compare fewer: the
+raw OWID file has generation data for {coverage[s - 1]} places in {s - 1} and {coverage[s]} in {s}.
 
-**Size threshold {MIN_GENERATION_TWH:g} TWh in {e}:** in a small system, one new plant can move the
-clean share by many points. The threshold keeps {int(baseline["countries"])} of the {int(unfiltered)}
-countries with data in both {s} and {e}.
+**Size threshold {MIN_GENERATION_TWH:g} TWh in {e}:** in a small system, one new plant can move the clean share
+by many points. The threshold keeps {int(baseline["countries"])} of the {int(unfiltered)} countries with data in both years.
 
 **Sensitivity:** data/processed/robustness.csv recalculates the Q5 result for four start
 years and five thresholds: the percentage of countries with a rising clean share that also
@@ -574,14 +484,10 @@ generated more fossil electricity.
 
 {markdown_table(table)}
 
-Across these {pivot.size} settings, the value ranges from {pivot.min().min():.1f}% to
-{pivot.max().max():.1f}%. The baseline is {baseline["pct_of_share_up"]:.1f}%
-({int(baseline["share_up_fossil_up"])} of {int(baseline["share_up"])}).
-
-**What the sensitivity shows:** {holds} {majority_text(robustness)} With the proposal's
-{PROPOSAL_START_YEAR} start at {MIN_GENERATION_TWH:g} TWh, the value is {proposal["pct_of_share_up"]:.1f}%
-({int(proposal["share_up_fossil_up"])} of {int(proposal["share_up"])}). The grid recalculates only this
-Q5 result; it does not test the Q6 comparisons."""
+**Result:** {holds} {majority_text(robustness)}
+The proposal's {PROPOSAL_START_YEAR} start at {MIN_GENERATION_TWH:g} TWh gives {proposal["pct_of_share_up"]:.1f}% \
+({int(proposal["share_up_fossil_up"])} of {int(proposal["share_up"])}).
+The grid checks only the Q5 result, not Q6."""
 
 
 def markdown_table(table):
