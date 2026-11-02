@@ -10,8 +10,6 @@ with a minimum of 10 TWh generation in 2024. The sketches show
 up to 10 countries per tail. This report reads the preparation baseline tables,
 not custom sketch settings. Custom sketch runs export their own CSVs and settings.
 
-[Tracked six-figure overview montage](../outputs/sketchesQ2-4.png).
-
 The tables below contain real processed rows, not synthetic examples. They are
 **case samples**, not random or population-weighted samples. Each section states
 the selection rule. Q4 contains all 10 plotted countries. The report displays two
