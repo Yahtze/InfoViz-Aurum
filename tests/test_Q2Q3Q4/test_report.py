@@ -120,7 +120,7 @@ class ReportTests(unittest.TestCase):
             self.assertNotIn("robustness.csv", text)
             self.assertIn("2000–2024 for comparisons", text)
             self.assertNotIn("2010", text)
-            self.assertIn("[Tracked six-figure overview montage](../outputs/sketchesQ2-4.png)", text)
+            self.assertNotIn("Tracked six-figure overview montage", text)
             self.assertEqual(report.name, "dataHandlingQ2Q3Q4.md")
             self.assertNotIn("../outputs/sketches/", text)
             self.assertNotIn("## Limits", text)
