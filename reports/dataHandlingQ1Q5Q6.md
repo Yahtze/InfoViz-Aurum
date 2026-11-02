@@ -3,11 +3,11 @@
 ## Scope and Current State
 
 This report covers **Q1, Q5, and Q6**, the questions Yusuke explored with three Matplotlib
-sketches. [Data Handling and Initial Sketches](dataHandlingSketches.md) covers Q2–Q4. The
+sketches. [Data Handling and Initial Sketches](dataHandlingQ2Q3Q4.md) covers Q2–Q4. The
 sketches are exploratory views, not the final D3 application.
 
 Both reports use the same data, definitions, filters, and stored tables, described in
-[Shared Data Handling](dataHandlingSketches.md#shared-data-handling). This report adds what
+[Shared Data Handling](dataHandlingQ2Q3Q4.md#shared-data-handling). This report adds what
 Q1, Q5, and Q6 need beyond that, and explains the start year and the size threshold.
 
 The baseline is 2000–2024, with a minimum of 10 TWh generation in 2024 for the
@@ -204,7 +204,7 @@ The grid checks only the Q5 result, not Q6.
 ## Created and Derived Features
 
 [Feature dictionary](tablesQ1Q5Q6/feature_dictionary.csv): **14 columns** that
-Q1, Q5, and Q6 use beyond the [Q2–Q4 feature dictionary](tables/feature_dictionary.csv), with
+Q1, Q5, and Q6 use beyond the [Q2–Q4 feature dictionary](tablesQ2Q3Q4/feature_dictionary.csv), with
 units, input fields, and transformation rules. Generation, the clean share, and the clean
 sources are documented there.
 
@@ -220,7 +220,7 @@ sources are documented there.
 Run from the repository root:
 
     uv sync --locked
-    uv run python prep/buildTables.py
+    uv run python prep/report_q234.py
     uv run python -m sketches --preview outputs/sketchesQ2-4.png
     uv run python -m prep.report_q156
     uv run python -m unittest discover -s tests -v

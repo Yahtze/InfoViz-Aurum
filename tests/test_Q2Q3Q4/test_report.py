@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from sketches.data import comparison, extremes, load_country_year, source_changes
+from sketches.sketchesQ2Q3Q4.data import comparison, extremes, load_country_year, source_changes
 from sketches.settings import ROOT, load_settings
 
 # prep/report.py is kept out of the repository (.gitignore), so a fresh clone skips these tests.
@@ -108,20 +108,20 @@ class ReportTests(unittest.TestCase):
 
     def test_report_and_csvs_rebuild_reproducibly(self):
         expected = {f"{name}.csv" for name in self.samples} | {"feature_dictionary.csv"}
-        self.assertEqual({path.name for path in (ROOT / "reports/tables").glob("*.csv")}, expected)
+        self.assertEqual({path.name for path in (ROOT / "reports/tablesQ2Q3Q4").glob("*.csv")}, expected)
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             report = build_report(Path(directory))
             text = report.read_text()
-            self.assertEqual(text, (ROOT / "reports/dataHandlingSketches.md").read_text())
+            self.assertEqual(text, (ROOT / "reports/dataHandlingQ2Q3Q4.md").read_text())
             self.assertEqual(
-                {path.name for path in (report.parent / "tables").glob("*.csv")}, expected,
+                {path.name for path in (report.parent / "tablesQ2Q3Q4").glob("*.csv")}, expected,
             )
             self.assertEqual(re.findall(r"^## (Q[0-9]+) —", text, re.MULTILINE), ["Q2", "Q3", "Q4"])
             self.assertNotIn("robustness.csv", text)
             self.assertIn("2000–2024 for comparisons", text)
             self.assertNotIn("2010", text)
             self.assertIn("[Tracked six-figure overview montage](../outputs/sketchesQ2-4.png)", text)
-            self.assertEqual(report.name, "dataHandlingSketches.md")
+            self.assertEqual(report.name, "dataHandlingQ2Q3Q4.md")
             self.assertNotIn("../outputs/sketches/", text)
             self.assertNotIn("## Limits", text)
             self.assertNotIn("prep/report.py", text)
@@ -133,15 +133,15 @@ class ReportTests(unittest.TestCase):
             self.assertIn("Wind Change (TWh)", text)
             self.assertIn("Solar Change (TWh)", text)
             self.assertIn("Nuclear Change (TWh)", text)
-            for link in re.findall(r"\]\((tables/[^)]+\.csv)\)", text):
+            for link in re.findall(r"\]\((tablesQ2Q3Q4/[^)]+\.csv)\)", text):
                 self.assertTrue((report.parent / link).is_file(), link)
             for filename in expected:
                 self.assertEqual(
-                    (report.parent / "tables" / filename).read_bytes(),
-                    (ROOT / "reports/tables" / filename).read_bytes(),
+                    (report.parent / "tablesQ2Q3Q4" / filename).read_bytes(),
+                    (ROOT / "reports/tablesQ2Q3Q4" / filename).read_bytes(),
                 )
             current = pd.read_csv(
-                report.parent / "tables/q2_country_shares_sample.csv", dtype={"Map ID": "string"},
+                report.parent / "tablesQ2Q3Q4/q2_country_shares_sample.csv", dtype={"Map ID": "string"},
             ).set_index("Country")
             self.assertEqual(current.loc["Albania", "Map ID"], "008")
             self.assertTrue(pd.isna(current.loc["Ukraine", "Clean Share 2024 (%)"]))

@@ -14,7 +14,7 @@ import pandas as pd
 
 from .data import extremes, source_changes
 from .geography import load_country_paths
-from .settings import ROOT, Settings
+from ..settings import ROOT, Settings
 
 UP = "#247F78"
 DOWN = "#B8654A"

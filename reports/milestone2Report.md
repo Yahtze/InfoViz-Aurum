@@ -1,4 +1,4 @@
-<!-- Source of reports/milestone2Report.pdf, the written M2 report for Brightspace. After editing, rebuild the PDF with `uv run python -m prep.report_pdf`. The text is copied from reports/dataHandlingSketches.md (Q2–Q4) and reports/dataHandlingQ1Q5Q6.md (Q1, Q5, Q6) in the structure of the Q2–Q4 report, so edits to those files do not reach this one. Image paths are relative to reports/. Other links are absolute GitHub URLs so they work in the PDF; update them when a linked file is renamed. The AI Use table is the same as the README's. -->
+<!-- Source of reports/milestone2Report.pdf, the written M2 report for Brightspace. After editing, rebuild the PDF with `uv run python -m prep.report_pdf`. The text is copied from reports/dataHandlingQ2Q3Q4.md (Q2–Q4) and reports/dataHandlingQ1Q5Q6.md (Q1, Q5, Q6) in the structure of the Q2–Q4 report, so edits to those files do not reach this one. Image paths are relative to reports/. Other links are absolute GitHub URLs so they work in the PDF; update them when a linked file is renamed. The AI Use table is the same as the README's. -->
 
 # Aurum: Cleaner Share, More Fossil Power?
 
@@ -12,15 +12,13 @@ Repository: <https://github.com/Yahtze/InfoViz-Aurum>
 This report covers **all six questions**: Q2–Q4, which Yathin explored with six
 Matplotlib sketches, and Q1, Q5, and Q6, which Yusuke explored with three. They are
 exploratory views, not the final D3 application. The detailed reports in the repository are
-[dataHandlingSketches.md](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/dataHandlingSketches.md) (Q2–Q4) and
+[dataHandlingQ2Q3Q4.md](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/dataHandlingQ2Q3Q4.md) (Q2–Q4) and
 [dataHandlingQ1Q5Q6.md](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/dataHandlingQ1Q5Q6.md) (Q1, Q5, Q6).
 
 The baseline is 2024 for the snapshot and 2000–2024 for comparisons,
 with a minimum of 10 TWh generation in 2024. The sketches show
 up to 10 countries per tail. This report reads the preparation baseline tables,
 not custom sketch settings. Custom sketch runs export their own CSVs and settings.
-
-[Tracked six-figure overview montage](https://github.com/Yahtze/InfoViz-Aurum/blob/main/outputs/sketchesQ2-4.png).
 
 The tables below contain real processed rows, not synthetic examples. They are
 **case samples**, not random or population-weighted samples. Each section states
@@ -189,7 +187,7 @@ Map IDs are text; keep leading zeros when importing the CSV.
 | Ukraine | UKR | 804 | No Data | No Data | Yes |
 | Lesotho | LSO | 426 | 0.00 | No Data | Yes |
 
-[Download CSV](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tables/q2_country_shares_sample.csv)
+[Download CSV](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tablesQ2Q3Q4/q2_country_shares_sample.csv)
 
 **Sketch A — Geographic View:** a world choropleth with a common 0–100% color scale.
 Gray means no matched data. The equirectangular map is not equal-area; Antarctica is omitted.
@@ -223,7 +221,7 @@ Gain Rank refers to all 108 compared countries, not to a separate loss ranking.
 | China | 24 | 17.87 | 38.17 | 20.29 |
 | India | 48 | 16.81 | 22.49 | 5.69 |
 
-[Download CSV](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tables/q3_share_changes_sample.csv)
+[Download CSV](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tablesQ2Q3Q4/q3_share_changes_sample.csv)
 
 **Sketch A — Change Magnitudes:** horizontal gain/loss bars with a shared zero-centered scale.
 **Sketch B — Start and End Levels:** open circles mark 2000; filled diamonds mark 2024.
@@ -263,11 +261,11 @@ total-generation denominator.
 | Czechia | 0.92 | 4.93 | 1.24 | 22.15 | 6.68 | 35.91 |
 | Spain | 20.00 | 20.74 | -0.54 | -8.75 | 1.53 | 32.97 |
 
-[Download CSV](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tables/q4_source_changes_pp.csv)
+[Download CSV](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tablesQ2Q3Q4/q4_source_changes_pp.csv)
 
 ### Sample B — Source Generation Changes
 
-The same countries in TWh: [Download CSV](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tables/q4_source_changes_twh.csv).
+The same countries in TWh: [Download CSV](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tablesQ2Q3Q4/q4_source_changes_twh.csv).
 
 **Sketch A:** diverging stacked changes in share, in pp.
 **Sketch B:** diverging stacked generation changes, in TWh.
@@ -419,13 +417,13 @@ The grid checks only the Q5 result, not Q6.
 
 ## Created and Derived Features
 
-[Feature dictionary](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tables/feature_dictionary.csv): **46 stored columns**
+[Feature dictionary](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tablesQ2Q3Q4/feature_dictionary.csv): **46 stored columns**
 used for Q2–Q4, with units, input fields, and transformation rules.
 It covers the relevant fields in the two processed tables, not unrelated fields.
 Copied/renamed source measures are distinguished from newly derived features.
 
 [Feature dictionary](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tablesQ1Q5Q6/feature_dictionary.csv): **14 columns** that
-Q1, Q5, and Q6 use beyond the [Q2–Q4 feature dictionary](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tables/feature_dictionary.csv), with
+Q1, Q5, and Q6 use beyond the [Q2–Q4 feature dictionary](https://github.com/Yahtze/InfoViz-Aurum/blob/main/reports/tablesQ2Q3Q4/feature_dictionary.csv), with
 units, input fields, and transformation rules. Generation, the clean share, and the clean
 sources are documented there.
 
@@ -438,14 +436,14 @@ Custom sketch groups must include every clean source exactly once.
 Run from the repository root:
 
     uv sync --locked
-    uv run python prep/buildTables.py
+    uv run python prep/report_q234.py
     uv run python -m sketches --preview outputs/sketchesQ2-4.png
     uv run python -m prep.report_q156
     uv run python -m unittest discover -s tests -v
 
-- prep/buildTables.py checks source totals, clean shares, endpoint consistency, map coverage,
+- prep/report_q234.py checks source totals, clean shares, endpoint consistency, map coverage,
   finite values, and the main country counts.
-- sketches/data.py recalculates selections and source changes for configured dates.
+- sketches/sketchesQ2Q3Q4/data.py recalculates selections and source changes for configured dates.
   Source groups must sum to net change within 0.01 in the relevant unit.
 - The overview montage is tracked at outputs/sketchesQ2-4.png.
 - sketches/q156_data.py checks that the eight Q1 groups add up to generation and to 100%,
@@ -461,5 +459,5 @@ Run from the repository root:
 
 | Date | Tool | What it produced | How we checked it |
 |---|---|---|---|
-| 2026-10-18 to 11-02 | Claude and Claude Code (Anthropic), Codex (OpenAI) | The M1 proposal draft; the repository setup and `prep/buildTables.py`; Q1, Q5, and Q6 code, report, and tests, based on designs chosen by Yusuke; the combined M2 report and `prep/report_pdf.py`, which builds its PDF. Codex reviewed them | Yusuke reviewed the text and figures; tests check sums, counts, and that the report matches the sketches |
+| 2026-10-18 to 11-02 | Claude and Claude Code (Anthropic), Codex (OpenAI) | The M1 proposal draft; the repository setup and `prep/report_q234.py`; Q1, Q5, and Q6 code, report, and tests, based on designs chosen by Yusuke; the combined M2 report and `prep/report_pdf.py`, which builds its PDF. Codex reviewed them | Yusuke reviewed the text and figures; tests check sums, counts, and that the report matches the sketches |
 | 2026-10-31 | Codex (OpenAI) | Python code and Matplotlib syntax for Q2–Q4, based on plot types and visualization descriptions specified by Yathin | Automated tests check data selection, source totals, and plot structure |

@@ -16,7 +16,7 @@ from prep.report_q156 import (
     hypothesis_text, majority_text, markdown_table, q1_section, q5_section, q6_section, q156_results, q156_samples,
     start_mix_summary, start_mix_text,
 )
-from sketches.data import load_country_year
+from sketches.sketchesQ2Q3Q4.data import load_country_year
 from sketches.q156_data import (
     OUTCOME_LABELS, OUTCOMES, fossil_outcomes, group_summary, growth_pct, load_world, matched_pairs,
     mix_table, q5_example, q6_countries, window,
@@ -200,7 +200,7 @@ class PlotTests(unittest.TestCase):
 
     def test_titles_notes_and_interaction_boxes(self):
         import matplotlib.pyplot as plt
-        from sketches.plots import set_style
+        from sketches.sketchesQ2Q3Q4.plots import set_style
 
         set_style()
         titles = (
@@ -849,7 +849,7 @@ class ReportBuildTests(unittest.TestCase):
         self.assertEqual({path.name for path in committed.glob("*.csv")}, expected)
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             # The Q2–Q4 report and tables share the folder; the build must leave them alone.
-            shared = {"dataHandlingSketches.md": "Q2–Q4 report\n", "tables/feature_dictionary.csv": "Q2–Q4 fields\n"}
+            shared = {"dataHandlingQ2Q3Q4.md": "Q2–Q4 report\n", "tablesQ2Q3Q4/feature_dictionary.csv": "Q2–Q4 fields\n"}
             for name, content in shared.items():
                 (Path(directory) / name).parent.mkdir(parents=True, exist_ok=True)
                 (Path(directory) / name).write_text(content)

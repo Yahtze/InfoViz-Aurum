@@ -11,7 +11,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from sketches.data import comparison, extremes, load_country_year, snapshot, source_changes
+from sketches.sketchesQ2Q3Q4.data import comparison, extremes, load_country_year, snapshot, source_changes
 from sketches.settings import CLEAN_SOURCES, ROOT, SourceGroup, load_settings
 
 
@@ -187,7 +187,7 @@ class PlotTests(unittest.TestCase):
         cls.compared = comparison(load_country_year(), cls.settings)
 
     def test_titles_and_axes_use_title_case_without_subtitles(self):
-        from sketches.plots import (
+        from sketches.sketchesQ2Q3Q4.plots import (
             change_bars, endpoint_comparison, share_map, share_ranking, source_breakdown,
         )
         import matplotlib.pyplot as plt
@@ -245,7 +245,7 @@ class PlotTests(unittest.TestCase):
                     plt.close(fig)
 
     def test_legends_use_title_case(self):
-        from sketches.plots import share_map, source_breakdown
+        from sketches.sketchesQ2Q3Q4.plots import share_map, source_breakdown
         import matplotlib.pyplot as plt
 
         current = snapshot(load_country_year(), self.settings.snapshot_year)
@@ -279,7 +279,7 @@ class PlotTests(unittest.TestCase):
                 plt.close(fig)
 
     def test_source_breakdowns_have_no_net_markers(self):
-        from sketches.plots import source_breakdown
+        from sketches.sketchesQ2Q3Q4.plots import source_breakdown
         import matplotlib.pyplot as plt
 
         for unit in ("pp", "twh"):
@@ -298,7 +298,7 @@ class PlotTests(unittest.TestCase):
                     plt.close(fig)
 
     def test_regrouped_source_extremes_have_padding(self):
-        from sketches.plots import source_breakdown
+        from sketches.sketchesQ2Q3Q4.plots import source_breakdown
         import matplotlib.pyplot as plt
 
         settings = replace(
@@ -317,7 +317,7 @@ class PlotTests(unittest.TestCase):
             plt.close(fig)
 
     def test_empty_change_directions_render(self):
-        from sketches.plots import change_bars, endpoint_comparison, source_breakdown
+        from sketches.sketchesQ2Q3Q4.plots import change_bars, endpoint_comparison, source_breakdown
         import matplotlib.pyplot as plt
 
         for sign in (1, -1):

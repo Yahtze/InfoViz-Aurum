@@ -9,11 +9,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .data import comparison, snapshot
+from .sketchesQ2Q3Q4.data import comparison, snapshot
 from .settings import ROOT, Settings
 
 FOSSIL_SOURCES = ("coal", "gas", "oil")
-# Same names and order as prep/buildTables.py.
+# Same names and order as prep/report_q234.py.
 OUTCOMES = ("share_up_fossil_down", "share_up_fossil_up", "share_up_fossil_flat", "share_not_up")
 OUTCOME_LABELS = {
     "share_up_fossil_down": "Clean Share Up, Fossil Down",
@@ -73,7 +73,7 @@ def mix_table(rows: pd.DataFrame, settings: Settings, unit: str) -> pd.DataFrame
 
 
 def growth_pct(end: pd.Series, start: pd.Series) -> pd.Series:
-    # Undefined (blank) when the start value is not positive, as in prep/buildTables.py.
+    # Undefined (blank) when the start value is not positive, as in prep/report_q234.py.
     return 100 * (end / start.where(start > 0) - 1)
 
 

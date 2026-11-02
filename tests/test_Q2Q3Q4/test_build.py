@@ -4,7 +4,7 @@ import unittest
 
 import pandas as pd
 
-from prep import buildTables as build
+from prep import report_q234 as build
 from sketches.settings import load_settings
 
 

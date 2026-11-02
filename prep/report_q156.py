@@ -1,16 +1,16 @@
 """Build the Q1, Q5 and Q6 data-handling report and its tables: uv run python -m prep.report_q156.
 
 The numbers come from the same sketches/q156_data.py functions the sketches use,
-run at the preparation baseline (years and size threshold from prep/buildTables.py).
-reports/dataHandlingSketches.md covers Q2-Q4 and the data handling both reports share.
+run at the preparation baseline (years and size threshold from prep/report_q234.py).
+reports/dataHandlingQ2Q3Q4.md covers Q2-Q4 and the data handling both reports share.
 """
 
 from pathlib import Path
 
 import pandas as pd
 
-from prep.buildTables import END_YEAR, MEASURES, MIN_GENERATION_TWH, RAW, ROOT, START_YEAR
-from sketches.data import load_country_year
+from prep.report_q234 import END_YEAR, MEASURES, MIN_GENERATION_TWH, RAW, ROOT, START_YEAR
+from sketches.sketchesQ2Q3Q4.data import load_country_year
 from sketches.q156_data import (
     OUTCOME_LABELS, fossil_outcomes, group_summary, load_world, matched_pairs, mix_table,
     q5_example, q6_countries, window,
@@ -166,7 +166,7 @@ def q156_samples(results):
 
 
 def q156_dictionary(country_year, results):
-    """Fields Q1, Q5 and Q6 add to the Q2–Q4 dictionary (reports/tables/feature_dictionary.csv)."""
+    """Fields Q1, Q5 and Q6 add to the Q2–Q4 dictionary (reports/tablesQ2Q3Q4/feature_dictionary.csv)."""
     s, e = results["settings"].start_year, results["settings"].end_year
     export = f"q5_{s}_{e}_fossil_outcomes.csv (sketch export)"
     stored = [
@@ -229,7 +229,7 @@ def facts(results):
 
 
 def definitions(results, f):
-    """Definitions Q1, Q5 and Q6 add to the shared ones in reports/dataHandlingSketches.md."""
+    """Definitions Q1, Q5 and Q6 add to the shared ones in reports/dataHandlingQ2Q3Q4.md."""
     e = results["settings"].end_year
     return f"""- TWh (terawatt-hours) measures amounts of electricity: 1 TWh = 1 billion kWh.
 - Demand is domestic generation plus net imports (OWID {RAW_NAME["demand_twh"]}).
@@ -533,11 +533,11 @@ def build_report(output_dir=ROOT / "reports"):
 ## Scope and Current State
 
 This report covers **Q1, Q5, and Q6**, the questions Yusuke explored with three Matplotlib
-sketches. [Data Handling and Initial Sketches](dataHandlingSketches.md) covers Q2–Q4. The
+sketches. [Data Handling and Initial Sketches](dataHandlingQ2Q3Q4.md) covers Q2–Q4. The
 sketches are exploratory views, not the final D3 application.
 
 Both reports use the same data, definitions, filters, and stored tables, described in
-[Shared Data Handling](dataHandlingSketches.md#shared-data-handling). This report adds what
+[Shared Data Handling](dataHandlingQ2Q3Q4.md#shared-data-handling). This report adds what
 Q1, Q5, and Q6 need beyond that, and explains the start year and the size threshold.
 
 The baseline is {s}–{e}, with a minimum of {MIN_GENERATION_TWH:g} TWh generation in {e} for the
@@ -571,7 +571,7 @@ cells for the same unknown values. Q5 and Q6 show associations, not causes.
 ## Created and Derived Features
 
 [Feature dictionary]({TABLE_DIR}/feature_dictionary.csv): **{len(dictionary)} columns** that
-Q1, Q5, and Q6 use beyond the [Q2–Q4 feature dictionary](tables/feature_dictionary.csv), with
+Q1, Q5, and Q6 use beyond the [Q2–Q4 feature dictionary](tablesQ2Q3Q4/feature_dictionary.csv), with
 units, input fields, and transformation rules. Generation, the clean share, and the clean
 sources are documented there.
 
@@ -587,7 +587,7 @@ sources are documented there.
 Run from the repository root:
 
     uv sync --locked
-    uv run python prep/buildTables.py
+    uv run python prep/report_q234.py
     uv run python -m sketches --preview outputs/sketchesQ2-4.png
     uv run python -m prep.report_q156
     uv run python -m unittest discover -s tests -v

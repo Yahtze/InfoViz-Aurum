@@ -7,7 +7,7 @@ import unittest
 from matplotlib.image import imread, imsave
 import numpy as np
 
-from sketches.preview import save_preview
+from sketches.sketchesQ2Q3Q4.preview import save_preview
 from sketches.settings import ROOT
 
 

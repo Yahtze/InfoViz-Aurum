@@ -19,14 +19,14 @@ Of the 79 countries (out of 108 compared) that raised their clean share, 44 stil
 ## Layout
 
 ```
-prep/buildTables.py      source-data processing and checks
+prep/report_q234.py      source-data processing and checks
 prep/report_q156.py      the Q1, Q5, and Q6 report and its tables
 prep/report_pdf.py       the Milestone 2 report PDF, built from reports/milestone2Report.md
 sketches/          configurable Matplotlib EDA views (not the final D3 app)
 tests/             data-selection, configuration, map, and report tests
 reports/           data-handling reports, sample tables, and feature dictionaries
 data/raw/          pinned copies of the source files (do not edit)
-data/processed/    the tables, made by prep/buildTables.py (do not edit by hand)
+data/processed/    the tables, made by prep/report_q234.py (do not edit by hand)
 outputs/sketchesQ2-4.png  combined six-figure preview, Q2–Q4 (tracked)
 outputs/sketchesQ1.png, sketchesQ5.png, sketchesQ6.png  Q1, Q5, and Q6 sketches (tracked)
 outputs/sketches/  generated figures, CSVs, and run settings (ignored)
@@ -49,7 +49,7 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/). Python 3.
 
 ```sh
 uv sync --locked
-uv run python prep/buildTables.py
+uv run python prep/report_q234.py
 ```
 
 `pyproject.toml` declares dependencies; `uv.lock` records the resolved versions.
@@ -57,7 +57,7 @@ Use `uv add <package>` to add a dependency. There is no separate pip requirement
 
 The script rebuilds the current baseline tables in `data/processed/` and checks the numbers. It stops with an error if the main result changes.
 The old `comparison_2010_2024.csv` stays unchanged for reference. The current baseline uses `comparison_2000_2024.csv`.
-The rules (which rows count as countries, which years, how missing values are handled) are commented at the top of `prep/buildTables.py`.
+The rules (which rows count as countries, which years, how missing values are handled) are commented at the top of `prep/report_q234.py`.
 
 ## Initial EDA Sketches
 
@@ -116,11 +116,11 @@ the demand ratio, because Cambodia's +4,067% would squeeze the rest into a corne
 ### Code and Checks
 
 - `sketches/settings.py`: config loading and validation.
-- `sketches/data.py`: reusable selection, rankings, and source-change calculations.
-- `sketches/geography.py`: decode the pinned world-atlas geometry; no GIS install needed.
-- `sketches/plots.py`: rendering only.
+- `sketches/sketchesQ2Q3Q4/data.py`: reusable selection, rankings, and source-change calculations.
+- `sketches/sketchesQ2Q3Q4/geography.py`: decode the pinned world-atlas geometry; no GIS install needed.
+- `sketches/sketchesQ2Q3Q4/plots.py`: rendering only.
 - `sketches/__main__.py`: CLI, exports, and manifest.
-- `sketches/preview.py`: combined six-figure PNG.
+- `sketches/sketchesQ2Q3Q4/preview.py`: combined six-figure PNG.
 - `sketches/q156_data.py`, `sketches/q156_plots.py`: Q1, Q5, and Q6 calculations and rendering.
 - `prep/report_q156.py`: the Q1, Q5, and Q6 report and its tables.
 
@@ -130,10 +130,10 @@ uv run python -m unittest discover -s tests -v
 
 ## Sample Tables and Feature Dictionary
 
-[CSV sample tables](reports/tables/) cover Q2, Q3, and Q4 only, including source
-breakdowns in both pp and TWh. The [feature dictionary](reports/tables/feature_dictionary.csv)
+[CSV sample tables](reports/tablesQ2Q3Q4/) cover Q2, Q3, and Q4 only, including source
+breakdowns in both pp and TWh. The [feature dictionary](reports/tablesQ2Q3Q4/feature_dictionary.csv)
 documents the processed fields used for these questions. These tables use the preparation
-baseline, not custom sketch settings. See [Data Handling and Initial Sketches](reports/dataHandlingSketches.md)
+baseline, not custom sketch settings. See [Data Handling and Initial Sketches](reports/dataHandlingQ2Q3Q4.md)
 for the selection rules, sample data, and transformations.
 
 Q1, Q5, and Q6 have their own report, [Data Handling for Q1, Q5, and Q6](reports/dataHandlingQ1Q5Q6.md),
@@ -172,5 +172,5 @@ Course policy allows generative AI if we disclose which parts it produced. We ar
 
 | Date | Tool | What it produced | How we checked it |
 |---|---|---|---|
-| 2026-10-18 to 11-02 | Claude and Claude Code (Anthropic), Codex (OpenAI) | The M1 proposal draft; the repository setup and `prep/buildTables.py`; Q1, Q5, and Q6 code, report, and tests, based on designs chosen by Yusuke; the combined M2 report and `prep/report_pdf.py`, which builds its PDF. Codex reviewed them | Yusuke reviewed the text and figures; tests check sums, counts, and that the report matches the sketches |
++++++++ pplmntrm 9803b613 "Merge pull request #6 from Yahtze/yusuke-m2-report-source" (rebase destination)
 | 2026-10-31 | Codex (OpenAI) | Python code and Matplotlib syntax for Q2–Q4, based on plot types and visualization descriptions specified by Yathin | Automated tests check data selection, source totals, and plot structure |

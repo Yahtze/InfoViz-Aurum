@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .settings import CLEAN_SOURCES, ROOT, Settings
+from ..settings import CLEAN_SOURCES, ROOT, Settings
 
 METRICS = (
     "clean_share_pct", "clean_twh", "fossil_twh", "generation_twh",

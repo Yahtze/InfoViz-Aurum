@@ -18,7 +18,7 @@ from matplotlib.ticker import FixedLocator, MaxNLocator, NullLocator, StrMethodF
 from matplotlib.transforms import offset_copy
 import numpy as np
 
-from .plots import DOWN, UP
+from .sketchesQ2Q3Q4.plots import DOWN, UP
 from .q156_data import FOSSIL_SOURCES, OUTCOME_LABELS, mix_table, window
 
 INK = "#333333"

@@ -7,10 +7,10 @@ from pathlib import Path as FilePath
 
 from matplotlib.path import Path
 
-from sketches.geography import load_country_paths
+from sketches.sketchesQ2Q3Q4.geography import load_country_paths
 
 
-REPO_ROOT = FilePath(__file__).resolve().parents[1]
+REPO_ROOT = FilePath(__file__).resolve().parents[2]
 ATLAS = REPO_ROOT / "data/raw/world-atlas-2.0.2-countries-50m.json"
 
 

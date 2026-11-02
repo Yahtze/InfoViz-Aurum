@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import shutil
 
-from .data import comparison, extremes, load_country_year, snapshot, source_changes
+from .sketchesQ2Q3Q4.data import comparison, extremes, load_country_year, snapshot, source_changes
 from .q156_data import (
     fossil_outcomes, load_world, matched_pairs, mix_table, q5_example, q6_countries, window,
 )
@@ -61,7 +61,7 @@ def main():
         pairs = matched_pairs(q6_table, settings.q6_pairs)
 
         # Import rendering only after command-line and data validation.
-        from .plots import (
+        from .sketchesQ2Q3Q4.plots import (
             change_bars, endpoint_comparison, set_style,
             share_map, share_ranking, source_breakdown,
         )
@@ -99,7 +99,7 @@ def main():
 
         preview_path = None
         if args.preview:
-            from .preview import save_preview
+            from .sketchesQ2Q3Q4.preview import save_preview
 
             preview_path = save_preview(
                 [settings.output_dir / f"{name}.png" for name, _ in views],

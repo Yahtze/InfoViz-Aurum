@@ -2,7 +2,7 @@
 
 Run from the repository root:
 
-    python prep/buildTables.py
+    python prep/report_q234.py
 
 It reads the pinned files in data/raw/, writes data/processed/*.csv,
 and then runs checks. It stops with an error if a check fails.

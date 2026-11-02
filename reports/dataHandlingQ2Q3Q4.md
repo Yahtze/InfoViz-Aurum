@@ -97,7 +97,7 @@ Map IDs are text; keep leading zeros when importing the CSV.
 | Ukraine | UKR | 804 | No Data | No Data | Yes |
 | Lesotho | LSO | 426 | 0.00 | No Data | Yes |
 
-[Download CSV](tables/q2_country_shares_sample.csv)
+[Download CSV](tablesQ2Q3Q4/q2_country_shares_sample.csv)
 
 **Sketch A — Geographic View:** a world choropleth with a common 0–100% color scale.
 Gray means no matched data. The equirectangular map is not equal-area; Antarctica is omitted.
@@ -127,7 +127,7 @@ Gain Rank refers to all 108 compared countries, not to a separate loss ranking.
 | China | 24 | 17.87 | 38.17 | 20.29 |
 | India | 48 | 16.81 | 22.49 | 5.69 |
 
-[Download CSV](tables/q3_share_changes_sample.csv)
+[Download CSV](tablesQ2Q3Q4/q3_share_changes_sample.csv)
 
 **Sketch A — Change Magnitudes:** horizontal gain/loss bars with a shared zero-centered scale.
 **Sketch B — Start and End Levels:** open circles mark 2000; filled diamonds mark 2024.
@@ -165,7 +165,7 @@ total-generation denominator.
 | Czechia | 0.92 | 4.93 | 1.24 | 22.15 | 6.68 | 35.91 |
 | Spain | 20.00 | 20.74 | -0.54 | -8.75 | 1.53 | 32.97 |
 
-[Download CSV](tables/q4_source_changes_pp.csv)
+[Download CSV](tablesQ2Q3Q4/q4_source_changes_pp.csv)
 
 ### Sample B — Source Generation Changes
 
@@ -182,7 +182,7 @@ total-generation denominator.
 | Czechia | 0.67 | 3.59 | 0.90 | 16.11 | 4.86 | 26.13 |
 | Spain | 57.47 | 58.28 | 6.15 | -7.68 | 4.69 | 118.91 |
 
-[Download CSV](tables/q4_source_changes_twh.csv)
+[Download CSV](tablesQ2Q3Q4/q4_source_changes_twh.csv)
 
 **Sketch A:** diverging stacked changes in share, in pp.
 **Sketch B:** diverging stacked generation changes, in TWh.
@@ -203,7 +203,7 @@ to fail rather than being treated as zero.
 
 ## Created and Derived Features
 
-[Feature dictionary](tables/feature_dictionary.csv): **46 stored columns**
+[Feature dictionary](tablesQ2Q3Q4/feature_dictionary.csv): **46 stored columns**
 used for Q2–Q4, with units, input fields, and transformation rules.
 It covers the relevant fields in the two processed tables, not unrelated fields.
 Copied/renamed source measures are distinguished from newly derived features.
@@ -231,13 +231,13 @@ Custom sketch groups must include every clean source exactly once.
 Run from the repository root:
 
     uv sync --locked
-    uv run python prep/buildTables.py
+    uv run python prep/report_q234.py
     uv run python -m sketches --preview outputs/sketchesQ2-4.png
     uv run python -m unittest discover -s tests -v
 
-- prep/buildTables.py checks source totals, clean shares, endpoint consistency, map coverage,
+- prep/report_q234.py checks source totals, clean shares, endpoint consistency, map coverage,
   finite values, and the main country counts.
-- sketches/data.py recalculates selections and source changes for configured dates.
+- sketches/sketchesQ2Q3Q4/data.py recalculates selections and source changes for configured dates.
   Source groups must sum to net change within 0.01 in the relevant unit.
 - The overview montage is tracked at outputs/sketchesQ2-4.png.
 - Processed values already use four decimals. The report only rounds for display.
