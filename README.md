@@ -21,7 +21,6 @@ Of the 79 countries (out of 108 compared) that raised their clean share, 44 stil
 ```
 prep/report_q234.py      source-data processing and checks
 prep/report_q156.py      the Q1, Q5, and Q6 report and its tables
-prep/report_pdf.py       the Milestone 2 report PDF, built from reports/milestone2Report.md
 sketches/          configurable Matplotlib EDA views (not the final D3 app)
 tests/             data-selection, configuration, map, and report tests
 reports/           data-handling reports, sample tables, and feature dictionaries
@@ -139,14 +138,12 @@ for the selection rules, sample data, and transformations.
 Q1, Q5, and Q6 have their own report, [Data Handling for Q1, Q5, and Q6](reports/dataHandlingQ1Q5Q6.md),
 with [sample tables and a feature dictionary](reports/tablesQ1Q5Q6/) for these questions. It also
 explains the 2000 start year and the 10 TWh threshold, and how the main result changes with them
-(`robustness.csv`). Rebuild it with `uv run python -m prep.report_q156`.
+(`robustness.csv`).
 
 ## Milestone 2 Report
 
 [milestone2Report.pdf](reports/milestone2Report.pdf) is the written M2 report. Its source is
 [milestone2Report.md](reports/milestone2Report.md), which combines the two reports above.
-After editing the Markdown, rebuild the PDF with `uv run python -m prep.report_pdf`.
-It needs Google Chrome; if Chrome is not found, set `CHROME` to its path.
 
 ## Data Notes for Sketching
 
@@ -172,5 +169,5 @@ Course policy allows generative AI if we disclose which parts it produced. We ar
 
 | Date | Tool | What it produced | How we checked it |
 |---|---|---|---|
-| 2026-10-18 to 11-02 | Claude and Claude Code (Anthropic), Codex (OpenAI) | The M1 proposal draft; the repository setup and `prep/report_q234.py`; Q1, Q5, and Q6 code, report, and tests, based on designs chosen by Yusuke; the combined M2 report and `prep/report_pdf.py`, which builds its PDF. Codex reviewed them | Yusuke reviewed the text and figures; tests check sums, counts, and that the report matches the sketches |
+| 2026-10-18 to 11-02 | Claude and Claude Code (Anthropic), Codex (OpenAI) | The M1 proposal draft; the repository setup and `prep/report_q234.py`; Q1, Q5, and Q6 code, report, and tests, based on designs chosen by Yusuke; the combined M2 report. Codex reviewed them | Yusuke reviewed the text and figures; tests check sums, counts, and that the report matches the sketches |
 | 2026-10-31 | Codex (OpenAI) | Python code and Matplotlib syntax for Q2–Q4, based on plot types and visualization descriptions specified by Yathin | Automated tests check data selection, source totals, and plot structure |

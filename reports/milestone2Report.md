@@ -1,4 +1,4 @@
-<!-- Source of reports/milestone2Report.pdf, the written M2 report for Brightspace. After editing, rebuild the PDF with `uv run python -m prep.report_pdf`. The text is copied from reports/dataHandlingQ2Q3Q4.md (Q2–Q4) and reports/dataHandlingQ1Q5Q6.md (Q1, Q5, Q6) in the structure of the Q2–Q4 report, so edits to those files do not reach this one. Image paths are relative to reports/. Other links are absolute GitHub URLs so they work in the PDF; update them when a linked file is renamed. The AI Use table is the same as the README's. -->
+<!-- Source of reports/milestone2Report.pdf, the written M2 report for Brightspace. The text is copied from reports/dataHandlingQ2Q3Q4.md (Q2–Q4) and reports/dataHandlingQ1Q5Q6.md (Q1, Q5, Q6) in the structure of the Q2–Q4 report, so edits to those files do not reach this one. Image paths are relative to reports/. Other links are absolute GitHub URLs so they work in the PDF; update them when a linked file is renamed. The AI Use table is the same as the README's. -->
 
 # Aurum: Cleaner Share, More Fossil Power?
 
@@ -448,8 +448,7 @@ Run from the repository root:
 - The overview montage is tracked at outputs/sketchesQ2-4.png.
 - sketches/q156_data.py checks that the eight Q1 groups add up to generation and to 100%,
   and recalculates the Q5 outcomes and the Q6 groups and pairs for configured dates.
-- prep/report_q156.py checks that the documented fields exist, and rebuilds the Q1, Q5, and Q6 report and
-  its CSV tables from processed values. tests/test_q156.py checks that that report's tables
+- prep/report_q156.py checks that the documented fields exist. tests/test_q156.py checks that the Q1, Q5, and Q6 report's tables
   match what the default sketches compute.
 - The figures are tracked at outputs/sketchesQ1.png, sketchesQ5.png, and sketchesQ6.png.
 - Processed values already use four decimals. The report only rounds for display.
@@ -459,5 +458,5 @@ Run from the repository root:
 
 | Date | Tool | What it produced | How we checked it |
 |---|---|---|---|
-| 2026-10-18 to 11-02 | Claude and Claude Code (Anthropic), Codex (OpenAI) | The M1 proposal draft; the repository setup and `prep/report_q234.py`; Q1, Q5, and Q6 code, report, and tests, based on designs chosen by Yusuke; the combined M2 report and `prep/report_pdf.py`, which builds its PDF. Codex reviewed them | Yusuke reviewed the text and figures; tests check sums, counts, and that the report matches the sketches |
+| 2026-10-18 to 11-02 | Claude and Claude Code (Anthropic), Codex (OpenAI) | The M1 proposal draft; the repository setup and `prep/report_q234.py`; Q1, Q5, and Q6 code, report, and tests, based on designs chosen by Yusuke; the combined M2 report. Codex reviewed them | Yusuke reviewed the text and figures; tests check sums, counts, and that the report matches the sketches |
 | 2026-10-31 | Codex (OpenAI) | Python code and Matplotlib syntax for Q2–Q4, based on plot types and visualization descriptions specified by Yathin | Automated tests check data selection, source totals, and plot structure |
