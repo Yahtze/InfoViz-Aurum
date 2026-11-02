@@ -11,11 +11,11 @@ import pandas as pd
 from sketches.sketchesQ2Q3Q4.data import comparison, extremes, load_country_year, source_changes
 from sketches.settings import ROOT, load_settings
 
-# prep/report.py is kept out of the repository (.gitignore), so a fresh clone skips these tests.
-if not (ROOT / "prep" / "report.py").is_file():
-    raise unittest.SkipTest("prep/report.py is not in this checkout")
+# prep/report_q2q3q4.py is kept out of the repository, so a fresh clone skips these tests.
+if not (ROOT / "prep" / "report_q2q3q4.py").is_file():
+    raise unittest.SkipTest("prep/report_q2q3q4.py is not in this checkout")
 
-from prep.report import (
+from prep.report_q2q3q4 import (
     TOP_N, build_report, build_samples, feature_dictionary, load_tables,
     markdown_table,
 )
@@ -124,8 +124,8 @@ class ReportTests(unittest.TestCase):
             self.assertEqual(report.name, "dataHandlingQ2Q3Q4.md")
             self.assertNotIn("../outputs/sketches/", text)
             self.assertNotIn("## Limits", text)
-            self.assertNotIn("prep/report.py", text)
-            self.assertNotIn("prep.report", text)
+            self.assertNotIn("prep/report_q2q3q4.py", text)
+            self.assertNotIn("prep.report_q2q3q4", text)
             self.assertNotIn("The diamond marks", text)
             self.assertIn("without net-change diamonds", text)
             self.assertNotIn("Wind + Solar Change", text)
