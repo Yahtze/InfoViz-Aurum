@@ -80,6 +80,40 @@ h6 {
 .fullscreen-toolbar .reset-button {
   margin: 0;
 }
+
+/* Styled Inputs (Sliders, Number Boxes, Radios, Selects) Inside the Toolbar */
+.fullscreen-controls label {
+  font: 500 13px var(--sans-serif);
+  color: var(--theme-foreground);
+}
+.fullscreen-controls input[type="range"] {
+  accent-color: #24857a;
+  cursor: pointer;
+}
+.fullscreen-controls input[type="radio"],
+.fullscreen-controls input[type="checkbox"] {
+  accent-color: #24857a;
+  cursor: pointer;
+}
+.fullscreen-controls input[type="number"],
+.fullscreen-controls select {
+  padding: 0.3rem 0.5rem;
+  font: 13px var(--sans-serif);
+  color: var(--theme-foreground);
+  background: var(--theme-background-alt);
+  border: 1px solid var(--theme-foreground-faintest);
+  border-radius: 6px;
+  transition: border-color 120ms ease;
+}
+.fullscreen-controls input[type="number"]:hover,
+.fullscreen-controls select:hover {
+  border-color: var(--theme-foreground-focus);
+}
+.fullscreen-controls input:focus-visible,
+.fullscreen-controls select:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
 .fullscreen-button {
   margin-left: auto;
   padding: 0.35rem 0.8rem;
