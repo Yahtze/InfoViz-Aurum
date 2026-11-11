@@ -11,3 +11,6 @@ outputs/*
 node_modules/
 dist/
 src/.observablehq/cache/
+
+# Local Claude Instructions
+CLAUDE.md
