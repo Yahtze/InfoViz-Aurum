@@ -59,6 +59,87 @@ h6 {
   outline-offset: 2px;
 }
 
+/* Full Screen Panel: Toolbar (Controls and Button) above the Chart */
+.fullscreen-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 0.75rem;
+}
+.fullscreen-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+}
+.fullscreen-controls form {
+  margin: 0;
+}
+.fullscreen-toolbar .reset-button {
+  margin: 0;
+}
+.fullscreen-button {
+  margin-left: auto;
+  padding: 0.35rem 0.8rem;
+  font: 500 13px var(--sans-serif);
+  color: var(--theme-foreground);
+  background: var(--theme-background-alt);
+  border: 1px solid var(--theme-foreground-faintest);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+.fullscreen-button:hover {
+  background: var(--theme-background);
+  border-color: var(--theme-foreground-focus);
+  color: var(--theme-foreground-focus);
+}
+.fullscreen-button:active {
+  transform: translateY(1px);
+}
+.fullscreen-button:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+/* Full Screen State: Black Background, Light Text, and the Chart Scaled to Fit the Screen */
+.fullscreen-panel:fullscreen {
+  --theme-foreground: #ffffff;
+  --theme-foreground-focus: #6cc8bd;
+  --theme-foreground-faintest: #4a4a4a;
+  --theme-background: #000000;
+  --theme-background-alt: #1c1c1c;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 1.5rem;
+  background: #000000;
+  color: #ffffff;
+  color-scheme: dark;
+}
+.fullscreen-panel:fullscreen .fullscreen-content {
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* The Plot Keeps a White Background and Dark Text; it is Sized to its Own Aspect Ratio (--ratio, Set by the Helper)
+   so the White Area Hugs the Plot Instead of Filling Every Spare Pixel of the Screen */
+.fullscreen-panel:fullscreen .fullscreen-content > svg {
+  display: block;
+  width: min(100cqw, calc(100cqh * var(--ratio, 2))) !important;
+  height: auto !important;
+  max-width: none !important;
+  aspect-ratio: var(--ratio, 2);
+  background: #ffffff;
+  color: #000000;
+  border-radius: 4px;
+}
+
 /* Leave Room Between the Sidebar Toggle and the Page Text */
 #observablehq-center {
   margin-left: 3.5rem;
