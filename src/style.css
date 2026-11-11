@@ -1,0 +1,18 @@
+/* The style Option Replaces Framework's Stylesheet, so Re-Import the Defaults and Theme First */
+@import url("observablehq:default.css");
+@import url("observablehq:theme-air.css");
+
+/* Let Headings Use the Full Content Width (Framework Caps Them at 640px) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  max-width: none;
+}
+
+/* Leave Room Between the Sidebar Toggle and the Page Text */
+#observablehq-center {
+  margin-left: 3.5rem;
+}
