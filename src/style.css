@@ -12,6 +12,53 @@ h6 {
   max-width: none;
 }
 
+/* Page Titles: Larger and Heavier, with a Short Accent Bar Underneath */
+#observablehq-main h1 {
+  font-size: clamp(2.25rem, 4.5vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--theme-foreground);
+  margin: 0.5rem 0 1.5rem;
+}
+#observablehq-main h1::after {
+  content: "";
+  display: block;
+  width: 4.5rem;
+  height: 5px;
+  margin-top: 0.9rem;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #24857a, #4878a8);
+}
+
+/* Reset View Button Shown above Zoomable Maps */
+.reset-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0 0 0.75rem;
+  padding: 0.35rem 0.8rem;
+  font: 500 13px var(--sans-serif);
+  color: var(--theme-foreground);
+  background: var(--theme-background-alt);
+  border: 1px solid var(--theme-foreground-faintest);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+.reset-button:hover {
+  background: var(--theme-background);
+  border-color: var(--theme-foreground-focus);
+  color: var(--theme-foreground-focus);
+}
+.reset-button:active {
+  transform: translateY(1px);
+}
+.reset-button:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
 /* Leave Room Between the Sidebar Toggle and the Page Text */
 #observablehq-center {
   margin-left: 3.5rem;
