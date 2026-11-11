@@ -6,3 +6,8 @@ __pycache__/
 outputs/*
 !outputs/sketchesQ2-4.png
 !outputs/sketchesQ[156].png
+
+# Observable Framework
+node_modules/
+dist/
+src/.observablehq/cache/
