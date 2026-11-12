@@ -16,9 +16,24 @@ Of the 79 countries (out of 108 compared) that raised their clean share, 44 stil
 5. Which countries increased their clean electricity share while also reducing fossil-fuel electricity generation, and which increased their clean share but still generated more fossil-fuel electricity?
 6. How do electricity demand growth and the initial electricity mix in 2000 differ between countries that reduced fossil-fuel generation and those that did not?
 
+## Run the App
+
+The interactive app is an [Observable Framework](https://observablehq.com/framework/) project (pages in `src/`, config in `observablehq.config.js`).
+It needs Node.js 18 or later.
+
+```sh
+npm install
+npm run dev
+```
+
+`npm run dev` starts the live preview, usually at <http://127.0.0.1:3000>. Pages reload as you edit them.
+To check that every page compiles, run `npm run build`; the static site is written to `dist/`.
+The app reads the tables in `data/processed/`, so rebuild them with the steps under Rebuild the Data if they change.
+
 ## Layout
 
 ```
+src/               the Observable Framework app (pages, components, data loaders)
 prep/report_q234.py      source-data processing and checks
 prep/report_q156.py      the Q1, Q5, and Q6 report and its tables
 sketches/          configurable Matplotlib EDA views (not the final D3 app)
@@ -26,9 +41,7 @@ tests/             data-selection, configuration, map, and report tests
 reports/           data-handling reports, sample tables, and feature dictionaries
 data/raw/          pinned copies of the source files (do not edit)
 data/processed/    the tables, made by prep/report_q234.py (do not edit by hand)
-outputs/sketchesQ2-4.png  combined six-figure preview, Q2–Q4 (tracked)
-outputs/sketchesQ1.png, sketchesQ5.png, sketchesQ6.png  Q1, Q5, and Q6 sketches (tracked)
-outputs/sketches/  generated figures, CSVs, and run settings (ignored)
+outputs/           exported sketch figures
 ```
 
 ## Tables
@@ -60,90 +73,17 @@ The rules (which rows count as countries, which years, how missing values are ha
 
 ## Initial EDA Sketches
 
-These are static exploratory views, not the final visualization design. The interactive app
-will be built later in D3/JavaScript. The Q1–Q5 chart titles state **Domestic Electricity
-Generation**; the Q6 title names electricity demand, because its x-axis is demand growth.
-The charts do not measure all energy use or classify imported electricity by source.
+The Matplotlib sketches are preliminary; the Observable Framework app is the real deliverable.
+See `sketches/` for the code and `outputs/` for the exported figures.
 
 ```sh
 uv run python -m sketches --preview outputs/sketchesQ2-4.png
-```
-
-![Six Exploratory Electricity Sketches](outputs/sketchesQ2-4.png)
-
-The combined PNG above is tracked in version control, and so are the Q1, Q5, and Q6
-figures below. Other files under `outputs/` remain ignored. The `--preview` option requires
-PNG output and assembles the six Q2–Q4 views at their exported resolution; it also copies the
-Q1, Q5, and Q6 figures next to it as `sketchesQ1.png`, `sketchesQ5.png`, and `sketchesQ6.png`.
-Omit it for experiments that should not replace the previews.
-
-The default run writes nine figures, each in PNG and SVG, to `outputs/sketches/`:
-
-| Question | View A | View B |
-|---|---|---|
-| Q1: the world mix, 2000–2024 | Eight stacked source layers in shares (%), fossil at the bottom | The same layers in TWh; the top is total generation |
-| Q2: clean shares in 2024 | World map: geographic patterns | Highest/lowest ranked bars: exact comparisons |
-| Q3: share change, 2000–2024 | Largest gains/losses in percentage points | The same countries' start/end shares: starting mix and final level |
-| Q4: sources behind the largest share gains | Separate source-share changes in percentage points | The same countries' absolute generation changes in TWh |
-| Q5: clean share vs. fossil generation | Scatterplots: all countries and an enlarged ±60 TWh band | The selected country's clean share and its fossil and clean generation over the period: the dot's x and y as lines |
-| Q6: demand growth and the 2000 mix | Both groups' demand growth: boxes and every country, log scale of demand 2024 ÷ demand 2000 | The same comparison for the 2000 share of coal, gas, oil, and clean generation |
-
-Q4 uses diverging stacked bars so declining sources stay visible.
-Source-share contributions add up to the clean-share change, but this
-accounting breakdown does not prove a causal effect. Both Q4 views use countries selected
-by **clean-share gain**, not by TWh gain. Wind, Solar, Hydro, and Nuclear appear
-separately. Other Clean combines bioenergy and other renewables excluding bioenergy.
-
-### Q1, Q5, and Q6
-
-![Q1 World Mix](outputs/sketchesQ1.png)
-![Q5 Fossil Outcomes](outputs/sketchesQ5.png)
-![Q6 Demand Pairs](outputs/sketchesQ6.png)
-
-The Q1, Q5, and Q6 figures (Yusuke) also sketch the planned interaction: a dashed box
-describes it, and the image shows one state (a year under the cursor, a selected country, a
-selected pair). Q1 stacks the sources so the total and the fossil part are visible: fossil
-sources are grays at the bottom, clean sources keep the Q4 colors, and a dark line marks the top
-of the fossil layers in both charts. Q5 shows an overview and an enlarged band on
-the same linear scale, because China's fossil growth squeezes most countries into a corner. Its
-country detail uses lines, not the Q1 stacks: a dominant source such as coal filled the stack and
-hid the clean-share change. Q5 keeps four outcomes, including "fossil unchanged", which appears in other windows. Q6 compares the
-two groups directly in each chart (boxes and every country); demand growth uses a log scale of
-the demand ratio, because Cambodia's +4,067% would squeeze the rest into a corner. The pairs
-(closest demand growth, opposite fossil outcomes) show exceptions, not a sample.
-
-### Code and Checks
-
-- `sketches/settings.py`: config loading and validation.
-- `sketches/sketchesQ2Q3Q4/data.py`: reusable selection, rankings, and source-change calculations.
-- `sketches/sketchesQ2Q3Q4/geography.py`: decode the pinned world-atlas geometry; no GIS install needed.
-- `sketches/sketchesQ2Q3Q4/plots.py`: rendering only.
-- `sketches/__main__.py`: CLI, exports, and manifest.
-- `sketches/sketchesQ2Q3Q4/preview.py`: combined six-figure PNG.
-- `sketches/q156_data.py`, `sketches/q156_plots.py`: Q1, Q5, and Q6 calculations and rendering.
-- `prep/report_q156.py`: the Q1, Q5, and Q6 report and its tables.
-
-```sh
 uv run python -m unittest discover -s tests -v
 ```
 
-## Sample Tables and Feature Dictionary
+## Reports and Sample Tables
 
-[CSV sample tables](reports/tablesQ2Q3Q4/) cover Q2, Q3, and Q4 only, including source
-breakdowns in both pp and TWh. The [feature dictionary](reports/tablesQ2Q3Q4/feature_dictionary.csv)
-documents the processed fields used for these questions. These tables use the preparation
-baseline, not custom sketch settings. See [Data Handling and Initial Sketches](reports/dataHandlingQ2Q3Q4.md)
-for the selection rules, sample data, and transformations.
-
-Q1, Q5, and Q6 have their own report, [Data Handling for Q1, Q5, and Q6](reports/dataHandlingQ1Q5Q6.md),
-with [sample tables and a feature dictionary](reports/tablesQ1Q5Q6/) for these questions. It also
-explains the 2000 start year and the 10 TWh threshold, and how the main result changes with them
-(`robustness.csv`).
-
-## Milestone 2 Report
-
-[milestone2Report.pdf](reports/milestone2Report.pdf) is the written M2 report. Its source is
-[milestone2Report.md](reports/milestone2Report.md), which combines the two reports above.
+See `reports/` for the data-handling reports, sample tables, and feature dictionaries.
 
 ## Data Notes for Sketching
 
