@@ -35,9 +35,8 @@ Each question has its own interactive page.
 
 <ol>
   <li>
-    <strong>Global Mix.</strong>
+    <strong><a href="./q1">Global Mix.</a></strong>
     How has the global electricity mix changed from 2000 to 2024, in both percentage shares and absolute generation (TWh)?
-    <em>In progress.</em>
   </li>
   <li>
     <strong><a href="./q2">Clean Share by Country.</a></strong>
@@ -52,14 +51,12 @@ Each question has its own interactive page.
     In the countries with the largest increases and decreases in clean share, how much did wind, solar, hydro, nuclear, bioenergy, and other renewables each contribute, and how did each country's mix of clean sources change from year to year?
   </li>
   <li>
-    <strong>Clean Share Versus Fossil Generation.</strong>
+    <strong><a href="./q5">Clean Share Versus Fossil Generation.</a></strong>
     Which countries increased their clean share while also reducing fossil-fuel generation, and which increased their clean share but still generated more?
-    <em>In progress.</em>
   </li>
   <li>
-    <strong>Demand Growth and Starting Mix.</strong>
+    <strong><a href="./q6">Demand Growth and Starting Mix.</a></strong>
     How do electricity demand growth and the initial mix in 2000 differ between countries that reduced fossil-fuel generation and those that did not?
-    <em>In progress.</em>
   </li>
 </ol>
 
