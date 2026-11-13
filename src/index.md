@@ -41,15 +41,15 @@ Each question has its own interactive page.
   </li>
   <li>
     <strong><a href="./q2">Clean Share by Country.</a></strong>
-    How do countries compare in their clean electricity shares in 2024, and which have the highest and lowest shares?
+    How do countries compare in their clean electricity shares in 2024, which have the highest and lowest shares, and what is each country's electricity generation mix made of?
   </li>
   <li>
     <strong><a href="./q3">Largest Changes in Clean Share.</a></strong>
-    Which countries experienced the largest increases or decreases in clean share between 2000 and 2024?
+    Which countries experienced the largest increases or decreases in clean share between 2000 and 2024, and how did that change unfold over the years?
   </li>
   <li>
     <strong><a href="./q4">Clean Source Contributions.</a></strong>
-    In the countries with the largest increases in clean share, how much did wind, solar, hydro, nuclear, and other clean sources each contribute?
+    In the countries with the largest increases and decreases in clean share, how much did wind, solar, hydro, nuclear, bioenergy, and other renewables each contribute, and how did each country's mix of clean sources change from year to year?
   </li>
   <li>
     <strong>Clean Share Versus Fossil Generation.</strong>
@@ -69,3 +69,18 @@ All figures are drawn from a pinned copy of the OWID energy dataset, processed i
 Countries with an unknown clean share are excluded from rankings rather than treated as zero, and ties in rankings are broken by country name.
 Changes in share are reported in percentage points, and changes in output in terawatt-hours.
 Source-level breakdowns are an accounting decomposition of the change, not evidence of cause.
+
+## 4. Definitions
+
+| Term | Definition |
+|---|---|
+| **Clean** | Electricity from renewables plus nuclear. Renewables are wind, solar, hydro, bioenergy, and other renewables. **Nuclear is included in clean.** |
+| **Bioenergy** | Electricity from burning biomass and biogas, such as wood, crop waste, and landfill gas. It is a renewable, so it counts as clean. |
+| **Other Renewables** | Renewable electricity other than wind, solar, hydro, and bioenergy, mainly geothermal, wave, and tidal. OWID reports these together, so they cannot be separated. |
+| **Fossil** | Electricity from coal, gas, and oil. |
+| **Share** | A source's fraction of a country's total electricity generation, in percent. For example, clean share is clean generation divided by total generation. Shares are shares of generation, not of demand. An unknown share is excluded, never counted as zero. |
+| **Percentage Points (pp)** | The unit for a change in share: the arithmetic difference between two shares. A rise from 20% to 30% is +10 pp, not +10%. |
+| **TWh** | Terawatt-hours, the unit for an amount of electricity. 1 TWh is one billion kilowatt-hours. Changes in output are reported in TWh. |
+| **Generation** | Electricity produced domestically, inside the country's borders. Shares and fossil TWh in these plots are measured on generation. |
+| **Demand** | Electricity consumed in the country: domestic generation plus net imports. |
+| **Net Imports** | Electricity imported minus electricity exported. Importers have demand above generation, and exporters have demand below it. Demand appears only in the demand-growth question (Q6); the clean share and fossil figures in the other plots never use it. |
