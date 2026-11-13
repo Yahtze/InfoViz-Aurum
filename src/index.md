@@ -41,15 +41,15 @@ Each question has its own interactive page.
   </li>
   <li>
     <strong><a href="./q2">Clean Share by Country.</a></strong>
-    How do countries compare in their clean electricity shares in 2024, and which have the highest and lowest shares?
+    How do countries compare in their clean electricity shares in 2024, which have the highest and lowest shares, and what is each country's electricity generation mix made of?
   </li>
   <li>
     <strong><a href="./q3">Largest Changes in Clean Share.</a></strong>
-    Which countries experienced the largest increases or decreases in clean share between 2000 and 2024?
+    Which countries experienced the largest increases or decreases in clean share between 2000 and 2024, and how did that change unfold over the years?
   </li>
   <li>
     <strong><a href="./q4">Clean Source Contributions.</a></strong>
-    In the countries with the largest increases in clean share, how much did wind, solar, hydro, nuclear, bioenergy, and other renewables each contribute?
+    In the countries with the largest increases and decreases in clean share, how much did wind, solar, hydro, nuclear, bioenergy, and other renewables each contribute, and how did each country's mix of clean sources change from year to year?
   </li>
   <li>
     <strong>Clean Share Versus Fossil Generation.</strong>
