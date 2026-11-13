@@ -84,3 +84,8 @@ Source-level breakdowns are an accounting decomposition of the change, not evide
 | **Generation** | Electricity produced domestically, inside the country's borders. Shares and fossil TWh in these plots are measured on generation. |
 | **Demand** | Electricity consumed in the country: domestic generation plus net imports. |
 | **Net Imports** | Electricity imported minus electricity exported. Importers have demand above generation, and exporters have demand below it. Demand appears only in the demand-growth question (Q6); the clean share and fossil figures in the other plots never use it. |
+
+## Appendix: Using the Plots
+
+Every plot has a **Full Screen** button in its toolbar. Full screen enlarges the plot, and its controls stay available there, so each chart remains interactive at the larger size.
+Where a page has a Countries slider on more than one plot, the sliders are linked: moving one moves the others to the same value, so you only set it once.
