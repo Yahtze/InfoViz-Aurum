@@ -54,9 +54,82 @@ h6 {
 .reset-button:active {
   transform: translateY(1px);
 }
+.reset-button.is-active {
+  background: var(--theme-background);
+  border-color: var(--theme-foreground-focus);
+  color: var(--theme-foreground-focus);
+}
 .reset-button:focus-visible {
   outline: 2px solid var(--theme-foreground-focus);
   outline-offset: 2px;
+}
+
+/* Clickable SVG Legend Items (Hover Highlights, Click Pins, Keyboard Focusable); Uses currentColor so it Reads in Full Screen too */
+.legend-item {
+  cursor: pointer;
+  outline: none;
+  transition: opacity 120ms ease;
+}
+.legend-item .legend-hit {
+  fill: currentColor;
+  fill-opacity: 0;
+  stroke: currentColor;
+  stroke-opacity: 0;
+  stroke-width: 1;
+  transition: fill-opacity 120ms ease, stroke-opacity 120ms ease;
+}
+.legend-item:hover .legend-hit {
+  fill-opacity: 0.06;
+  stroke-opacity: 0.25;
+}
+.legend-item:active .legend-hit {
+  fill-opacity: 0.12;
+}
+.legend-item:focus-visible .legend-hit {
+  stroke-opacity: 1;
+  stroke-width: 2;
+}
+.legend-item.is-pinned .legend-hit {
+  fill-opacity: 0.1;
+  stroke-opacity: 0.6;
+}
+.legend-item.is-pinned text {
+  font-weight: 600;
+}
+
+/* Dimmed Chart Marks and Legend Items while Another Source is Highlighted */
+.is-dimmed {
+  opacity: 0.15;
+}
+.legend-item.is-dimmed {
+  opacity: 0.4;
+}
+.highlightable {
+  transition: opacity 120ms ease;
+}
+
+/* Scrollable Multi-Column Checkbox List for Choosing Many Items (Country Picker) */
+.fullscreen-controls form.country-picker {
+  flex: 1 1 100%;
+  display: block;
+  max-height: 9.5rem;
+  overflow-y: auto;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--theme-foreground-faintest);
+  border-radius: 6px;
+  background: var(--theme-background-alt);
+}
+.fullscreen-controls form.country-picker div {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.15rem 0.75rem;
+}
+.fullscreen-controls form.country-picker label {
+  cursor: pointer;
+  white-space: nowrap;
+}
+.fullscreen-controls form.country-picker label:hover {
+  color: var(--theme-foreground-focus);
 }
 
 /* Full Screen Panel: Toolbar (Controls and Button) above the Chart */
