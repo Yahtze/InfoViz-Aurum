@@ -7,14 +7,23 @@ Many countries raised the share of clean electricity between 2000 and 2024.
 We ask whether they also generated less electricity from fossil fuels.
 Of the 79 countries (out of 108 compared) that raised their clean share, 44 still generated more fossil electricity.
 
+## Milestones
+
+The report submitted for each milestone is kept in `reports/`.
+
+| Milestone | Report |
+|---|---|
+| M2: Sketches (Nov 2) | [PDF](reports/milestone2Report.pdf) · [Markdown](reports/milestone2Report.md) |
+| M3: D3 Implementation (Nov 16) | [PDF](reports/milestone3Report.pdf) |
+
 ## Questions
 
-1. How has the global electricity mix changed from 2000 to 2024, both in percentage shares and absolute generation (TWh)?
-2. How do countries compare in their clean electricity shares in 2024? Which countries have the highest and lowest shares?
-3. Which countries experienced the largest increases or decreases in clean electricity share between 2000 and 2024?
-4. In countries with the largest increases in clean electricity share, how much did wind, solar, hydro, nuclear, and other clean sources each contribute?
-5. Which countries increased their clean electricity share while also reducing fossil-fuel electricity generation, and which increased their clean share but still generated more fossil-fuel electricity?
-6. How do electricity demand growth and the initial electricity mix in 2000 differ between countries that reduced fossil-fuel generation and those that did not?
+1. How has the global electricity mix changed from 2000 to 2024, in both percentage shares and absolute generation (TWh)?
+2. How do countries compare in their clean electricity shares in 2024, which have the highest and lowest shares, and what is each country's electricity generation mix made of?
+3. Which countries experienced the largest increases or decreases in clean share between 2000 and 2024, and how did that change unfold over the years?
+4. In the countries with the largest increases and decreases in clean share, how much did wind, solar, hydro, nuclear, bioenergy, and other renewables each contribute, and how did each country's mix of clean sources change from year to year?
+5. Which countries increased their clean share while also reducing fossil-fuel generation, and which increased their clean share but still generated more?
+6. How do electricity demand growth and the initial mix in 2000 differ between countries that reduced fossil-fuel generation and those that did not?
 
 ## Run the App
 
