@@ -108,28 +108,98 @@ h6 {
   transition: opacity 120ms ease;
 }
 
-/* Scrollable Multi-Column Checkbox List for Choosing Many Items (Country Picker) */
-.fullscreen-controls form.country-picker {
+/* Country Picker: Presets, Search, Filters, and a Scrollable Multi-Column Checkbox List */
+.fullscreen-controls .country-picker-ui {
   flex: 1 1 100%;
-  display: block;
-  max-height: 9.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.country-picker-ui [hidden] {
+  display: none !important;
+}
+.country-picker-ui .picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+.country-picker-ui .picker-label,
+.country-picker-ui .picker-field > span {
+  font: 600 12px var(--sans-serif);
+  color: var(--theme-foreground-muted);
+}
+.country-picker-ui .picker-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.country-picker-ui .picker-search {
+  flex: 1 1 11rem;
+  max-width: 16rem;
+  padding: 0.3rem 0.6rem;
+  font: 13px var(--sans-serif);
+  color: var(--theme-foreground);
+  background: var(--theme-background-alt);
+  border: 1px solid var(--theme-foreground-faintest);
+  border-radius: 6px;
+  transition: border-color 120ms ease;
+}
+.country-picker-ui .picker-search:hover {
+  border-color: var(--theme-foreground-focus);
+}
+.country-picker-ui .picker-search:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+.country-picker-ui button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.country-picker-ui .picker-status {
+  font: 12px var(--sans-serif);
+  color: var(--theme-foreground-muted);
+}
+.country-picker-ui .picker-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.15rem 0.75rem;
+  height: 9.5rem;
   overflow-y: auto;
+  align-content: start;
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--theme-foreground-faintest);
   border-radius: 6px;
   background: var(--theme-background-alt);
 }
-.fullscreen-controls form.country-picker div {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
-  gap: 0.15rem 0.75rem;
-}
-.fullscreen-controls form.country-picker label {
+.country-picker-ui .picker-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
   cursor: pointer;
   white-space: nowrap;
 }
-.fullscreen-controls form.country-picker label:hover {
+.country-picker-ui .picker-item:hover .picker-name {
   color: var(--theme-foreground-focus);
+}
+.country-picker-ui .picker-item input:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+.country-picker-ui .picker-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.country-picker-ui .picker-detail {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--theme-foreground-muted);
+}
+.country-picker-ui .picker-empty {
+  grid-column: 1 / -1;
+  color: var(--theme-foreground-muted);
 }
 
 /* Full Screen Panel: Toolbar (Controls and Button) above the Chart */
@@ -250,4 +320,9 @@ h6 {
 /* Leave Room Between the Sidebar Toggle and the Page Text */
 #observablehq-center {
   margin-left: 3.5rem;
+}
+
+/* Keep the Preset Slider's Label on One Line */
+.country-picker-ui form label {
+  white-space: nowrap;
 }
