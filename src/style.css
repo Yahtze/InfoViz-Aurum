@@ -371,3 +371,46 @@ details.interactions li > ul {
   font-size: 0.9em;
   color: var(--theme-foreground-muted);
 }
+
+/* Guiding Question Callout at the Top of a Question Page */
+.question {
+  margin: 1.25rem 0 1.5rem;
+  padding: 0.9rem 1.2rem;
+  border-left: 5px solid #24857a;
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, #24857a 9%, var(--theme-background));
+}
+.question .question-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font: 700 12px var(--sans-serif);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #24857a;
+}
+.question p {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--theme-foreground);
+}
+
+/* Controls Hidden by Their hidden Attribute Stay Hidden even though Framework Styles Set a Display */
+.fullscreen-controls [hidden] {
+  display: none !important;
+}
+
+/* Collapsed Sidebar: Center the Content Column, with Matching Space on Both Sides (the Contents Panel Stays at the Right Edge)
+   Framework Leaves Room for it only on the Right, so the Page would Sit Against the Left Edge */
+@media (min-width: calc(640px + 5rem + 192px)) {
+  #observablehq-sidebar-toggle:not(:checked):not(:indeterminate) ~ #observablehq-center #observablehq-toc ~ #observablehq-main {
+    max-width: 760px;
+    padding-left: calc(192px + 1rem);
+  }
+}
+@media (min-width: calc(640px + 5rem + 192px)) {
+  #observablehq-sidebar-toggle:not(:checked):not(:indeterminate) ~ #observablehq-center {
+    margin-right: 3.5rem; /* Match the Left Margin so the Centered Column is Truly Centered */
+  }
+}
