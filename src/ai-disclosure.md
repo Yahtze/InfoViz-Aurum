@@ -10,7 +10,7 @@ AI worked as a tool for writing code and text, and we checked what it produced.
 
 ## Where AI Was Used
 
-- **Data processing.** The code that builds the data tables from the OWID dataset was written with AI, working from the questions we agreed on in Milestone 1.
+- **Data Processing.** The code that builds the data tables from the OWID dataset was written with AI, working from the questions we agreed on in Milestone 1.
 - **Sketches.** The Matplotlib sketches were generated with AI from our written design choices.
 - **This Site.** The Observable Framework app, its d3.js charts, its styling, and its page text were written with AI.
 - **Project Writing.** AI helped draft the proposal and report text, which we then reviewed and edited.
