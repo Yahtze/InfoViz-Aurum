@@ -179,7 +179,6 @@ h6 {
   gap: 0.4rem;
   min-width: 0;
   cursor: pointer;
-  white-space: nowrap;
 }
 .country-picker-ui .picker-item:hover .picker-name {
   color: var(--theme-foreground-focus);
@@ -219,9 +218,82 @@ h6 {
 }
 .fullscreen-controls form {
   margin: 0;
+  flex: 0 0 auto; /* Wrap to the Next Line Instead of Squeezing a Slider into its Neighbor */
+}
+/* Slider Groups (Countries, Year, From, To): the Label, the Number Box, and the Slider Sit Together in One Bordered Group, Slider Below the Box */
+.fullscreen-controls form:has(input[type="range"]) {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.25rem 0.9rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--theme-background-alt);
+  border: 1px solid var(--theme-foreground-faintest);
+  border-radius: 8px;
+}
+.fullscreen-controls form:has(input[type="range"]) > label {
+  width: auto;
+  margin: 0;
+  padding-right: 0.8rem;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  font: 700 11px var(--sans-serif);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--theme-foreground-muted);
+  border-right: 1px solid var(--theme-foreground-faintest);
+}
+.fullscreen-controls form:has(input[type="range"]) > div {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+.fullscreen-controls form:has(input[type="range"]) input[type="number"] {
+  width: 5rem;
+  background: var(--theme-background);
+}
+.fullscreen-controls form:has(input[type="range"]) input[type="range"] {
+  width: 100%;
+  margin: 0;
 }
 .fullscreen-toolbar .reset-button {
   margin: 0;
+}
+
+/* Radio Groups (Measure, View): the Label and its Options Sit Together in One Bordered Group */
+.fullscreen-controls form:has(input[type="radio"]) {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.25rem 0.9rem;
+  padding: 0.3rem 0.8rem;
+  background: var(--theme-background-alt);
+  border: 1px solid var(--theme-foreground-faintest);
+  border-radius: 8px;
+}
+.fullscreen-controls form:has(input[type="radio"]) > label {
+  width: auto;
+  margin: 0;
+  padding-right: 0.8rem;
+  font: 700 11px var(--sans-serif);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--theme-foreground-muted);
+  border-right: 1px solid var(--theme-foreground-faintest);
+}
+.fullscreen-controls form:has(input[type="radio"]) > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+}
+.fullscreen-controls form:has(input[type="radio"]) > div label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  cursor: pointer;
 }
 
 /* Styled Inputs (Sliders, Number Boxes, Radios, Selects) Inside the Toolbar */
@@ -324,7 +396,6 @@ h6 {
 
 /* Keep the Preset Slider's Label on One Line, with Space Before its Number Box */
 .country-picker-ui form label {
-  white-space: nowrap;
   margin-right: 0.75rem;
 }
 
@@ -412,5 +483,59 @@ details.interactions li > ul {
 @media (min-width: calc(640px + 5rem + 192px)) {
   #observablehq-sidebar-toggle:not(:checked):not(:indeterminate) ~ #observablehq-center {
     margin-right: 3.5rem; /* Match the Left Margin so the Centered Column is Truly Centered */
+  }
+}
+
+/* Markdown Tables (Comparison Tables and Definitions): Rounded Frame, Tinted Header, Banded Rows, Emphasized First Column */
+#observablehq-main table {
+  width: 100%;
+  max-width: none;
+  margin: 1.25rem 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font: 14px/1.5 var(--sans-serif);
+  color: var(--theme-foreground);
+  border: 1px solid var(--theme-foreground-faintest);
+  border-radius: 10px;
+  overflow: hidden;
+}
+#observablehq-main table th,
+#observablehq-main table td {
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  vertical-align: top;
+  border: 0;
+  border-bottom: 1px solid var(--theme-foreground-faintest);
+}
+#observablehq-main table tr:last-child td {
+  border-bottom: 0;
+}
+#observablehq-main table thead th {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--theme-foreground-muted);
+  background: var(--theme-background-alt);
+  border-bottom: 2px solid #24857a;
+}
+#observablehq-main table tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--theme-background-alt) 55%, transparent);
+}
+#observablehq-main table tbody tr:hover td {
+  background: var(--theme-background-alt);
+}
+#observablehq-main table td:first-child {
+  width: 9rem;
+  font-weight: 600;
+}
+#observablehq-main table td:first-child strong {
+  color: #24857a;
+}
+/* Wide Tables Scroll Sideways Instead of Squeezing Columns on Narrow Screens */
+@media (max-width: 720px) {
+  #observablehq-main table {
+    display: block;
+    overflow-x: auto;
   }
 }
