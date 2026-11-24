@@ -43,6 +43,18 @@ MIN_GENERATION_TWH = 10  # the comparison only: generation in END_YEAR
 # ("Serbia and Montenegro" also has no code, but it has no data after 2005.)
 NO_ISO_CODE = {"Kosovo": "XKX"}
 
+# Continent of each country, for grouping and filtering in the charts (UN geoscheme, with Central America and
+# the Caribbean in North America; Russia, Turkey, Cyprus, and the Caucasus follow UN assignments).
+# Antarctica (ATA) has no study data and is left out.
+CONTINENTS = {
+    "Africa": "DZA AGO BEN BWA BFA BDI CMR CPV CAF TCD COM COG CIV COD DJI EGY GNQ ERI SWZ ETH GAB GMB GHA GIN GNB KEN LSO LBR LBY MDG MWI MLI MRT MUS MAR MOZ NAM NER NGA REU RWA SHN STP SEN SYC SLE SOM ZAF SSD SDN TZA TGO TUN UGA ESH ZMB ZWE",
+    "Asia": "AFG ARM AZE BHR BGD BTN BRN KHM CHN CYP GEO HKG IND IDN IRN IRQ ISR JPN JOR KAZ KWT KGZ LAO LBN MAC MYS MDV MNG MMR NPL PRK OMN PAK PSE PHL QAT SAU SGP KOR LKA SYR TWN TJK THA TLS TUR TKM ARE UZB VNM YEM",
+    "Europe": "ALB AUT BLR BEL BIH BGR HRV CZE DNK EST FRO FIN FRA DEU GIB GRC HUN ISL IRL ITA XKX LVA LTU LUX MLT MDA MNE NLD MKD NOR POL PRT ROU RUS SRB SVK SVN ESP SWE CHE UKR GBR",
+    "North America": "ATG ABW BHS BRB BLZ BMU VGB CAN CYM CRI CUB CUW DMA DOM SLV GRL GRD GLP GTM HTI HND JAM MTQ MEX MSR ANT NIC PAN PRI KNA LCA SPM VCT TTO TCA USA VIR",
+    "South America": "ARG BOL BRA CHL COL ECU FLK GUF GUY PRY PER SUR URY VEN",
+    "Oceania": "ASM AUS COK FJI PYF GUM KIR NRU NCL NZL NIU MNP PNG WSM SLB TON TUV VUT FSM",
+}
+
 FOSSIL = ["coal", "gas", "oil"]
 CLEAN = ["nuclear", "hydro", "solar", "wind", "bioenergy", "other_renewables_excluding_bioenergy"]
 SOURCES = FOSSIL + CLEAN
@@ -208,6 +220,15 @@ def comparison_table(t):
     return out
 
 
+def continent_table(c):
+    """One row per country with a continent, so the charts can group and filter by it."""
+    lookup = {code: name for name, codes in CONTINENTS.items() for code in codes.split()}
+    countries = c[["iso_code", "country"]].drop_duplicates().rename(columns={"iso_code": "iso3"})
+    countries = countries[countries["iso3"] != "ATA"]
+    countries["continent"] = countries["iso3"].map(lookup)
+    return countries.sort_values("country")
+
+
 def robustness(c):
     """Does the main result hold if the threshold or the start year changes? (M1 feedback point 3)"""
     rows = []
@@ -259,6 +280,8 @@ def check(c, tables, comparison, map_ids):
                  base[f"clean_twh_{END_YEAR}"] - base[f"clean_twh_{START_YEAR}"], 0.01), \
         "Q4: source changes (TWh) do not add up to the change in clean generation"
 
+    assert not tables["continents"]["continent"].isna().any(), "A country has no continent"
+
     not_on_map = comparison.loc[~comparison["iso_numeric"].isin(map_ids), "country"].tolist()
     assert not not_on_map, f"Comparison countries the map cannot draw: {not_on_map}"
 
@@ -293,6 +316,7 @@ def main():
         "country_year": country_year(df, c, comparison, map_ids),
         COMPARISON_NAME: comparison_table(comparison),
         "robustness": robustness(c),
+        "continents": continent_table(c),
     }
 
     found = check(c, tables, comparison, map_ids)

@@ -9,10 +9,11 @@ export default {
     {name: "Q3: Biggest Clean Generation Share Changes and Their Paths, 2000–2024", path: "/q3"},
     {name: "Q4: Clean Generation Sources Behind the Changes and Their Evolution, 2000–2024", path: "/q4"},
     {name: "Q5: Clean Share vs. Fossil Generation, 2000–2024", path: "/q5"},
-    {name: "Q6: Demand Growth and Starting Mix", path: "/q6"}
+    {name: "Q6: Demand Growth and Starting Mix", path: "/q6"},
+    {name: "AI Disclosure", path: "/ai-disclosure"}
   ],
   theme: "light",
   style: "style.css",
   toc: true,
-  footer: "CS-GY 6313 Information Visualization, Team Aurum"
+  footer: `CS-GY 6313 Information Visualization, Team Aurum · <a href="./ai-disclosure">AI Disclosure</a>`
 };

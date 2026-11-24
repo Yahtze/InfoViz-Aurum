@@ -85,4 +85,10 @@ Source-level breakdowns are an accounting decomposition of the change, not evide
 ## Appendix: Using the Plots
 
 Every plot has a **Full Screen** button in its toolbar. Full screen enlarges the plot, and its controls stay available there, so each chart remains interactive at the larger size.
-Where a page has a Countries slider on more than one plot, the sliders are linked: moving one moves the others to the same value, so you only set it once.
+
+### Settings Shared Across Plots
+
+- **Linked Sliders:** on the Q2, Q3, and Q4 pages, every **Countries** slider on a page is linked to the others, so moving one moves the rest to the same value and you only set it once.
+- **Remembered Across Pages:** the slider value and your country selection are kept for the browser session, so each page opens with the settings you last used. A new browser session starts again from the defaults.
+- **Selections Cover All Three Pages:** countries you pick on one page stay selected on the others. A country a page does not cover is kept for the pages that do.
+- **Full Screen Limits:** to keep charts readable, full screen caps how many selected countries are drawn. A longer selection returns when you leave full screen, unless you change it there.

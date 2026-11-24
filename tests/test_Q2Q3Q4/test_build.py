@@ -21,6 +21,7 @@ class BuildTests(unittest.TestCase):
             ),
             build.COMPARISON_NAME: build.comparison_table(cls.compared),
             "robustness": build.robustness(cls.countries),
+            "continents": build.continent_table(cls.countries),
         }
 
     def test_default_settings_use_full_horizon(self):
