@@ -322,7 +322,52 @@ h6 {
   margin-left: 3.5rem;
 }
 
-/* Keep the Preset Slider's Label on One Line */
+/* Keep the Preset Slider's Label on One Line, with Space Before its Number Box */
 .country-picker-ui form label {
   white-space: nowrap;
+  margin-right: 0.75rem;
+}
+
+/* Lead-In Note at the Start of a Section Explaining why it Follows the Previous Plot */
+.bridge {
+  margin: 0 0 1rem;
+  padding: 0.1rem 0 0.1rem 0.9rem;
+  border-left: 3px solid #24857a;
+  color: var(--theme-foreground-muted);
+  font-style: italic;
+}
+
+/* Collapsible Block for a Plot's Interaction Notes */
+details.interactions {
+  margin: 0 0 1rem;
+  border: 1px solid var(--theme-foreground-faintest);
+  border-radius: 6px;
+  background: var(--theme-background-alt);
+}
+details.interactions > summary {
+  padding: 0.45rem 0.8rem;
+  font: 600 13px var(--sans-serif);
+  color: var(--theme-foreground);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 120ms ease;
+}
+details.interactions > summary:hover {
+  color: var(--theme-foreground-focus);
+}
+details.interactions > summary:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+details.interactions > ul {
+  margin: 0;
+  padding: 0 0.8rem 0.8rem 2rem;
+}
+details.interactions li {
+  margin: 0.2rem 0;
+}
+details.interactions li > ul {
+  margin: 0.15rem 0 0.35rem;
+  font-size: 0.9em;
+  color: var(--theme-foreground-muted);
 }
